@@ -13,9 +13,10 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 # shut up justpy
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
-from jpwidgets.bt5widgets import App,Link,About
+from jpwidgets.bt5widgets import App,Link,About,Switch
 from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
+from meta.metamodel import Context
 
 class YPGenApp(App):
     """
@@ -47,11 +48,40 @@ class YPGenApp(App):
         # wiki users
         self.wikiUsers=WikiUser.getWikiUsers()
         self.setSMW(args.wikiId)
+        self.useSidif=True
+        self.gridRows=[]
         
     def setSMW(self,wikiId:str):
         self.smwAccess=SMWAccess(wikiId)
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(self.context_name,None)
+        
+    def showGenerateGrid(self,a):
+        """
+        show the grid for generating code
+        """
+        for gridRow in self.gridRows:
+            gridRow.delete()
+        if self.useSidif:
+            if self.mw_context is not None:
+                context,error=Context.fromWikiContext(self.mw_context, self.args.debug)
+                if error is not None:
+                    self.errors.inner_html=str(error)
+                else:
+                    for topic_name,topic in context.topics.items():
+                        topicRow=self.jp.Div(a=a,text=topic_name,classes="row",style='color:black')
+                        self.gridRows.append(topicRow)
+                        pass
+            
+    async def onPageReady(self,_msg):
+        """
+        react on page Ready
+        """
+        try:
+            if len(self.gridRows)==0:
+                self.showGenerateGrid(a=self.contentbox)
+        except BaseException as ex:
+            self.handleException(ex)
         
     async def onChangeLanguage(self,msg):
         """
@@ -74,8 +104,21 @@ class YPGenApp(App):
         """
         react on a the wikiuser being changed via a Select control
         """
-        self.context_name=msg.value
-        self.mw_context=self.mw_contexts.get(self.context_name,None)
+        try:
+            self.context_name=msg.value
+            self.mw_context=self.mw_contexts.get(self.context_name,None)
+            self.showGenerateGrid(a=self.contentbox)
+        except BaseException as ex:
+            self.handleException(ex)
+        
+    def onChangeUseSidif(self,msg:dict):
+        '''
+        handle change of use Sidif setting
+        
+        Args:
+            msg(dict): the justpy message
+        '''
+        self.useSidif=msg.value
         
     def setupRowsAndCols(self):
         """
@@ -126,7 +169,7 @@ class YPGenApp(App):
             if self.contextSelect is None:
                 self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colB1)
             else:
-                self.contextSelect.components.clear()
+                self.contextSelect.delete_components()
             for name,_mw_context in self.mw_contexts.items():
                 self.contextSelect.add(self.jp.Option(value=name,text=name))
         except BaseException as ex:
@@ -166,6 +209,9 @@ class YPGenApp(App):
         self.setupRowsAndCols()
         self.addWikiUserSelect()
         self.add_or_update_context_select()
+        self.wp.on("page_ready", self.onPageReady)
+        self.useSidifButton=Switch(a=self.colC1,labelText="use SiDIF",checked=self.useSidif,disable=False)
+        self.useSidifButton.on("input",self.onChangeUseSidif)
         return self.wp
     
     def start(self,host,port,debug):
