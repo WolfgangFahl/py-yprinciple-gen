@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>py-yprinciple-gen</name>
+	<comment></comment>
+	<projects>
+		<project>pyJustpyWidgets</project>
+		<project>pyMetaModel</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.python.pydev.pythonNature</nature>
+	</natures>
+</projectDescription>
