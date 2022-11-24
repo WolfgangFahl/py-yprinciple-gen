@@ -49,19 +49,17 @@ class YPGenApp(App):
         self.wikiUsers=WikiUser.getWikiUsers()
         self.setSMW(args.wikiId)
         self.useSidif=True
-        self.gridRows=[]
         
     def setSMW(self,wikiId:str):
         self.smwAccess=SMWAccess(wikiId)
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(self.context_name,None)
         
-    def showGenerateGrid(self,a):
+    def showGenerateGrid(self):
         """
         show the grid for generating code
         """
-        for gridRow in self.gridRows:
-            gridRow.delete()
+        self.gridRows.delete_components()
         if self.useSidif:
             if self.mw_context is not None:
                 context,error=Context.fromWikiContext(self.mw_context, self.args.debug)
@@ -69,8 +67,7 @@ class YPGenApp(App):
                     self.errors.inner_html=str(error)
                 else:
                     for topic_name,topic in context.topics.items():
-                        topicRow=self.jp.Div(a=a,text=topic_name,classes="row",style='color:black')
-                        self.gridRows.append(topicRow)
+                        _topicRow=self.jp.Div(a=self.gridRows,text=topic_name,classes="row",style='color:black')
                         pass
             
     async def onPageReady(self,_msg):
@@ -78,8 +75,8 @@ class YPGenApp(App):
         react on page Ready
         """
         try:
-            if len(self.gridRows)==0:
-                self.showGenerateGrid(a=self.contentbox)
+            if len(self.gridRows.components)==0:
+                self.showGenerateGrid()
         except BaseException as ex:
             self.handleException(ex)
         
@@ -107,7 +104,8 @@ class YPGenApp(App):
         try:
             self.context_name=msg.value
             self.mw_context=self.mw_contexts.get(self.context_name,None)
-            self.showGenerateGrid(a=self.contentbox)
+            self.showGenerateGrid()
+            await self.wp.update()
         except BaseException as ex:
             self.handleException(ex)
         
@@ -138,7 +136,8 @@ class YPGenApp(App):
         self.colC1=self.jp.Div(classes="col-12",a=self.rowC,style='color:black')
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
-        self.messages=self.jp.Div(a=self.colC1,style='color:black')   
+        self.messages=self.jp.Div(a=self.colC1,style='color:black')  
+        self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
         self.contextSelect=None
         
     def addLanguageSelect(self):
