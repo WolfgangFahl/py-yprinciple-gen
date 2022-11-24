@@ -14,13 +14,15 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
 from jpwidgets.bt5widgets import App,Link,About
+from wikibot.wikiuser import WikiUser
+from meta.mw import SMWAccess
 
 class YPGenApp(App):
     """
     Y-Principle Generator Web Application
     """
     
-    def __init__(self,version,title:str):
+    def __init__(self,version,title:str,args:None):
         '''
         Constructor
         
@@ -30,6 +32,9 @@ class YPGenApp(App):
         import justpy as jp
         self.jp=jp
         App.__init__(self, version=version,title=title)
+        self.args=args
+        self.wikiId=args.wikiId
+        self.context_name=args.context
         self.addMenuLink(text='Home',icon='home', href="/")
         self.addMenuLink(text='github',icon='github', href=version.cm_url)
         self.addMenuLink(text='Chat',icon='chat',href=version.chat_url)
@@ -39,6 +44,38 @@ class YPGenApp(App):
         
         jp.Route('/settings',self.settings)
         jp.Route('/about',self.about)
+        # wiki users
+        self.wikiUsers=WikiUser.getWikiUsers()
+        self.setSMW(args.wikiId)
+        
+    def setSMW(self,wikiId:str):
+        self.smwAccess=SMWAccess(wikiId)
+        self.mw_contexts=self.smwAccess.getMwContexts()
+        self.mw_context=self.mw_contexts.get(self.context_name,None)
+        
+    async def onChangeLanguage(self,msg):
+        """
+        react on language being changed via Select control
+        """
+        self.language=msg.value  
+        
+    async def onChangeWikiUser(self,msg):
+        """
+        react on a the wikiuser being changed via a Select control
+        """
+        try:
+            self.setSMW(msg.value)
+            self.add_or_update_context_select()
+            await self.wp.update()
+        except BaseException as ex:
+            self.handleException(ex)
+        
+    async def onChangeContext(self,msg):
+        """
+        react on a the wikiuser being changed via a Select control
+        """
+        self.context_name=msg.value
+        self.mw_context=self.mw_contexts.get(self.context_name,None)
         
     def setupRowsAndCols(self):
         """
@@ -54,21 +91,18 @@ class YPGenApp(App):
         # columns
         self.colA1=self.jp.Div(classes="col-12",a=self.rowA)
         self.colB1=self.jp.Div(classes="col-6",a=self.rowB)
-        self.rowB1r1=self.jp.Div(classes="row",a=self.colB1)
-        self.colB11=self.jp.Div(classes="col-3",a=self.rowB1r1)
-        self.rowB1r2=self.jp.Div(classes="row",a=self.colB1)
-        self.colB12=self.jp.Div(classes="col-6",a=self.rowB1r2)
         self.colB2=self.jp.Div(classes="col-6",a=self.rowB)
         self.colC1=self.jp.Div(classes="col-12",a=self.rowC,style='color:black')
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
         self.messages=self.jp.Div(a=self.colC1,style='color:black')   
+        self.contextSelect=None
         
     def addLanguageSelect(self):
         """
         add a language selector
         """
-        self.languageSelect=self.createSelect("Language","en",a=self.colB11,change=self.onChangeLanguage)
+        self.languageSelect=self.createSelect("Language","en",a=self.colB1,change=self.onChangeLanguage)
         for language in self.getLanguages():
             lang=language[0]
             desc=language[1]
@@ -80,10 +114,23 @@ class YPGenApp(App):
         add a wiki user selector
         """
         if len(self.wikiUsers)>0:
-            self.wikiuser_select=self.createSelect("wikiId", value=self.wikiId, change=self.onChangeWikiUser, a=self.colB11)
+            self.wikiuser_select=self.createSelect("wikiId", value=self.wikiId, change=self.onChangeWikiUser, a=self.colB1)
             for wikiUser in sorted(self.wikiUsers):
                 self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser)) 
-      
+                
+    def add_or_update_context_select(self):
+        """
+        add a selection of possible contexts for the given wiki
+        """
+        try:
+            if self.contextSelect is None:
+                self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colB1)
+            else:
+                self.contextSelect.components.clear()
+            for name,_mw_context in self.mw_contexts.items():
+                self.contextSelect.add(self.jp.Option(value=name,text=name))
+        except BaseException as ex:
+            self.handleException(ex)
         
     async def settings(self)->"jp.WebPage":
         '''
@@ -117,6 +164,8 @@ class YPGenApp(App):
             jp.WebPage: a justpy webpage renderer
         '''
         self.setupRowsAndCols()
+        self.addWikiUserSelect()
+        self.add_or_update_context_select()
         return self.wp
     
     def start(self,host,port,debug):

@@ -55,11 +55,13 @@ USAGE
     try:
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
-        parser.add_argument("--about",help="show about info",action="store_true")
-        parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info")
-        parser.add_argument('--host',default=JustpyServer.getDefaultHost())
-        parser.add_argument('--port',type=int,default=8778)
+        parser.add_argument("--about",help="show about info [default: %(default)s]",action="store_true")
+        parser.add_argument('--context', default="MetaModel",help='context to generate from [default: %(default)s]')
+        parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
+        parser.add_argument('--host',default=JustpyServer.getDefaultHost(),help="the host to serve / listen from [default: %(default)s]")
+        parser.add_argument('--port',type=int,default=8778,help="the port to serve from [default: %(default)s]")
         parser.add_argument("--serve",help="start webserver",action="store_true")
+        parser.add_argument('--wikiId', default="wiki",help='id of the wiki to generate for [default: %(default)s]')
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
         args = parser.parse_args(argv)
         if len(argv) < 1:
@@ -71,7 +73,7 @@ USAGE
             print(f"see {Version.doc_url}")
             webbrowser.open(Version.doc_url)
         elif args.serve:
-            ypGenApp=YPGenApp(version=Version, title="Y-Principle generator")
+            ypGenApp=YPGenApp(version=Version, title="Y-Principle generator",args=args)
             url=f"http://{args.host}:{args.port}"
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
