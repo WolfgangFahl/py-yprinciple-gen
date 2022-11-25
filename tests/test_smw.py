@@ -3,8 +3,8 @@ Created on 2022-11-24
 
 @author: wf
 '''
+from metamodel.mw import SMWAccess
 from tests.basemwtest import BaseMediawikiTest
-
 
 class TestSMW(BaseMediawikiTest):
     """
@@ -17,7 +17,11 @@ class TestSMW(BaseMediawikiTest):
             self.getWikiUser(wikiId, save=True)
             
     
-            
+    def test_from_sididf(self):
+        """
+        test generating from SiDIF
+        """
+        
     
          
     

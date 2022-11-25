@@ -13,10 +13,12 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 # shut up justpy
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
-from jpwidgets.bt5widgets import App,Link,About,Switch
+from jpwidgets.bt5widgets import About,App,About,IconButton,Switch
 from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context
+from yprinciple.target import Target
+from yprinciple.gengrid import GeneratorGrid
 
 class YPGenApp(App):
     """
@@ -49,6 +51,16 @@ class YPGenApp(App):
         self.wikiUsers=WikiUser.getWikiUsers()
         self.setSMW(args.wikiId)
         self.useSidif=True
+        # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
+        self.targets=[
+            Target("Category","archive"),
+            Target("Concept"),
+            Target("Form"),
+            Target("Help"),
+            Target("List of"),
+            Target("Template"),
+            Target("Properties"),
+            Target("Python")]
         
     def setSMW(self,wikiId:str):
         self.smwAccess=SMWAccess(wikiId)
@@ -60,15 +72,14 @@ class YPGenApp(App):
         show the grid for generating code
         """
         self.gridRows.delete_components()
+        self.generatorGrid=GeneratorGrid(self.targets,a=self.gridRows,app=self)
         if self.useSidif:
             if self.mw_context is not None:
                 context,error=Context.fromWikiContext(self.mw_context, self.args.debug)
                 if error is not None:
                     self.errors.inner_html=str(error)
                 else:
-                    for topic_name,topic in context.topics.items():
-                        _topicRow=self.jp.Div(a=self.gridRows,text=topic_name,classes="row",style='color:black')
-                        pass
+                    self.generatorGrid.addRows(context)
             
     async def onPageReady(self,_msg):
         """

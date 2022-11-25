@@ -5,6 +5,7 @@
 	<projects>
 		<project>pyJustpyWidgets</project>
 		<project>pyMetaModel</project>
+		<project>py-sidif</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
