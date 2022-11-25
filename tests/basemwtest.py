@@ -3,9 +3,9 @@ Created on 2022-11-24
 
 @author: wf
 '''
-from tests.basetest import Basetest
 import os
 from wikibot.wikiuser import WikiUser
+from tests.basetest import Basetest
 
 class BaseMediawikiTest(Basetest):
     """

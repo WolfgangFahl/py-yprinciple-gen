@@ -5,8 +5,6 @@ Created on 2022-11-25
 '''
 from meta.metamodel import Topic
 from yprinciple.target import Target
-from meta.mw import SMWAccess
-
 
 class YpCell:
     """

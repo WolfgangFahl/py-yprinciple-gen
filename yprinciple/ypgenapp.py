@@ -13,7 +13,7 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 # shut up justpy
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
-from jpwidgets.bt5widgets import About,App,About,IconButton,Switch
+from jpwidgets.bt5widgets import App,About,Switch
 from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context

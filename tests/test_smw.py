@@ -3,12 +3,12 @@ Created on 2022-11-24
 
 @author: wf
 '''
+from collections import Counter
 from meta.mw import SMWAccess
 from meta.metamodel import Context
 from tests.basemwtest import BaseMediawikiTest
 from yprinciple.target import Target
 from yprinciple.ypcell import YpCell
-from collections import Counter
 
 class TestSMW(BaseMediawikiTest):
     """
