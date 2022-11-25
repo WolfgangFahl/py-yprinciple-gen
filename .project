@@ -3,9 +3,6 @@
 	<name>py-yprinciple-gen</name>
 	<comment></comment>
 	<projects>
-		<project>pyJustpyWidgets</project>
-		<project>pyMetaModel</project>
-		<project>py-sidif</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
