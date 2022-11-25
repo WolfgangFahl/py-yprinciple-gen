@@ -32,7 +32,7 @@ class GeneratorGrid:
         self.targets=targets
         self.a=a
         self.gridHeaderRow=self.jp.Div(classes="row",name="gridHeaderRow",a=self.gridRows)
-        self.headerClasses="col-1 text-center align-middle"
+        self.headerClasses="col-1 text-center"
         # see https://www.materialpalette.com/indigo/indigo
         # secondary text
         self.headerBackground="#c5cae9"
@@ -50,7 +50,9 @@ class GeneratorGrid:
         self.jp.Label(a=self.targetSelectionHeader,text="Topics",classes=self.headerClasses,style=self.headerStyle)
         self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
         for target in self.targets:
-            self.jp.Div(a=self.gridHeaderRow,text=target.name,classes=self.headerClasses,style=self.headerStyle)
+            target_div=self.jp.Div(a=self.gridHeaderRow,classes=self.headerClasses,style=self.headerStyle)
+            target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
+            self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name} headerboxicon',style=f"color:{self.lightHeaderBackground}")     
             self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,input=self.onSelectColumnClick)
    
     def createSimpleCheckbox(self,labelText,title,a,**kwargs):

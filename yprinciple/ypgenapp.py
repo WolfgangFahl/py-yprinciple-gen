@@ -54,13 +54,13 @@ class YPGenApp(App):
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=[
             Target("Category","archive"),
-            Target("Concept"),
-            Target("Form"),
-            Target("Help"),
-            Target("List of"),
-            Target("Template"),
-            Target("Properties"),
-            Target("Python")]
+            Target("Concept","puzzle"),
+            Target("Form","form-select"),
+            Target("Help","help-box"),
+            Target("List of","format-list-bulleted"),
+            Target("Template","file-document"),
+            Target("Properties","alpha-p-circle"),
+            Target("Python","snake")]
         
     def setSMW(self,wikiId:str):
         self.smwAccess=SMWAccess(wikiId)
