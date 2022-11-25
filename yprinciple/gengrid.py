@@ -6,6 +6,7 @@ Created on 25.11.2022
 from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
 from meta.metamodel import Context
 from yprinciple.target import Target
+from yprinciple.ypcell import YpCell
 
 class GeneratorGrid:
     """
@@ -41,7 +42,7 @@ class GeneratorGrid:
         bs_secondary="#6c757d"
         self.headerStyle=f"font-size: 1.0rem;background-color: {self.headerBackground}"
         self.lightHeaderStyle=f"background-color: {self.lightHeaderBackground}"
-        self.downloadButton = IconButton(iconName="play",
+        self.generateButton = IconButton(iconName="play",
                                                 classes="btn btn-primary btn-sm col-1",
                                                 a=self.gridHeaderRow,
                                                 click=self.onGenerateButtonClick,
@@ -126,6 +127,7 @@ class GeneratorGrid:
             _topicIcon=image = self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets:
-                ylabel=target.labelFor(topic)
-                checkbox_row[target.name]=SimpleCheckbox(labelText=ylabel, a=_topicRow, groupClasses="col-1")
+                ypCell=YpCell(topic=topic,target=target)
+                labelText=ypCell.getLabelText()
+                checkbox_row[target.name]=SimpleCheckbox(labelText=labelText, a=_topicRow, groupClasses="col-1")
             pass
