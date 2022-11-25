@@ -14,7 +14,7 @@ class GeneratorGrid:
     see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
     """
     
-    def __init__(self,targets:list[Target],a,app):
+    def __init__(self,targets:list[Target],a,app,iconSize:str="32px"):
         """
         constructor
         
@@ -28,6 +28,7 @@ class GeneratorGrid:
         self.app=app
         self.jp=app.jp
         self.wp=app.wp
+        self.iconSize=iconSize
         self.checkboxes={}
         self.targets=targets
         self.a=a
@@ -37,6 +38,7 @@ class GeneratorGrid:
         # secondary text
         self.headerBackground="#c5cae9"
         self.lightHeaderBackground="#f5f5f5"
+        bs_secondary="#6c757d"
         self.headerStyle=f"font-size: 1.0rem;background-color: {self.headerBackground}"
         self.lightHeaderStyle=f"background-color: {self.lightHeaderBackground}"
         self.downloadButton = IconButton(iconName="play",
@@ -47,12 +49,12 @@ class GeneratorGrid:
         self.targetsColumnHeader=self.jp.Div(text="Targets",a=self.gridHeaderRow,
             classes=self.headerClasses,style=self.headerStyle)
         self.targetSelectionHeader=self.jp.Div(a=self.gridRows,classes="row")
-        self.jp.Label(a=self.targetSelectionHeader,text="Topics",classes=self.headerClasses,style=self.headerStyle)
+        self.jp.Label(a=self.targetSelectionHeader,inner_html="<strong>Topics</strong>",classes=self.headerClasses,style=self.headerStyle)
         self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
         for target in self.targets:
             target_div=self.jp.Div(a=self.gridHeaderRow,classes=self.headerClasses,style=self.headerStyle)
             target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
-            self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name} headerboxicon',style=f"color:{self.lightHeaderBackground}")     
+            self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
             self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,input=self.onSelectColumnClick)
    
     def createSimpleCheckbox(self,labelText,title,a,**kwargs):
@@ -119,7 +121,9 @@ class GeneratorGrid:
             self.checkboxes[topic_name]={}
             checkbox_row=self.checkboxes[topic_name]
             _topicRow=self.jp.Div(a=self.gridRows,classes="row",style='color:black')
-            _topicHeader=self.jp.Div(a=_topicRow,text=topic_name,classes=self.headerClasses,style=self.headerStyle)
+            topicHeader=self.jp.Div(a=_topicRow,text=topic_name,classes=self.headerClasses,style=self.headerStyle)
+            icon_url=f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
+            _topicIcon=image = self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets:
                 ylabel=target.labelFor(topic)

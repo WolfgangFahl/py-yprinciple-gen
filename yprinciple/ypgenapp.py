@@ -63,6 +63,9 @@ class YPGenApp(App):
             Target("Python","snake")]
         
     def setSMW(self,wikiId:str):
+        """
+        set the semantic MediaWiki
+        """
         self.smwAccess=SMWAccess(wikiId)
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(self.context_name,None)
