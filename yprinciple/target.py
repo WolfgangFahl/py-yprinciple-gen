@@ -18,3 +18,16 @@ class Target:
         """
         self.name=name
         self.icon_name=icon_name
+        
+    @classmethod
+    def getSMWTargets(cls):
+        targets=[
+            Target("Category","archive"),
+            Target("Concept","puzzle"),
+            Target("Form","form-select"),
+            Target("Help","help-box"),
+            Target("List of","format-list-bulleted"),
+            Target("Template","file-document"),
+            Target("Properties","alpha-p-circle"),
+            Target("Python","snake")]
+        return targets

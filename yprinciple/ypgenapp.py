@@ -52,15 +52,7 @@ class YPGenApp(App):
         self.setSMW(args.wikiId)
         self.useSidif=True
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
-        self.targets=[
-            Target("Category","archive"),
-            Target("Concept","puzzle"),
-            Target("Form","form-select"),
-            Target("Help","help-box"),
-            Target("List of","format-list-bulleted"),
-            Target("Template","file-document"),
-            Target("Properties","alpha-p-circle"),
-            Target("Python","snake")]
+        self.targets=Target.getSMWTargets()
         
     def setSMW(self,wikiId:str):
         """
@@ -70,11 +62,12 @@ class YPGenApp(App):
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(self.context_name,None)
         
-    def showGenerateGrid(self):
+    async def showGenerateGrid(self):
         """
         show the grid for generating code
         """
         self.gridRows.delete_components()
+        await self.wp.update()
         self.generatorGrid=GeneratorGrid(self.targets,a=self.gridRows,app=self)
         if self.useSidif:
             if self.mw_context is not None:
@@ -82,7 +75,7 @@ class YPGenApp(App):
                 if error is not None:
                     self.errors.inner_html=str(error)
                 else:
-                    self.generatorGrid.addRows(context)
+                    await self.generatorGrid.addRows(context)
             
     async def onPageReady(self,_msg):
         """
@@ -90,7 +83,7 @@ class YPGenApp(App):
         """
         try:
             if len(self.gridRows.components)==0:
-                self.showGenerateGrid()
+                await self.showGenerateGrid()
         except BaseException as ex:
             self.handleException(ex)
         
@@ -118,8 +111,7 @@ class YPGenApp(App):
         try:
             self.context_name=msg.value
             self.mw_context=self.mw_contexts.get(self.context_name,None)
-            self.showGenerateGrid()
-            await self.wp.update()
+            await self.showGenerateGrid()
         except BaseException as ex:
             self.handleException(ex)
         

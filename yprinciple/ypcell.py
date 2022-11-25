@@ -5,6 +5,8 @@ Created on 2022-11-25
 '''
 from meta.metamodel import Topic
 from yprinciple.target import Target
+from meta.mw import SMWAccess
+
 
 class YpCell:
     """
@@ -40,4 +42,18 @@ class YpCell:
         get the page title
         """
         pageTitle=f"{self.target.name}:{self.topic.name}"
+        return pageTitle
+        
+    def getPageText(self,smwAccess):
+        """
+        test the pageText for the given smwAccess
+        """
+        pageTitle=self.getPageTitle()
+        page=smwAccess.wikiClient.getPage(pageTitle)
+        if page.exists:
+            return page.text()
+        else:
+            return None
+        
+
 

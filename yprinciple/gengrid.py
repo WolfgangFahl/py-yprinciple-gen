@@ -114,7 +114,7 @@ class GeneratorGrid:
             self.app.handleException(ex)
             
    
-    def addRows(self,context:Context):
+    async def addRows(self,context:Context):
         """
         add the rows for the given topic
         """
@@ -123,11 +123,17 @@ class GeneratorGrid:
             checkbox_row=self.checkboxes[topic_name]
             _topicRow=self.jp.Div(a=self.gridRows,classes="row",style='color:black')
             topicHeader=self.jp.Div(a=_topicRow,text=topic_name,classes=self.headerClasses,style=self.headerStyle)
-            icon_url=f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
-            _topicIcon=image = self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
+            icon_url=f"{topic.iconUrl}" if topic.iconUrl.startswith("http") else f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
+            _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets:
                 ypCell=YpCell(topic=topic,target=target)
                 labelText=ypCell.getLabelText()
-                checkbox_row[target.name]=SimpleCheckbox(labelText=labelText, a=_topicRow, groupClasses="col-1")
+                labelText=labelText.replace(":",":<br>")
+                checkbox=SimpleCheckbox(labelText="", a=_topicRow, groupClasses="col-1")
+                pageText=ypCell.getPageText(self.app.smwAccess)
+                state=f"{len(pageText)}✅" if pageText else "❌"
+                checkbox.label.inner_html=f"{labelText}<br>{state}"
+                checkbox_row[target.name]=checkbox
+                await self.app.wp.update()
             pass
