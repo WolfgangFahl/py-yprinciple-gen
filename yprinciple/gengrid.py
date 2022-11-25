@@ -32,20 +32,35 @@ class GeneratorGrid:
         self.targets=targets
         self.a=a
         self.gridHeaderRow=self.jp.Div(classes="row",name="gridHeaderRow",a=self.gridRows)
-        self.headerClasses="col-1"
+        self.headerClasses="col-1 text-center align-middle"
+        # see https://www.materialpalette.com/indigo/indigo
+        # secondary text
+        self.headerBackground="#c5cae9"
+        self.lightHeaderBackground="#f5f5f5"
+        self.headerStyle=f"font-size: 1.0rem;background-color: {self.headerBackground}"
+        self.lightHeaderStyle=f"background-color: {self.lightHeaderBackground}"
         self.downloadButton = IconButton(iconName="play",
                                                 classes="btn btn-primary btn-sm col-1",
                                                 a=self.gridHeaderRow,
                                                 click=self.onGenerateButtonClick,
                                                 disabled=False)
-        self.targetsColumnHeader=self.jp.Div(text="Targets",a=self.gridHeaderRow,classes=self.headerClasses)
+        self.targetsColumnHeader=self.jp.Div(text="Targets",a=self.gridHeaderRow,
+            classes=self.headerClasses,style=self.headerStyle)
         self.targetSelectionHeader=self.jp.Div(a=self.gridRows,classes="row")
-        self.jp.Label(a=self.targetSelectionHeader,classes="col-1")
-        SimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
+        self.jp.Label(a=self.targetSelectionHeader,text="Topics",classes=self.headerClasses,style=self.headerStyle)
+        self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
         for target in self.targets:
-            self.jp.Div(a=self.gridHeaderRow,text=target.name,classes=self.headerClasses)
-            SimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,groupClasses=self.headerClasses,input=self.onSelectColumnClick)
+            self.jp.Div(a=self.gridHeaderRow,text=target.name,classes=self.headerClasses,style=self.headerStyle)
+            self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,input=self.onSelectColumnClick)
    
+    def createSimpleCheckbox(self,labelText,title,a,**kwargs):
+        """
+        create a simple CheckBox with header style
+        """
+        classes=self.headerClasses
+        style=self.lightHeaderStyle
+        simpleCheckbox=SimpleCheckbox(labelText=labelText,title=title,a=a,classes=classes,style=style,**kwargs)
+        return simpleCheckbox
     
     async def onGenerateButtonClick(self,msg):
         """
@@ -93,7 +108,6 @@ class GeneratorGrid:
         except BaseException as ex:
             self.app.handleException(ex)
             
-    
    
     def addRows(self,context:Context):
         """
@@ -103,8 +117,8 @@ class GeneratorGrid:
             self.checkboxes[topic_name]={}
             checkbox_row=self.checkboxes[topic_name]
             _topicRow=self.jp.Div(a=self.gridRows,classes="row",style='color:black')
-            _topicHeader=self.jp.Div(a=_topicRow,classes=self.headerClasses,text=topic_name)
-            SimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,groupClasses=self.headerClasses,input=self.onSelectRowClick)
+            _topicHeader=self.jp.Div(a=_topicRow,text=topic_name,classes=self.headerClasses,style=self.headerStyle)
+            self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets:
                 ylabel=target.labelFor(topic)
                 checkbox_row[target.name]=SimpleCheckbox(labelText=ylabel, a=_topicRow, groupClasses="col-1")
