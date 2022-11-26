@@ -40,27 +40,13 @@ class YpCell:
         """
         get the page title
         """
-        pageTitle=f"{self.target.name}:{self.topic.name}"
-        return pageTitle
-        
-    def getPageText(self,smwAccess:SMWAccess)->str:
-        """
-        get the pageText for the given smwAccess
-        
-        Args:
-            smwAccess(SMWAccess): the Semantic Mediawiki access to use
-            
-        Returns:
-            str: the wiki markup for this cell (if any)
-        """
-        pageTitle=self.getPageTitle()
-        page=smwAccess.wikiClient.getPage(pageTitle)
-        if page.exists:
-            return page.text()
+        if self.target.name=="List of":
+            pageTitle=f"List of {self.topic.pluralName}"
         else:
-            return None
-        
-    def getStatus(self,smwAccess:SMWAccess):
+            pageTitle=f"{self.target.name}:{self.topic.name}"
+        return pageTitle
+    
+    def getPage(self,smwAccess:SMWAccess)->str:
         """
         get the pageText and status for the given smwAccess
         
@@ -70,14 +56,26 @@ class YpCell:
         Returns:
             str: the wiki markup for this cell (if any)
         """
-        if self.target.name=="Python":
-            pageText=None
-            status="ⓘ"
-            status_msg=f"{status}"
+        self.pageUrl=None
+        self.page=None
+        self.pageText=None
+        self.pageTitle=None
+        if self.target.name=="Python" or self.target.is_multi:  
+            self.status="ⓘ"
+            self.statusMsg=f"{self.status}"
         else:
-            pageText=self.getPageText(smwAccess)
-            status=f"✅" if pageText else "❌"
-            status_msg=f"{len(pageText)}✅" if pageText else "❌"
-        return pageText,status,status_msg
-
-
+            wikiClient=smwAccess.wikiClient
+            self.pageTitle=self.getPageTitle()
+            self.page=wikiClient.getPage(self.pageTitle)
+            if self.page.exists:
+                baseurl=wikiClient.wikiUser.getWikiUrl()
+                # assumes simple PageTitle without special chars
+                # see https://www.mediawiki.org/wiki/Manual:Page_title for the more comples
+                # rules that could apply
+                self.pageUrl=f"{baseurl}/index.php/{self.pageTitle}"
+                self.pageText=self.page.text()
+            else:
+                self.pageText=None
+            self.status=f"✅" if self.pageText else "❌"
+            self.statusMsg=f"{len(self.pageText)}✅" if self.pageText else "❌"     
+        return self.page

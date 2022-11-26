@@ -131,9 +131,12 @@ class GeneratorGrid:
                 labelText=ypCell.getLabelText()
                 labelText=labelText.replace(":",":<br>")
                 checkbox=SimpleCheckbox(labelText="", a=_topicRow, groupClasses="col-1")
-                pageText=ypCell.getPageText(self.app.smwAccess)
-                state=f"{len(pageText)}✅" if pageText else "❌"
-                checkbox.label.inner_html=f"{labelText}<br>{state}"
+                ypCell.getPage(self.app.smwAccess)
+                color="blue" if ypCell.status=="✅" else "red"
+                link=f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
+                if ypCell.status=="ⓘ":
+                    link=f"{labelText}"
+                checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
                 checkbox_row[target.name]=checkbox
                 await self.app.wp.update()
             pass

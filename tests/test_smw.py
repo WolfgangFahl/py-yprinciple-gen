@@ -33,13 +33,14 @@ class TestSMW(BaseMediawikiTest):
             for target in Target.getSMWTargets():
                 for topic in context.topics.values():
                     ypCell=YpCell(topic=topic,target=target)
-                    pageText,status,status_msg=ypCell.getStatus(smwAccess)
-                    counter[status]+=1
+                    ypCell.getPage(smwAccess)
+                    counter[ypCell.status]+=1
                     if debug:
-                        print(f"{ypCell.getPageTitle()}:{status_msg}")
+                        print(f"{ypCell.getLabelText()}:{ypCell.statusMsg}")
+                        print(ypCell.pageUrl)
         if debug:
             print(counter.most_common())
-        self.assertTrue(counter["✅"]>=77)
+        self.assertTrue(counter["✅"]>=92)
         
     
          

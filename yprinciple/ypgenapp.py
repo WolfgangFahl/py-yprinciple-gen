@@ -49,6 +49,8 @@ class YPGenApp(App):
         jp.Route('/about',self.about)
         # wiki users
         self.wikiUsers=WikiUser.getWikiUsers()
+        self.wikiLink=None
+        self.contextLink=None
         self.setSMW(args.wikiId)
         self.useSidif=True
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
@@ -61,7 +63,28 @@ class YPGenApp(App):
         self.smwAccess=SMWAccess(wikiId)
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(self.context_name,None)
-        
+        self.setContext(self.mw_context)
+        if self.wikiLink is not None:
+            self.wikiLink.text=wikiId
+            self.wikiLink.title=wikiId
+            wikiUser=self.smwAccess.wikiClient.wikiUser
+            if wikiUser:
+                self.wikiLink.href=wikiUser.getWikiUrl()
+            
+    def setContext(self,mw_context):
+        """
+        set the Context
+        """
+        if self.contextLink is not None:
+            if mw_context is not None:
+                self.contextLink.title=f"{mw_context.context}({mw_context.since} at {mw_context.master}"
+                self.contextLink.text=f"{mw_context.wikiId}:{mw_context.context}"
+                self.contextLink.href=mw_context.sidif_url()
+            else:
+                self.contextLink.title="?"
+                self.contextLink.text="?"
+                self.contextLink.href="https://wiki.bitplan.com/index.php/Concept:Context"
+    
     async def showGenerateGrid(self):
         """
         show the grid for generating code
@@ -99,7 +122,7 @@ class YPGenApp(App):
         """
         try:
             self.setSMW(msg.value)
-            self.add_or_update_context_select()
+            await self.add_or_update_context_select()
             await self.wp.update()
         except BaseException as ex:
             self.handleException(ex)
@@ -111,6 +134,7 @@ class YPGenApp(App):
         try:
             self.context_name=msg.value
             self.mw_context=self.mw_contexts.get(self.context_name,None)
+            self.setContext(self.mw_context)
             await self.showGenerateGrid()
         except BaseException as ex:
             self.handleException(ex)
@@ -135,14 +159,17 @@ class YPGenApp(App):
         self.rowA=self.jp.Div(classes="row",a=self.contentbox)
         self.rowB=self.jp.Div(classes="row",a=self.contentbox)
         self.rowC=self.jp.Div(classes="row",a=self.contentbox)
+        self.rowD=self.jp.Div(classes="row",a=self.contentbox)
         # columns
         self.colA1=self.jp.Div(classes="col-12",a=self.rowA)
-        self.colB1=self.jp.Div(classes="col-6",a=self.rowB)
-        self.colB2=self.jp.Div(classes="col-6",a=self.rowB)
-        self.colC1=self.jp.Div(classes="col-12",a=self.rowC,style='color:black')
+        self.colB1=self.jp.Div(classes="col-3",a=self.rowB)
+        self.colB2=self.jp.Div(classes="col-2",a=self.rowB)
+        self.colC1=self.jp.Div(classes="col-3",a=self.rowC)
+        self.colC2=self.jp.Div(classes="col-2",a=self.rowC)
+        self.colD1=self.jp.Div(classes="col-12",a=self.rowD)
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
-        self.messages=self.jp.Div(a=self.colC1,style='color:black')  
+        self.messages=self.jp.Div(a=self.colD1,style='color:black')  
         self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
         self.contextSelect=None
         
@@ -164,19 +191,24 @@ class YPGenApp(App):
         if len(self.wikiUsers)>0:
             self.wikiuser_select=self.createSelect("wikiId", value=self.wikiId, change=self.onChangeWikiUser, a=self.colB1)
             for wikiUser in sorted(self.wikiUsers):
-                self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser)) 
+                self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser))
+            self.wikiLink=self.jp.A(a=self.colB2,title=self.wikiId,text=self.wikiId,href=self.mw_context.wiki_url)
+             
                 
-    def add_or_update_context_select(self):
+    async def add_or_update_context_select(self):
         """
         add a selection of possible contexts for the given wiki
         """
         try:
             if self.contextSelect is None:
-                self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colB1)
+                self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colC1)
+                self.contextLink=self.jp.A(a=self.colC2,title=self.context_name,text=self.context_name,href=self.mw_context.sidif_url())
             else:
                 self.contextSelect.delete_components()
+                self.setContext(None)
             for name,_mw_context in self.mw_contexts.items():
                 self.contextSelect.add(self.jp.Option(value=name,text=name))
+            await self.wp.update()
         except BaseException as ex:
             self.handleException(ex)
         
@@ -213,7 +245,7 @@ class YPGenApp(App):
         '''
         self.setupRowsAndCols()
         self.addWikiUserSelect()
-        self.add_or_update_context_select()
+        await self.add_or_update_context_select()
         self.wp.on("page_ready", self.onPageReady)
         self.useSidifButton=Switch(a=self.colC1,labelText="use SiDIF",checked=self.useSidif,disable=False)
         self.useSidifButton.on("input",self.onChangeUseSidif)

@@ -3,6 +3,10 @@
 	<name>py-yprinciple-gen</name>
 	<comment></comment>
 	<projects>
+		<project>justpy</project>
+		<project>pyJustpyWidgets</project>
+		<project>pyLoDStorage</project>
+		<project>pyMetaModel</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
