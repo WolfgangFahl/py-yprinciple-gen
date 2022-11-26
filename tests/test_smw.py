@@ -17,7 +17,7 @@ class TestSMW(BaseMediawikiTest):
     
     def setUp(self, debug=False, profile=True):
         BaseMediawikiTest.setUp(self, debug=debug, profile=profile)
-        for wikiId in ["wiki"]:
+        for wikiId in ["wiki","ceur-ws"]:
             self.getWikiUser(wikiId, save=True)
             
     def test_ypCell(self):
