@@ -21,15 +21,9 @@ class Target:
         self.icon_name=icon_name
         self.is_multi=is_multi
         
-    @classmethod
-    def getSMWTargets(cls):
-        targets=[
-            Target("Category","archive"),
-            Target("Concept","puzzle"),
-            Target("Form","form-select"),
-            Target("Help","help-box"),
-            Target("List of","format-list-bulleted"),
-            Target("Template","file-document"),
-            Target("Properties","alpha-p-circle",is_multi=True),
-            Target("Python","snake")]
-        return targets
+    def generate(self,topic:'Topic')->str:
+        """
+        generate a result for the given topic
+        """
+        raise Exception(f"No generator available for target {self.name}")
+        

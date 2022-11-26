@@ -15,12 +15,12 @@ class GeneratorGrid:
     see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
     """
     
-    def __init__(self,targets:list[Target],a,app,iconSize:str="32px"):
+    def __init__(self,targets:dict,a,app,iconSize:str="32px"):
         """
         constructor
         
         Args:
-            targets(list[Target]): a list of targets
+            targets(dict): a list of targets
             a: the parent element
             app: the parent spp
             
@@ -52,7 +52,7 @@ class GeneratorGrid:
         self.targetSelectionHeader=self.jp.Div(a=self.gridRows,classes="row")
         self.jp.Label(a=self.targetSelectionHeader,inner_html="<strong>Topics</strong>",classes=self.headerClasses,style=self.headerStyle)
         self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
-        for target in self.targets:
+        for target in self.targets.values():
             target_div=self.jp.Div(a=self.gridHeaderRow,classes=self.headerClasses,style=self.headerStyle)
             target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
             self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
@@ -67,10 +67,17 @@ class GeneratorGrid:
         simpleCheckbox=SimpleCheckbox(labelText=labelText,title=title,a=a,classes=classes,style=style,**kwargs)
         return simpleCheckbox
     
-    async def onGenerateButtonClick(self,msg):
+    async def onGenerateButtonClick(self,_msg):
         """
         react on the generate button having been clicked
         """
+        for checkbox_row in self.checkboxes.values():
+            for checkbox,ypCell in checkbox_row.values():
+                if checkbox.isChecked():
+                    try:
+                        ypCell.generate()
+                    except BaseException as ex:
+                        self.app.handleException(ex)
         
     async def onSelectAllClick(self,msg:dict):
         """
@@ -94,7 +101,7 @@ class GeneratorGrid:
             title=msg["target"].title
             context_name=title.replace("select all","").strip()
             checkbox_row=self.checkboxes[context_name]
-            for checkbox in checkbox_row.values():
+            for checkbox,_ypcell in checkbox_row.values():
                 checkbox.check(checked)
         except BaseException as ex:
             self.app.handleException(ex)
@@ -108,7 +115,7 @@ class GeneratorGrid:
             title=msg["target"].title
             target_name=title.replace("select all","").strip()
             for checkbox_row in self.checkboxes.values():
-                checkbox=checkbox_row[target_name]
+                checkbox,ypCell=checkbox_row[target_name]
                 checkbox.check(checked)
         except BaseException as ex:
             self.app.handleException(ex)
@@ -126,7 +133,7 @@ class GeneratorGrid:
             icon_url=f"{topic.iconUrl}" if topic.iconUrl.startswith("http") else f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
             _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
-            for target in self.targets:
+            for target in self.targets.values():
                 ypCell=YpCell(topic=topic,target=target)
                 labelText=ypCell.getLabelText()
                 labelText=labelText.replace(":",":<br>")
@@ -137,6 +144,6 @@ class GeneratorGrid:
                 if ypCell.status=="ⓘ":
                     link=f"{labelText}"
                 checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
-                checkbox_row[target.name]=checkbox
+                checkbox_row[target.name]=(checkbox,ypCell)
                 await self.app.wp.update()
             pass

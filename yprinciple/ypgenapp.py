@@ -18,6 +18,7 @@ from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context
 from yprinciple.target import Target
+from yprinciple.smw_targets import SMWTarget
 from yprinciple.gengrid import GeneratorGrid
 
 class YPGenApp(App):
@@ -54,7 +55,7 @@ class YPGenApp(App):
         self.setSMW(args.wikiId)
         self.useSidif=True
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
-        self.targets=Target.getSMWTargets()
+        self.targets=SMWTarget.getSMWTargets()
         
     def setSMW(self,wikiId:str):
         """

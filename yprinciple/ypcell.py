@@ -22,6 +22,13 @@ class YpCell:
         """
         self.topic=topic
         self.target=target
+        self.smwAccess=None
+        
+    def generate(self,smwAccess=None):
+        """
+        """
+        self.target.generate(self.topic)
+        
         
     def getLabelText(self)->str:
         """
@@ -56,6 +63,7 @@ class YpCell:
         Returns:
             str: the wiki markup for this cell (if any)
         """
+        self.smwAccess=smwAccess
         self.pageUrl=None
         self.page=None
         self.pageText=None
