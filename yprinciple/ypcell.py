@@ -5,6 +5,7 @@ Created on 2022-11-25
 '''
 from meta.metamodel import Topic
 from yprinciple.target import Target
+from meta.mw import SMWAccess
 
 class YpCell:
     """
@@ -42,9 +43,15 @@ class YpCell:
         pageTitle=f"{self.target.name}:{self.topic.name}"
         return pageTitle
         
-    def getPageText(self,smwAccess):
+    def getPageText(self,smwAccess:SMWAccess)->str:
         """
-        test the pageText for the given smwAccess
+        get the pageText for the given smwAccess
+        
+        Args:
+            smwAccess(SMWAccess): the Semantic Mediawiki access to use
+            
+        Returns:
+            str: the wiki markup for this cell (if any)
         """
         pageTitle=self.getPageTitle()
         page=smwAccess.wikiClient.getPage(pageTitle)
@@ -53,5 +60,24 @@ class YpCell:
         else:
             return None
         
+    def getStatus(self,smwAccess:SMWAccess):
+        """
+        get the pageText and status for the given smwAccess
+        
+        Args:
+            smwAccess(SMWAccess): the Semantic Mediawiki access to use
+            
+        Returns:
+            str: the wiki markup for this cell (if any)
+        """
+        if self.target.name=="Python":
+            pageText=None
+            status="ⓘ"
+            status_msg=f"{status}"
+        else:
+            pageText=self.getPageText(smwAccess)
+            status=f"✅" if pageText else "❌"
+            status_msg=f"{len(pageText)}✅" if pageText else "❌"
+        return pageText,status,status_msg
 
 
