@@ -25,10 +25,14 @@ class BaseMediawikiTest(Basetest):
             wikiDict = None
             if wikiId == "wiki":
                 wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com", "url": "https://wiki.bitplan.com",
-                            "scriptPath": "/", "version": "MediaWiki 1.35.5"}
+                            "scriptPath": "", "version": "MediaWiki 1.35.5"}
             if wikiId == "ceur-ws":
                 wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com",
-                            "url": "https://ceur-ws.bitplan.com", "scriptPath": "/",
+                            "url": "https://ceur-ws.bitplan.com", "scriptPath": "",
+                            "version": "MediaWiki 1.35.5"}
+            if wikiId == "cr":
+                wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com",
+                            "url": "https://cr.bitplan.com", "scriptPath": "",
                             "version": "MediaWiki 1.35.5"}
             if wikiDict is None:
                 raise Exception(f"wikiId {wikiId} is not known")

@@ -4,16 +4,17 @@ Created on 2022-11-26
 @author: wf
 '''
 from yprinciple.target import Target
+from meta.metamodel import Topic
 
 class SMWTarget(Target):
     @classmethod
     def getSMWTargets(cls):
         targets={
             "category": Target("Category","archive"),
-            "concept": Target("Concept","puzzle"),
+            "concept": ConceptTarget("Concept","puzzle"),
             "form": Target("Form","form-select"),
             "help": HelpTarget("Help","help-box"),
-            "listOf": Target("List of","format-list-bulleted"),
+            "listOf": ListOfTarget("List of","format-list-bulleted"),
             "template": Target("Template","file-document"),
             "properties": Target("Properties","alpha-p-circle",is_multi=True),
             "python": Target("Python","snake")
@@ -62,6 +63,38 @@ topic links:"""
         }"""
         return markup
         
+    def askSort(self,topic:Topic)->str:
+        """
+        """
+        markup="""
+            @//prepare the sort part of ask
+@def askSort(Topic topic) {
+@{
+  List<Property> sortProperties=topic.sortProperties();
+  String sort="";
+  String order="";
+  String delim="";
+  for (Property property:sortProperties) {
+    String direction;
+    if (property.sortAscending()) {
+      direction="ascending";
+    } else {
+      direction="descending";
+    }
+    sort=sort+delim+topic.name+" "+property.name;
+    order=order+delim+direction;
+    delim=",";
+  }
+}
+@if(sort) {
+|sort=@sort
+}
+@if(order) {
+|order=@order
+}
+}
+"""
+        return markup
     
     def uml(self,title:str,topic:'Topic')->str:
         """
@@ -75,8 +108,8 @@ topic links:"""
         """
         markup=f"""=== {title} ===
 <uml>
-title @topic.name
-note as @(topic.name)DiagramNote
+title {topic.name}
+note as {topic.name}DiagramNote
 Copyright (c) 2015-2022 BITPlan GmbH
 [[http://www.bitplan.com]]
 end note
@@ -101,10 +134,98 @@ class {topic.name} {{
         markup+="""
 </uml>"""
         return markup
+    
 
+class ConceptTarget(SMWTarget):
+    """
+    the target to generate "Concept" pages 
+    
+    see https://wiki.bitplan.com/index.php/SiDIFTemplates#concept
+    """
+    
+    def generate(self,topic:'Topic')->str:
+        """
+        generate a result for the given topic
+        
+        see https://wiki.bitplan.com/index.php/SiDIFTemplates#concept
+        
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+            
+        Returns:
+            str: the generated wiki markup 
+        """
+        conceptClause=f"""[[{topic.name} {topic.conceptProperty.name}::+]]""" \
+            if hasattr(topic,"conceptProperty") \
+            else f"""[[Category:{topic.name}]]"""
+        markup=f"""{{{{Topic
+|name={topic.name}
+|pluralName={topic.getPluralName()}
+|icon={topic.icon}
+|iconUrl={topic.iconUrl}
+|documentation={topic.documentation}
+|wikiDocumentation={topic.wikiDocumentation}
+|defaultstoremode={topic.defaultstoremode}
+|listLimit={topic.getListLimit()}
+|cargo={getattr(topic,"cargo","false")}
+|context={topic.context}
+|storemode=property
+}}}}
+{{{{Topic
+|viewmode=masterdetail
+|storemode=none
+}}}}
+{{{{#forminput:form=Property|button text=add Property}}}}
+=== Documentation ===
+{topic.wikiDocumentation}
+{self.uml("uml",topic)}
+
+{{{{#concept:
+{conceptClause}
+ |{topic.pluralName}
+{self.seealso(topic)}
+}}}}
+[[Category:{topic.name}]]
+"""
+        return markup
+
+class ListOfTarget(SMWTarget):
+    """
+    the target to generate "List of" pages 
+    e.g. https://wiki.bitplan.com/index.php/List_of_Topics
+    
+    see https://wiki.bitplan.com/index.php/SiDIFTemplates#listof
+    
+    """
+    
+    def generate(self,topic:Topic)->str:
+        """
+        generate the list of page for the given topic
+
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+                
+        Returns:
+            str: the generated wiki markup 
+        """
+        markup=f"""__NOCACHE__
+{self.topicHeader(topic)}
+== {topic.getPluralName()} ==
+{{#ask: [[Concept:{topic.name}]]|format=count}}
+{{#forminput:form={topic.name}|button text=add {topic.name}}}
+{{{{#ask: [[Concept:{topic.name}]]
+|mainlabel={topic.name}"""
+        for prop in topic.properties.values():
+            markup+=f"| ?{topic.name}  {prop.name} = {prop.name}\n"
+        markup+=f"""{self.askSort(topic)}
+}}}}
+[[:Category:{topic.name}]]
+    """
+        return markup
+    
 class HelpTarget(SMWTarget):
     """
-    a help Target
+    the help Target
     """
 
     def generate(self,topic:'Topic')->str:
@@ -112,6 +233,12 @@ class HelpTarget(SMWTarget):
         generate a result for the given topic
         
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#help
+        
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+            
+        Returns:
+            str: the generated wiki markup 
         """
         markup=f"""[[File:Help_Icon.png|right]]
 == Help for {topic.name} ==
@@ -137,10 +264,3 @@ class HelpTarget(SMWTarget):
 [[Category:{topic.name}]]
 """
         return markup
-        """
-}
-@{
-  ContextSetting contextSetting=ContextSetting.fromWikiTask(wikiTask);
-}
-@help(contextSetting.getMaintopic())
-"""

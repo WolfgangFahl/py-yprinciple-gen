@@ -7,9 +7,9 @@ from collections import Counter
 from meta.mw import SMWAccess
 from meta.metamodel import Context
 from tests.basemwtest import BaseMediawikiTest
-from yprinciple.target import Target
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
+from wikibot.wikipush import WikiPush
 
 class TestSMW(BaseMediawikiTest):
     """
@@ -18,7 +18,7 @@ class TestSMW(BaseMediawikiTest):
     
     def setUp(self, debug=False, profile=True):
         BaseMediawikiTest.setUp(self, debug=debug, profile=profile)
-        for wikiId in ["wiki","ceur-ws"]:
+        for wikiId in ["wiki","ceur-ws","cr"]:
             self.getWikiUser(wikiId, save=True)
             
     def test_ypCell(self):
@@ -47,15 +47,25 @@ class TestSMW(BaseMediawikiTest):
         """
         test the generate functionality
         """
-        debug=True
-        smwAccess=SMWAccess("ceur-ws",debug=debug)
+        debug=False
+        smwAccess=SMWAccess("cr",debug=debug)
         mw_contexts=smwAccess.getMwContexts()
         mw_context=mw_contexts["CrSchema"]
         context,error=Context.fromWikiContext(mw_context, debug=debug)
         self.assertIsNone(error)
         topic=context.topics["City"]
-        helpTarget=SMWTarget.getSMWTargets()["help"]
-        markup=helpTarget.generate(topic)
-        if debug:
-            print(markup)
+        for target_key in ["help","concept","listOf"]:
+            smwTarget=SMWTarget.getSMWTargets()[target_key]
+            ypCell=YpCell(topic=topic,target=smwTarget)
+            markup=smwTarget.generate(topic)
+            if debug:
+                print(markup)
+            ypCell.getPage(smwAccess)
+            pageText=ypCell.pageText
+            if pageText:
+                markup_diff=WikiPush.getDiff(ypCell.pageText, markup)
+                if debug:
+                    print(markup_diff)
+                diff_lines=markup_diff.split("\n")
+                print(f"""found {len(diff_lines)} line differences for {ypCell.pageTitle}""")
         pass
