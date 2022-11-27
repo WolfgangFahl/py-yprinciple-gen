@@ -13,11 +13,10 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 # shut up justpy
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
-from jpwidgets.bt5widgets import App,About,Switch
+from jpwidgets.bt5widgets import App,About,Switch,State
 from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context
-from yprinciple.target import Target
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.gengrid import GeneratorGrid
 
@@ -53,11 +52,12 @@ class YPGenApp(App):
         self.wikiLink=None
         self.contextLink=None
         self.setSMW(args.wikiId)
-        self.useSidif=True
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
-        self.dryRun=True
-        self.openEditor=False
+        # states
+        self.useSidif=State(True)
+        self.dryRun=State(True)
+        self.openEditor=State(False)
         
     def setSMW(self,wikiId:str):
         """
@@ -142,33 +142,6 @@ class YPGenApp(App):
         except BaseException as ex:
             self.handleException(ex)
         
-    def onChangeUseSidif(self,msg:dict):
-        '''
-        handle change of use Sidif setting
-        
-        Args:
-            msg(dict): the justpy message
-        '''
-        self.useSidif=msg.checked
-        
-    def onChangeOpenEditor(self,msg:dict):
-        '''
-        handle change of use Sidif setting
-        
-        Args:
-            msg(dict): the justpy message
-        '''
-        self.openEditor=msg.checked
-        
-    def onChangeDryRun(self,msg:dict):
-        '''
-        handle change of DryRun setting
-        
-        Args:
-            msg(dict): the justpy message
-        '''
-        self.dryRun=msg.checked
-        
     def setupRowsAndCols(self):
         """
         setup the general layout
@@ -195,6 +168,22 @@ class YPGenApp(App):
         self.messages=self.jp.Div(a=self.colE1,style='color:black')  
         self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
         self.contextSelect=None
+        
+    def addSwitch(self,a,labelText:str,state:State):
+        """
+        add a switch
+        
+        Args:
+            a: parent Component
+            labelText(str): label text for the switch
+            field_wrap(list): pass by reference work around to allow a boolean
+            variable to be modifie
+            
+        Returns:
+            the switch component
+        """ 
+        button=Switch(a=a,labelText=labelText,state=state)
+        return button
         
     def addLanguageSelect(self):
         """
@@ -270,12 +259,9 @@ class YPGenApp(App):
         self.addWikiUserSelect()
         await self.add_or_update_context_select()
         self.wp.on("page_ready", self.onPageReady)
-        self.useSidifButton=Switch(a=self.colD1,labelText="use SiDIF",checked=self.useSidif,disable=False)
-        self.useSidifButton.on("input",self.onChangeUseSidif)
-        self.dryRunButton=Switch(a=self.colD1,labelText="dry Run",checked=self.dryRun)
-        self.dryRunButton.on("input",self.onChangeDryRun)
-        self.openEditorButton=Switch(a=self.colD1,labelText="open Editor",checked=self.openEditor)
-        self.openEditorButton.on("input",self.onChangeOpenEditor)
+        self.useSidifButton=self.addSwitch(a=self.colD1,labelText="use SiDIF",state=self.useSidif)
+        self.dryRunButton=self.addSwitch(a=self.colD1,labelText="dry Run",state=self.dryRun)
+        self.openEditorButton=self.addSwitch(a=self.colD1,labelText="open Editor",state=self.openEditor)
         return self.wp
     
     def start(self,host,port,debug):

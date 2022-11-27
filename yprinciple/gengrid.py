@@ -5,7 +5,6 @@ Created on 25.11.2022
 '''
 from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
 from meta.metamodel import Context
-from yprinciple.target import Target
 from yprinciple.ypcell import YpCell
 
 class GeneratorGrid:
@@ -75,7 +74,8 @@ class GeneratorGrid:
             for checkbox,ypCell in checkbox_row.values():
                 if checkbox.isChecked():
                     try:
-                        ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun,withEditor=self.app.openEditor)
+                        ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
+                        await self.app.wp.update()
                     except BaseException as ex:
                         self.app.handleException(ex)
         

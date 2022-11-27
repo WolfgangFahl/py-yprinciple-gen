@@ -49,7 +49,7 @@ class TestSMW(BaseMediawikiTest):
         test the generate functionality
         """
         debug=self.debug
-        debug=True
+        debug=False
         smwAccess=SMWAccess("cr",debug=debug)
         mw_contexts=smwAccess.getMwContexts()
         mw_context=mw_contexts["CrSchema"]
@@ -58,7 +58,12 @@ class TestSMW(BaseMediawikiTest):
         topic=context.topics["City"]
         withEditor=not self.inPublicCI()
         withEditor=False
-        for target_key in ["category","concept","help","listOf"]:
+        for target_key in ["category","concept","form","help","listOf","template"]:
             smwTarget=SMWTarget.getSMWTargets()[target_key]
             ypCell=YpCell(topic=topic,target=smwTarget,debug=debug)
-            ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
+            markup_diff=ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
+            diff_lines=markup_diff.split("\n")
+            print(f"""found {len(diff_lines)} line differences for {ypCell.pageTitle}""")
+            if self.debug:
+                print(markup_diff)       
+            

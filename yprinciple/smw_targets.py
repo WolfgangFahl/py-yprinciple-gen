@@ -17,11 +17,11 @@ class SMWTarget(Target):
         targets={
             "category": CategoryTarget("Category","archive"),
             "concept": ConceptTarget("Concept","puzzle"),
-            "form": Target("Form","form-select"),
+            "form": FormTarget("Form","form-select"),
             "help": HelpTarget("Help","help-box"),
             "listOf": ListOfTarget("List of","format-list-bulleted"),
-            "template": Target("Template","file-document"),
-            "properties": Target("Properties","alpha-p-circle",is_multi=True),
+            "template": TemplateTarget("Template","file-document"),
+            "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
             "python": Target("Python","snake")
         }
         for target_key,target in targets.items():
@@ -74,13 +74,8 @@ class SMWTarget(Target):
 * [[:Template:{topic.name}]]
 * [[:Form:{topic.name}]] 
 topic links:"""
-        # @TODO fix
-        """
-        @for (TopicLink topicLink:topic.sourceTopicLinks.mTopicLinks) {
-        @if (topicLink.targetTopic) {
-        * [[:Category:{topicLink.targetTopic.name)]]
-        
-        }"""
+        for topicLink in topic.sourceTopicLinks.values():
+            markup+=f"* [[:Category:{topicLink.targetTopic.name}]]\n"
         return markup
         
     def askSort(self,topic:Topic)->str:
@@ -108,6 +103,32 @@ topic links:"""
         markup=f"{sortClause}{orderClause}"
         return markup
     
+    def copyright(self)->str:
+        """
+        get the copyright markup
+        
+        Returns:
+            str: the copyright markup
+        """
+        markup="""<!--
+  --     Copyright (C) 2015-2022 BITPlan GmbH
+  -- 
+  --     Pater-Delp-Str. -- 1
+  --     D-47877 -- Willich-Schiefbahn
+  -- 
+  --     http://www.bitplan.com
+  --
+  -- 
+-->"""
+        return markup
+    
+    def profiWiki(self)->str:
+        """
+        markup for profiWiki
+        """
+        markup="[https://wiki.bitplan.com/index.php/ProfiWiki BITPlan Y-Prinzip ProfiWiki]"
+        return markup
+       
     def bitplanumlci(self,fontSize:int=12)->str:
         """
         create plantuml skin params for BITPlan corporate identity
@@ -154,18 +175,20 @@ topic links:"""
         markup=f"""{topicLink.source} "{topicLink.sourceRole} ({sourceMany})" -- "{topicLink.targetRole}({targetMany})" {topicLink.target}\n"""
         return markup
     
-    def uml(self,title:str,topic:'Topic')->str:
+    def uml(self,title:str,topic:'Topic',output_format:str='svg')->str:
         """
         get the uml (plantuml) markup for  the given topic
         
         Args:
             topic(Topic): the topic to generate a header for
+            output_format(str): the output format to use - default: svg
             
         Returns:
             str: the plantuml markup to be generated
+            
         """
         markup=f"""=== {title} ===
-<uml>
+<uml format='{output_format}'>
 title {topic.name}
 note as {topic.name}DiagramNote
 Copyright (c) 2015-2022 BITPlan GmbH
@@ -284,39 +307,7 @@ class ConceptTarget(SMWTarget):
 """
         return markup
 
-class ListOfTarget(SMWTarget):
-    """
-    the target to generate "List of" pages 
-    e.g. https://wiki.bitplan.com/index.php/List_of_Topics
-    
-    see https://wiki.bitplan.com/index.php/SiDIFTemplates#listof
-    
-    """
-    
-    def generate(self,topic:Topic)->str:
-        """
-        generate the list of page for the given topic
 
-        Args:
-            topic(Topic): the topic to generate wiki markup for
-                
-        Returns:
-            str: the generated wiki markup 
-        """
-        markup=f"""__NOCACHE__
-{self.topicHeader(topic)}
-== {topic.getPluralName()} ==
-{{#ask: [[Concept:{topic.name}]]|format=count}}
-{{#forminput:form={topic.name}|button text=add {topic.name}}}
-{{{{#ask: [[Concept:{topic.name}]]
-|mainlabel={topic.name}"""
-        for prop in topic.properties.values():
-            markup+=f"| ?{topic.name}  {prop.name} = {prop.name}\n"
-        markup+=f"""{self.askSort(topic)}
-}}}}
-[[:Category:{topic.name}]]
-    """
-        return markup
     
 class HelpTarget(SMWTarget):
     """
@@ -359,3 +350,94 @@ class HelpTarget(SMWTarget):
 [[Category:{topic.name}]]
 """
         return markup
+    
+class FormTarget(SMWTarget):
+    """
+    the target to generate "Form" pages 
+    e.g. https://wiki.bitplan.com/index.php/Form:Topic
+    
+    see https://wiki.bitplan.com/index.php/SiDIFTemplates#form
+    
+    """
+    
+    def generate(self,topic:Topic)->str:
+        """
+        generate the form page for the given topic
+
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+                
+        Returns:
+            str: the generated wiki markup 
+        """
+        markup=f"""<noinclude>
+This is the {self.profiWiki()}-Form for "{topic.name}".
+=== see also ===
+{self.seealso(topic)}
+</noinclude><includeonly></includeonly>
+        """
+        return markup
+    
+class ListOfTarget(SMWTarget):
+    """
+    the target to generate "List of" pages 
+    e.g. https://wiki.bitplan.com/index.php/List_of_Topics
+    
+    see https://wiki.bitplan.com/index.php/SiDIFTemplates#listof
+    
+    """
+    
+    def generate(self,topic:Topic)->str:
+        """
+        generate the list of page for the given topic
+
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+                
+        Returns:
+            str: the generated wiki markup 
+        """
+        markup=f"""__NOCACHE__
+{self.topicHeader(topic)}
+== {topic.getPluralName()} ==
+{{{{#ask: [[Concept:{topic.name}]]|format=count}}}}
+{{{{#forminput:form={topic.name}|button text=add {topic.name}}}}}
+{{{{#ask: [[Concept:{topic.name}]]
+|mainlabel={topic.name}"""
+        for prop in topic.properties.values():
+            markup+=f"| ?{topic.name}  {prop.name} = {prop.name}\n"
+        markup+=f"""{self.askSort(topic)}}}}}
+[[:Category:{topic.name}]]
+    """
+        return markup
+    
+class TemplateTarget(SMWTarget):
+    """
+    the template Target
+    """
+
+    def generate(self,topic:'Topic')->str:
+        """
+        generate a template for the given topic
+        
+        see https://wiki.bitplan.com/index.php/SiDIFTemplates#template
+        
+        Args:
+            topic(Topic): the topic to generate wiki markup for
+            
+        Returns:
+            str: the generated wiki markup 
+        """
+        markup=f"""<noinclude>{self.copyright()}
+=== see also ===
+{self.seealso(topic)}
+[[Category:Template]]
+</noinclude><includeonly></includeonly>"""
+        return markup
+    
+class PropertyMultiTarget(SMWTarget):
+    """
+    the Property Multi Target
+    """
+    
+    
