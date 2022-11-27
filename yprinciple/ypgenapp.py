@@ -56,6 +56,8 @@ class YPGenApp(App):
         self.useSidif=True
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
+        self.dryRun=True
+        self.openEditor=False
         
     def setSMW(self,wikiId:str):
         """
@@ -147,7 +149,25 @@ class YPGenApp(App):
         Args:
             msg(dict): the justpy message
         '''
-        self.useSidif=msg.value
+        self.useSidif=msg.checked
+        
+    def onChangeOpenEditor(self,msg:dict):
+        '''
+        handle change of use Sidif setting
+        
+        Args:
+            msg(dict): the justpy message
+        '''
+        self.openEditor=msg.checked
+        
+    def onChangeDryRun(self,msg:dict):
+        '''
+        handle change of DryRun setting
+        
+        Args:
+            msg(dict): the justpy message
+        '''
+        self.dryRun=msg.checked
         
     def setupRowsAndCols(self):
         """
@@ -161,6 +181,7 @@ class YPGenApp(App):
         self.rowB=self.jp.Div(classes="row",a=self.contentbox)
         self.rowC=self.jp.Div(classes="row",a=self.contentbox)
         self.rowD=self.jp.Div(classes="row",a=self.contentbox)
+        self.rowE=self.jp.Div(classes="row",a=self.contentbox)
         # columns
         self.colA1=self.jp.Div(classes="col-12",a=self.rowA)
         self.colB1=self.jp.Div(classes="col-3",a=self.rowB)
@@ -168,9 +189,10 @@ class YPGenApp(App):
         self.colC1=self.jp.Div(classes="col-3",a=self.rowC)
         self.colC2=self.jp.Div(classes="col-2",a=self.rowC)
         self.colD1=self.jp.Div(classes="col-12",a=self.rowD)
+        self.colE1=self.jp.Div(classes="col-12",a=self.rowE)
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
-        self.messages=self.jp.Div(a=self.colD1,style='color:black')  
+        self.messages=self.jp.Div(a=self.colE1,style='color:black')  
         self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
         self.contextSelect=None
         
@@ -248,8 +270,12 @@ class YPGenApp(App):
         self.addWikiUserSelect()
         await self.add_or_update_context_select()
         self.wp.on("page_ready", self.onPageReady)
-        self.useSidifButton=Switch(a=self.colC1,labelText="use SiDIF",checked=self.useSidif,disable=False)
+        self.useSidifButton=Switch(a=self.colD1,labelText="use SiDIF",checked=self.useSidif,disable=False)
         self.useSidifButton.on("input",self.onChangeUseSidif)
+        self.dryRunButton=Switch(a=self.colD1,labelText="dry Run",checked=self.dryRun)
+        self.dryRunButton.on("input",self.onChangeDryRun)
+        self.openEditorButton=Switch(a=self.colD1,labelText="open Editor",checked=self.openEditor)
+        self.openEditorButton.on("input",self.onChangeOpenEditor)
         return self.wp
     
     def start(self,host,port,debug):

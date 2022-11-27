@@ -75,7 +75,7 @@ class GeneratorGrid:
             for checkbox,ypCell in checkbox_row.values():
                 if checkbox.isChecked():
                     try:
-                        ypCell.generate()
+                        ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun,withEditor=self.app.openEditor)
                     except BaseException as ex:
                         self.app.handleException(ex)
         

@@ -6,29 +6,53 @@ Created on 2022-11-25
 from meta.metamodel import Topic
 from yprinciple.target import Target
 from meta.mw import SMWAccess
+from wikibot.wikipush import WikiPush
+from yprinciple.editor import Editor
 
 class YpCell:
     """
     a Y-Principle cell
     """
     
-    def __init__(self,topic:Topic,target:Target):
+    def __init__(self,topic:Topic,target:Target,debug:bool=False):
         """
         constructor
         
         Args:
             topic(Topic): the topic to generate for
-            target(): the target to generate for
+            target(Target): the target to generate for
+            debug(bool): if True - enable debugging 
         """
         self.topic=topic
         self.target=target
         self.smwAccess=None
+        self.debug=debug
         
-    def generate(self,smwAccess=None):
+    def generate(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False):
         """
-        """
-        self.target.generate(self.topic)
+        generate the given cell and upload the result via the given
+        Semantic MediaWiki Access
         
+        Args:
+            smwAccess(SMWAccess): the access to use
+            dryRun(bool): if True do not push the result
+            withEditor(bool): if True open Editor when in dry Run mode
+        """
+        target_key=self.target.target_key
+        markup=self.target.generate(self.topic)
+        if withEditor:
+            Editor.open_tmp_text(markup,file_name=f"{target_key}_gen.wiki")
+        self.getPage(smwAccess)
+        if self.pageText:
+            markup_diff=WikiPush.getDiff(self.pageText, markup)
+            diff_lines=markup_diff.split("\n")
+            if withEditor:
+                Editor.open_tmp_text(markup,file_name=f"{target_key}_gen.wiki")
+                Editor.open_tmp_text(self.pageText,file_name=f"{target_key}_markup.wiki")
+                Editor.open_tmp_text(markup_diff,file_name=f"{target_key}_diff.txt")
+            if self.debug:
+                print(f"""found {len(diff_lines)} line differences for {self.pageTitle}""")
+                print(markup_diff)       
         
     def getLabelText(self)->str:
         """

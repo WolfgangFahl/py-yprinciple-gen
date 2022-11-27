@@ -8,6 +8,8 @@ import os
 import tempfile
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+from pathlib import Path
+
 
 class Editor:
     """
@@ -83,12 +85,13 @@ class Editor:
         return file_source
         
     @classmethod
-    def open_tmp_text(cls,text:str)->str:
+    def open_tmp_text(cls,text:str,file_name:str=None)->str:
         """
         open an editor for the given text in a newly created temporary file
         
         Args:
             text(str): the text to write to a temporary file and then open
+            file_name(str): the name to use for the file
         
         Returns:
             str: the path to the temp file
@@ -99,5 +102,14 @@ class Editor:
             with open(tmp.name,"w") as tmp_file:
                 tmp_file.write(text)
                 tmp_file.close()
-            return cls.open(tmp.name)
+            if file_name is None:
+                file_path=tmp.name
+            else:
+                # https://stackoverflow.com/questions/3167154/how-to-split-a-dos-path-into-its-components-in-python
+                path=Path(tmp.name)
+                # https://stackoverflow.com/a/49798311/1497139
+                file_path=path.parent / file_name
+                os.rename(tmp.name, file_path)
+                
+            return cls.open(str(file_path))
                 

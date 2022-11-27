@@ -10,6 +10,7 @@ from tests.basemwtest import BaseMediawikiTest
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
 from wikibot.wikipush import WikiPush
+from yprinciple.editor import Editor
 
 class TestSMW(BaseMediawikiTest):
     """
@@ -48,25 +49,16 @@ class TestSMW(BaseMediawikiTest):
         test the generate functionality
         """
         debug=self.debug
-        debug=False
+        debug=True
         smwAccess=SMWAccess("cr",debug=debug)
         mw_contexts=smwAccess.getMwContexts()
         mw_context=mw_contexts["CrSchema"]
         context,error=Context.fromWikiContext(mw_context, debug=debug)
         self.assertIsNone(error)
         topic=context.topics["City"]
+        withEditor=not self.inPublicCI()
+        withEditor=False
         for target_key in ["category","concept","help","listOf"]:
             smwTarget=SMWTarget.getSMWTargets()[target_key]
-            ypCell=YpCell(topic=topic,target=smwTarget)
-            markup=smwTarget.generate(topic)
-            if debug:
-                print(markup)
-            ypCell.getPage(smwAccess)
-            pageText=ypCell.pageText
-            if pageText:
-                markup_diff=WikiPush.getDiff(ypCell.pageText, markup)
-                if debug:
-                    print(markup_diff)
-                diff_lines=markup_diff.split("\n")
-                print(f"""found {len(diff_lines)} line differences for {ypCell.pageTitle}""")
-        pass
+            ypCell=YpCell(topic=topic,target=smwTarget,debug=debug)
+            ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)

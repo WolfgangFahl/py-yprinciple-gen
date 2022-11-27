@@ -26,7 +26,9 @@ dependencies = [
         # https://pypi.org/project/py-3rdparty-mediawiki/
         'py-3rdparty-mediawiki>=0.7.3',
         # https://pypi.org/project/pyMetaModel/
-        'pyMetaModel>=0.0.8'
+        'pyMetaModel>=0.0.9',
+        # https://pypi.org/project/beautifulsoup4/
+        'beautifulsoup4'
      ]
 
 requires-python = ">=3.7"
