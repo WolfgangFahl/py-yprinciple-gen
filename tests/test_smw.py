@@ -47,6 +47,7 @@ class TestSMW(BaseMediawikiTest):
         """
         test the generate functionality
         """
+        debug=self.debug
         debug=False
         smwAccess=SMWAccess("cr",debug=debug)
         mw_contexts=smwAccess.getMwContexts()
@@ -54,7 +55,7 @@ class TestSMW(BaseMediawikiTest):
         context,error=Context.fromWikiContext(mw_context, debug=debug)
         self.assertIsNone(error)
         topic=context.topics["City"]
-        for target_key in ["help","concept","listOf"]:
+        for target_key in ["category","concept","help","listOf"]:
             smwTarget=SMWTarget.getSMWTargets()[target_key]
             ypCell=YpCell(topic=topic,target=smwTarget)
             markup=smwTarget.generate(topic)
