@@ -31,7 +31,7 @@ class TestSMW(BaseMediawikiTest):
         for mw_context in smwAccess.getMwContexts().values():
             context,error=Context.fromWikiContext(mw_context, debug=debug)
             self.assertIsNone(error)
-            for target in SMWTarget.getSMWTargets.values():
+            for target in SMWTarget.getSMWTargets().values():
                 for topic in context.topics.values():
                     ypCell=YpCell(topic=topic,target=target)
                     ypCell.getPage(smwAccess)
