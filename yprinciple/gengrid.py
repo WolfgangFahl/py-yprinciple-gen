@@ -121,17 +121,42 @@ class GeneratorGrid:
                 checkbox.check(checked)
         except BaseException as ex:
             self.app.handleException(ex)
+            
+    def createCheckBox(self,ypCell:YpCell,a)->SimpleCheckbox:
+        """
+        create a CheckBox for the given YpCell
         
+        Args:
+            ypCell: YpCell - the YpCell to create a checkbox for
+            
+        Returns:
+            SimpleCheckbox: the checkbox for the given cell
+        """
+        labelText=ypCell.getLabelText()
+        labelText=labelText.replace(":",":<br>")
+        checkbox=SimpleCheckbox(labelText="", a=a, groupClasses="col-1")
+        ypCell.getPage(self.app.smwAccess)
+        color="blue" if ypCell.status=="✅" else "red"
+        link=f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
+        if ypCell.status=="ⓘ":
+            link=f"{labelText}"
+        checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
+        return checkbox
+      
     async def addRows(self,context:Context):
         """
         add the rows for the given topic
         """
-        self.app.progressBar.updateProgress(0)
+        def updateProgress():
+            value=round(progress_steps/total_steps*100)
+            self.app.progressBar.updateProgress(value)
+       
         total_steps=0
         for topic_name,topic in context.topics.items():
             total_steps+=len(self.targets)
-            #total_steps+=len(topic.properties)
+            total_steps+=len(topic.properties)
         progress_steps=0
+        updateProgress()
         for topic_name,topic in context.topics.items():
             self.checkboxes[topic_name]={}
             checkbox_row=self.checkboxes[topic_name]
@@ -143,17 +168,16 @@ class GeneratorGrid:
             for target in self.targets.values():
                 progress_steps+=1
                 ypCell=YpCell.createYpCell(target=target, topic=topic)
-                labelText=ypCell.getLabelText()
-                labelText=labelText.replace(":",":<br>")
-                checkbox=SimpleCheckbox(labelText="", a=_topicRow, groupClasses="col-1")
-                ypCell.getPage(self.app.smwAccess)
-                color="blue" if ypCell.status=="✅" else "red"
-                link=f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
-                if ypCell.status=="ⓘ":
-                    link=f"{labelText}"
-                checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
+                checkbox=self.createCheckBox(ypCell,a=_topicRow)
                 checkbox_row[target.name]=(checkbox,ypCell)
-                self.app.progressBar.updateProgress(round(progress_steps/total_steps*100))
+                if len(ypCell.subCells)>0:
+                    prop_div=self.jp.Div(a=checkbox)
+                    for prop_name,subCell in ypCell.subCells.items():
+                        subCheckBox=self.createCheckBox(subCell, a=prop_div)
+                        progress_steps+=1
+                        updateProgress()
+                        await self.app.wp.update()
+                updateProgress()
                 await self.app.wp.update()
             pass
         # done
