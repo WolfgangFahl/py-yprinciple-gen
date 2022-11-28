@@ -3,10 +3,11 @@ Created on 25.11.2022
 
 @author: wf
 '''
-from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
+from jpwidgets.bt5widgets import Collapsible,IconButton,SimpleCheckbox
 from meta.metamodel import Context,Topic
 from yprinciple.ypcell import YpCell
 from yprinciple.target import Target
+import uuid
 
 class GeneratorGrid:
     """
@@ -31,6 +32,8 @@ class GeneratorGrid:
         self.wp=app.wp
         self.iconSize=iconSize
         self.checkboxes={}
+        self.ypcell_by_uuid={}
+        self.checkbox_by_uuid={}
         self.targets=targets
         self.a=a
         self.gridHeaderRow=self.jp.Div(classes="row",name="gridHeaderRow",a=self.gridRows)
@@ -59,16 +62,6 @@ class GeneratorGrid:
             target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
             self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
             self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,classes=classes,input=self.onSelectColumnClick)
-   
-    def createSimpleCheckbox(self,labelText,title,a,classes=None,**kwargs):
-        """
-        create a simple CheckBox with header style
-        """
-        if classes is None:
-            classes=self.headerClasses
-        style=self.lightHeaderStyle
-        simpleCheckbox=SimpleCheckbox(labelText=labelText,title=title,a=a,classes=classes,style=style,**kwargs)
-        return simpleCheckbox
     
     async def onGenerateButtonClick(self,_msg):
         """
@@ -82,6 +75,24 @@ class GeneratorGrid:
                         await self.app.wp.update()
                     except BaseException as ex:
                         self.app.handleException(ex)
+                        
+    def check_ypcell_box(self,checkbox,ypCell,checked:bool):
+        """
+        check the given checkbox and the ypCell belonging to it
+        """
+        checkbox.check(checked)
+        self.checkSubCells(ypCell,checked)
+        
+    def checkSubCells(self,ypCell,checked):
+        # loop over all subcells
+        for subcell in ypCell.subCells.values():
+            # and set the checkbox value accordingly
+            checkbox=self.checkbox_by_uuid[subcell.checkbox_id]
+            checkbox.check(checked)
+                        
+    def check_row(self,checkbox_row,checked:bool):
+        for checkbox,ypCell in checkbox_row.values():
+            self.check_ypcell_box(checkbox,ypCell,checked)
         
     async def onSelectAllClick(self,msg:dict):
         """
@@ -90,8 +101,7 @@ class GeneratorGrid:
         try:
             checked=msg["checked"]
             for checkbox_row in self.checkboxes.values():
-                for checkbox in checkbox_row.values():
-                    checkbox.check(checked)
+                self.check_row(checkbox_row,checked)
         except BaseException as ex:
             self.app.handleException(ex)
         pass
@@ -105,8 +115,7 @@ class GeneratorGrid:
             title=msg["target"].title
             context_name=title.replace("select all","").strip()
             checkbox_row=self.checkboxes[context_name]
-            for checkbox,_ypcell in checkbox_row.values():
-                checkbox.check(checked)
+            self.check_row(checkbox_row,checked)
         except BaseException as ex:
             self.app.handleException(ex)
             
@@ -120,23 +129,45 @@ class GeneratorGrid:
             target_name=title.replace("select all","").strip()
             for checkbox_row in self.checkboxes.values():
                 checkbox,ypCell=checkbox_row[target_name]
-                checkbox.check(checked)
+                self.check_ypcell_box(checkbox,ypCell,checked)
         except BaseException as ex:
             self.app.handleException(ex)
+            
+    async def onParentCheckboxClick(self,msg:dict):
+        """
+        a ypCell checkbox has been clicked for a ypCell that has subCells
+        """
+        # get the parent checkbox
+        checkbox=msg.target
+        checked=msg["checked"]
+        # lookup the ypCell
+        ypcell_uuid=checkbox.data["ypcell_uuid"]
+        ypCell=self.ypcell_by_uuid[ypcell_uuid]
+        self.checkSubCells(ypCell, checked)
             
     def displayTargets(self):
         #return self.targets.values()
         dt=[]
         for target in self.targets.values():
-            if not target.is_subtarget:
+            if target.showInGrid:
                 dt.append(target)
         return dt
     
     def getCols(self,target:Target)->str:
         cols="col-2" if target.is_multi else "col-1"
         return cols
+    
+    def createSimpleCheckbox(self,labelText,title,a,classes=None,**kwargs):
+        """
+        create a simple CheckBox with header style
+        """
+        if classes is None:
+            classes=self.headerClasses
+        style=self.lightHeaderStyle
+        simpleCheckbox=SimpleCheckbox(labelText=labelText,title=title,a=a,classes=classes,style=style,**kwargs)
+        return simpleCheckbox
             
-    def createCheckBox(self,ypCell:YpCell,a,groupClasses="col-1")->SimpleCheckbox:
+    def createCheckBox(self,ypCell:YpCell,a,classes="col-1")->SimpleCheckbox:
         """
         create a CheckBox for the given YpCell
         
@@ -147,14 +178,24 @@ class GeneratorGrid:
             SimpleCheckbox: the checkbox for the given cell
         """
         labelText=ypCell.getLabelText()
-        labelText=labelText.replace(":",":<br>")
-        checkbox=SimpleCheckbox(labelText="", a=a, groupClasses=groupClasses)
+        checkbox=SimpleCheckbox(labelText="", a=a, classes=classes)
         ypCell.getPage(self.app.smwAccess)
         color="blue" if ypCell.status=="✅" else "red"
         link=f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
         if ypCell.status=="ⓘ":
             link=f"{labelText}"
-        checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
+        # in a one column setting we need to break link and status message
+        if "col-1" in classes:
+            labelText=labelText.replace(":",":<br>")
+            delim="<br>" 
+        else:
+            delim="&nbsp;"
+        checkbox.label.inner_html=f"{link}{delim}{ypCell.statusMsg}"
+        # link ypCell with Checkbox via a unique identifier
+        ypCell.checkbox_id=uuid.uuid4()
+        checkbox.data["ypcell_uuid"]=ypCell.checkbox_id
+        self.ypcell_by_uuid[ypCell.checkbox_id]=ypCell
+        self.checkbox_by_uuid[ypCell.checkbox_id]=checkbox
         return checkbox
       
     async def addRows(self,context:Context):
@@ -162,7 +203,8 @@ class GeneratorGrid:
         add the rows for the given topic
         """
         def updateProgress():
-            value=round(progress_steps/total_steps*100)
+            percent=progress_steps/total_steps*100
+            value=round(percent)
             self.app.progressBar.updateProgress(value)
        
         total_steps=0
@@ -182,13 +224,20 @@ class GeneratorGrid:
             for target in self.displayTargets():
                 progress_steps+=1
                 ypCell=YpCell.createYpCell(target=target, topic=topic)
-                groupClasses=""
-                checkbox=self.createCheckBox(ypCell,a=_topicRow,groupClasses=groupClasses)
+                if len(ypCell.subCells)>0:
+                    #prop_div=Collapsible("properties",collapsed=True,a=_topicRow)
+                    prop_div=self.jp.Div(a=_topicRow,classes=self.getCols(target))
+                    a=prop_div
+                    classes=""
+                else:
+                    a=_topicRow 
+                    classes="col-1"
+                checkbox=self.createCheckBox(ypCell,a=a,classes=classes)
                 checkbox_row[target.name]=(checkbox,ypCell)
                 if len(ypCell.subCells)>0:
-                    prop_div=self.jp.Div(a=checkbox)
-                    for prop_name,subCell in ypCell.subCells.items():
-                        subCheckBox=self.createCheckBox(subCell, a=prop_div)
+                    checkbox.on("input",self.onParentCheckboxClick)
+                    for _prop_name,subCell in ypCell.subCells.items():
+                        _subCheckBox=self.createCheckBox(subCell, a=prop_div,classes=classes)
                         progress_steps+=1
                         updateProgress()
                         await self.app.wp.update()

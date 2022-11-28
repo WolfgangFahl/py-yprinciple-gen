@@ -23,8 +23,8 @@ class SMWTarget(Target):
             "listOf": ListOfTarget("List of","format-list-bulleted"),
             "template": TemplateTarget("Template","file-document"),
             "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
-            "property": PropertyTarget("Property",is_subtarget=True),
-            "python": Target("Python","snake")
+            "property": PropertyTarget("Property",showInGrid=False),
+            "python": Target("Python","snake",showInGrid=False)
         }
         for target_key,target in targets.items():
             target.target_key=target_key
@@ -465,6 +465,15 @@ class PropertyTarget(SMWTarget):
     """
     
     def getPageTitle(self,prop)->str:
+        """
+        get the page title for the given property
+        
+        Args:
+            prop: the Property to get the page title for
+            
+        Returns:
+            str: the markup
+        """
         pageTitle=f"{self.name}:{prop.topic} {prop.name}"
         return pageTitle
     
@@ -473,8 +482,6 @@ class PropertyTarget(SMWTarget):
         generate wiki markup for the given property
         
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#propertiesdefs
-        
-        
         
         Returns: 
             str: the wiki markup for the given property

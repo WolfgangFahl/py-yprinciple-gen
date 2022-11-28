@@ -31,6 +31,8 @@ class TestSMW(BaseMediawikiTest):
             context,error=Context.fromWikiContext(mw_context, debug=debug)
             self.assertIsNone(error)
             for target in SMWTarget.getSMWTargets().values():
+                if not target.showInGrid:
+                    continue
                 for topic in context.topics.values():
                     ypCell=YpCell(modelElement=topic,target=target)
                     ypCell.getPage(smwAccess)

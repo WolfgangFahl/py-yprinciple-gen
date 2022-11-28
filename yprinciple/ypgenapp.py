@@ -94,6 +94,7 @@ class YPGenApp(App):
         """
         self.gridRows.delete_components()
         await self.wp.update()
+        # start with a new generatorGrid
         self.generatorGrid=GeneratorGrid(self.targets,a=self.gridRows,app=self)
         if self.useSidif:
             if self.mw_context is not None:

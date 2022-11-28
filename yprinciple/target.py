@@ -9,21 +9,20 @@ class Target:
     a generator Target on the technical side of the Y-Principle
     """
     
-    def __init__(self,name:str,icon_name:str="bullseye",is_multi:bool=False,is_subtarget=False,subTarget=None):
+    def __init__(self,name:str,icon_name:str="bullseye",is_multi:bool=False,is_subtarget:bool=False,showInGrid:bool=True):
         """
         constructor
         name(str): the name of the target
         icon_name(str): the icon_name of the target
         is_multi(bool): if True this target creates a list of results (has subtargets)
-        is_subtarget(bool): if True this target has subtargets
-        subTarget(object): the subTarget (if any)
+        showInGrid(bool): if True this target is to be shown in the generator Grid
         
         """
         self.name=name
         self.icon_name=icon_name
         self.is_multi=is_multi
-        self.is_subtarget=is_subtarget
-        self.subTarget=subTarget
+        self.showInGrid=showInGrid
+        self.subTarget=None
         
     def getLabelText(self,modelElement)->str:
         return self.getPageTitle(modelElement)
