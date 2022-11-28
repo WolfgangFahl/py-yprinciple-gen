@@ -81,20 +81,15 @@ class YpCell:
         get my label Text
             
         Returns:
-            str: a label in the generator grid for my modelElement topic
+            str: a label in the generator grid for my modelElement 
         """
-        labelText=f"{self.target.name}:{self.modelElement.name}"
-        return labelText
+        return self.target.getLabelText(self.modelElement)
     
     def getPageTitle(self):
         """
         get the page title for my modelElement
         """
-        if self.target.name=="List of":
-            pageTitle=f"List of {self.modelElement.pluralName}"
-        else:
-            pageTitle=f"{self.target.name}:{self.modelElement.name}"
-        return pageTitle
+        return self.target.getPageTitle(self.modelElement)
     
     def getPage(self,smwAccess:SMWAccess)->str:
         """

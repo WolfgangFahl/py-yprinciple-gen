@@ -23,7 +23,7 @@ class SMWTarget(Target):
             "listOf": ListOfTarget("List of","format-list-bulleted"),
             "template": TemplateTarget("Template","file-document"),
             "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
-            "property": PropertyTarget("Property",subTarget=True),
+            "property": PropertyTarget("Property",is_subtarget=True),
             "python": Target("Python","snake")
         }
         for target_key,target in targets.items():
@@ -390,6 +390,10 @@ class ListOfTarget(SMWTarget):
     
     """
     
+    def getPageTitle(self,modelElement)->str:
+        pageTitle=f"List of {modelElement.pluralName}"
+        return pageTitle
+    
     def generate(self,topic:Topic)->str:
         """
         generate the list of page for the given topic
@@ -459,6 +463,10 @@ class PropertyTarget(SMWTarget):
     """
     the Property Target
     """
+    
+    def getPageTitle(self,prop)->str:
+        pageTitle=f"{self.name}:{prop.topic} {prop.name}"
+        return pageTitle
     
     def generate(self,prop:Property)->str:
         """

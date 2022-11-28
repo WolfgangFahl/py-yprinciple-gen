@@ -53,17 +53,19 @@ class GeneratorGrid:
         self.targetSelectionHeader=self.jp.Div(a=self.gridRows,classes="row")
         self.jp.Label(a=self.targetSelectionHeader,inner_html="<strong>Topics</strong>",classes=self.headerClasses,style=self.headerStyle)
         self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
-        for target in self.targets.values():
-            target_div=self.jp.Div(a=self.gridHeaderRow,classes=self.headerClasses,style=self.headerStyle)
+        for target in self.displayTargets():
+            classes=self.getCols(target)
+            target_div=self.jp.Div(a=self.gridHeaderRow,classes=classes+" text-center",style=self.headerStyle)
             target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
             self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
-            self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,input=self.onSelectColumnClick)
+            self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,classes=classes,input=self.onSelectColumnClick)
    
-    def createSimpleCheckbox(self,labelText,title,a,**kwargs):
+    def createSimpleCheckbox(self,labelText,title,a,classes=None,**kwargs):
         """
         create a simple CheckBox with header style
         """
-        classes=self.headerClasses
+        if classes is None:
+            classes=self.headerClasses
         style=self.lightHeaderStyle
         simpleCheckbox=SimpleCheckbox(labelText=labelText,title=title,a=a,classes=classes,style=style,**kwargs)
         return simpleCheckbox
@@ -122,7 +124,19 @@ class GeneratorGrid:
         except BaseException as ex:
             self.app.handleException(ex)
             
-    def createCheckBox(self,ypCell:YpCell,a)->SimpleCheckbox:
+    def displayTargets(self):
+        #return self.targets.values()
+        dt=[]
+        for target in self.targets.values():
+            if not target.is_subtarget:
+                dt.append(target)
+        return dt
+    
+    def getCols(self,target:Target)->str:
+        cols="col-2" if target.is_multi else "col-1"
+        return cols
+            
+    def createCheckBox(self,ypCell:YpCell,a,groupClasses="col-1")->SimpleCheckbox:
         """
         create a CheckBox for the given YpCell
         
@@ -134,7 +148,7 @@ class GeneratorGrid:
         """
         labelText=ypCell.getLabelText()
         labelText=labelText.replace(":",":<br>")
-        checkbox=SimpleCheckbox(labelText="", a=a, groupClasses="col-1")
+        checkbox=SimpleCheckbox(labelText="", a=a, groupClasses=groupClasses)
         ypCell.getPage(self.app.smwAccess)
         color="blue" if ypCell.status=="✅" else "red"
         link=f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
@@ -153,7 +167,7 @@ class GeneratorGrid:
        
         total_steps=0
         for topic_name,topic in context.topics.items():
-            total_steps+=len(self.targets)
+            total_steps+=len(self.displayTargets())
             total_steps+=len(topic.properties)
         progress_steps=0
         updateProgress()
@@ -165,10 +179,11 @@ class GeneratorGrid:
             icon_url=f"{topic.iconUrl}" if topic.iconUrl.startswith("http") else f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
             _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
-            for target in self.targets.values():
+            for target in self.displayTargets():
                 progress_steps+=1
                 ypCell=YpCell.createYpCell(target=target, topic=topic)
-                checkbox=self.createCheckBox(ypCell,a=_topicRow)
+                groupClasses=""
+                checkbox=self.createCheckBox(ypCell,a=_topicRow,groupClasses=groupClasses)
                 checkbox_row[target.name]=(checkbox,ypCell)
                 if len(ypCell.subCells)>0:
                     prop_div=self.jp.Div(a=checkbox)
