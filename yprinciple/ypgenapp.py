@@ -13,7 +13,7 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 # shut up justpy
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
-from jpwidgets.bt5widgets import App,About,Switch,State
+from jpwidgets.bt5widgets import App,About,ProgressBar,Switch,State
 from wikibot.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context
@@ -166,6 +166,7 @@ class YPGenApp(App):
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
         self.messages=self.jp.Div(a=self.colE1,style='color:black')  
+        self.progressBar = ProgressBar(a=self.rowC)
         self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
         self.contextSelect=None
         

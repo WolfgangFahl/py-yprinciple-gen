@@ -126,6 +126,12 @@ class GeneratorGrid:
         """
         add the rows for the given topic
         """
+        self.app.progressBar.updateProgress(0)
+        total_steps=0
+        for topic_name,topic in context.topics.items():
+            total_steps+=len(self.targets)
+            #total_steps+=len(topic.properties)
+        progress_steps=0
         for topic_name,topic in context.topics.items():
             self.checkboxes[topic_name]={}
             checkbox_row=self.checkboxes[topic_name]
@@ -135,6 +141,7 @@ class GeneratorGrid:
             _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets.values():
+                progress_steps+=1
                 ypCell=YpCell.createYpCell(target=target, topic=topic)
                 labelText=ypCell.getLabelText()
                 labelText=labelText.replace(":",":<br>")
@@ -146,5 +153,8 @@ class GeneratorGrid:
                     link=f"{labelText}"
                 checkbox.label.inner_html=f"{link}<br>{ypCell.statusMsg}"
                 checkbox_row[target.name]=(checkbox,ypCell)
+                self.app.progressBar.updateProgress(round(progress_steps/total_steps*100))
                 await self.app.wp.update()
             pass
+        # done
+        self.app.progressBar.updateProgress(0)
