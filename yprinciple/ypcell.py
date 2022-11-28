@@ -53,8 +53,8 @@ class YpCell:
         Returns:
             str: the markup diff
         """
+        markup_diff=""
         if self.target.is_multi:
-            markup_diff=""
             for ypCell in self.subCells.values():
                 markup_diff+=ypCell.generate(smwAccess, dryRun, withEditor)
             return markup_diff

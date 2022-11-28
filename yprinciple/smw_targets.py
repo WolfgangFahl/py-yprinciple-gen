@@ -4,7 +4,7 @@ Created on 2022-11-26
 @author: wf
 '''
 from yprinciple.target import Target
-from meta.metamodel import Topic, TopicLink
+from meta.metamodel import Topic, TopicLink, Property
 from datetime import datetime
 from yprinciple.version import Version
 import yprinciple.ypcell as ypcell
@@ -460,4 +460,40 @@ class PropertyTarget(SMWTarget):
     the Property Target
     """
     
+    def generate(self,prop:Property)->str:
+        """
+        generate wiki markup for the given property
+        
+        see https://wiki.bitplan.com/index.php/SiDIFTemplates#propertiesdefs
+        
+        
+        
+        Returns: 
+            str: the wiki markup for the given property
+        """
+        #@TODO get linked topic for the property
+        #topic_name=prop.topic.name
+        topic_name="?"
+        topicWithConcept=f"Concept:{topic_name}"
+        markup=f"""{{{{Property
+|name={prop.name}
+|label={prop.label} 
+|documentation={prop.documentation}
+|type=Special:Types/{prop.type}
+"""
+        for prop_name in ["index","sortPos","primaryKey","mandatory",
+           "namespace","size","uploadable","defaultValue","inputType",
+           "allowedValues","values_from","showInGrid","isLink"]:
+            if hasattr(prop, prop_name):
+                value=getattr(prop,prop_name,None)
+                if value is not None:
+                    markup+=f"|{prop_name}={value}\n"                   
+                    # e.g. |index={prop.index}
+        markup+=f"""|topic={(topicWithConcept)}
+|storemode=prop       
+}}}}      
+[[Has type::{prop.type}]]
+This is a Property with type {{{{#show: {{{{FULLPAGENAMEE}}}} | ?Property type#- }}}}
+"""
+        return markup
     
