@@ -3,7 +3,7 @@ Created on 2022-11-25
 
 @author: wf
 '''
-from meta.metamodel import Topic
+from meta.metamodel import MetaModelElement
 from yprinciple.target import Target
 from meta.mw import SMWAccess
 from wikibot.wikipush import WikiPush
@@ -15,19 +15,30 @@ class YpCell:
     a Y-Principle cell
     """
     
-    def __init__(self,topic:Topic,target:Target,debug:bool=False):
+    def __init__(self,modelElement:MetaModelElement,target:Target,debug:bool=False):
         """
         constructor
         
         Args:
-            topic(Topic): the topic to generate for
+            modelElement(modelElement): the modelElement to generate for
             target(Target): the target to generate for
             debug(bool): if True - enable debugging 
         """
-        self.topic=topic
+        self.modelElement=modelElement
         self.target=target
         self.smwAccess=None
         self.debug=debug
+        self.subCells={}
+        
+    @classmethod
+    def createYpCell(cls,target:Target,topic:'Topic',debug:bool=False)->'YpCell':
+        """
+        add a ypCell for the given target and topic
+        """
+        ypCell=YpCell(modelElement=topic,target=target,debug=debug)
+        if target.is_multi:
+            target.addSubCells(ypCell=ypCell,topic=topic,debug=debug)
+        return ypCell
         
     def generate(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->str:
         """
@@ -42,8 +53,13 @@ class YpCell:
         Returns:
             str: the markup diff
         """
+        if self.target.is_multi:
+            markup_diff=""
+            for ypCell in self.subCells.values():
+                markup_diff+=ypCell.generate(smwAccess, dryRun, withEditor)
+            return markup_diff
         target_key=self.target.target_key
-        markup=self.target.generate(self.topic)
+        markup=self.target.generate(self.modelElement)
         if withEditor:
             Editor.open_tmp_text(markup,file_name=f"{target_key}_gen.wiki")
         self.getPage(smwAccess)
@@ -63,24 +79,21 @@ class YpCell:
     def getLabelText(self)->str:
         """
         get my label Text
-        
-        Args:
-            topic(Topic): the topic
             
         Returns:
-            str: a label in the generator grid for the topic
+            str: a label in the generator grid for my modelElement topic
         """
-        labelText=f"{self.target.name}:{self.topic.name}"
+        labelText=f"{self.target.name}:{self.modelElement.name}"
         return labelText
     
     def getPageTitle(self):
         """
-        get the page title
+        get the page title for my modelElement
         """
         if self.target.name=="List of":
-            pageTitle=f"List of {self.topic.pluralName}"
+            pageTitle=f"List of {self.modelElement.pluralName}"
         else:
-            pageTitle=f"{self.target.name}:{self.topic.name}"
+            pageTitle=f"{self.target.name}:{self.modelElement.name}"
         return pageTitle
     
     def getPage(self,smwAccess:SMWAccess)->str:

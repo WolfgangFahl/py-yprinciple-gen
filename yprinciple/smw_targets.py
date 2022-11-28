@@ -7,6 +7,7 @@ from yprinciple.target import Target
 from meta.metamodel import Topic, TopicLink
 from datetime import datetime
 from yprinciple.version import Version
+import yprinciple.ypcell as ypcell
 
 class SMWTarget(Target):
     """
@@ -22,10 +23,12 @@ class SMWTarget(Target):
             "listOf": ListOfTarget("List of","format-list-bulleted"),
             "template": TemplateTarget("Template","file-document"),
             "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
+            "property": PropertyTarget("Property",subTarget=True),
             "python": Target("Python","snake")
         }
         for target_key,target in targets.items():
             target.target_key=target_key
+        targets["properties"].subTarget=targets["property"]
         return targets
     
     def i18n(self,text:str)->str:
@@ -438,6 +441,23 @@ class TemplateTarget(SMWTarget):
 class PropertyMultiTarget(SMWTarget):
     """
     the Property Multi Target
+    """
+    
+    def addSubCells(self,ypCell:'YpCell',topic:Topic,debug:bool=False):
+        """
+        add the subcells for the given ypCell and topic
+        
+        Args:
+            ypCell: the ypCell
+            topic(Topic): the topic to add subcells for
+        """
+        for prop in topic.properties.values():
+            subCell=ypcell.YpCell(modelElement=prop,target=self.subTarget,debug=debug)
+            ypCell.subCells[prop.name]=subCell
+    
+class PropertyTarget(SMWTarget):
+    """
+    the Property Target
     """
     
     

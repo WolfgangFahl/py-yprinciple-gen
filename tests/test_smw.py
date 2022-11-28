@@ -9,8 +9,6 @@ from meta.metamodel import Context
 from tests.basemwtest import BaseMediawikiTest
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
-from wikibot.wikipush import WikiPush
-from yprinciple.editor import Editor
 
 class TestSMW(BaseMediawikiTest):
     """
@@ -34,7 +32,7 @@ class TestSMW(BaseMediawikiTest):
             self.assertIsNone(error)
             for target in SMWTarget.getSMWTargets().values():
                 for topic in context.topics.values():
-                    ypCell=YpCell(topic=topic,target=target)
+                    ypCell=YpCell(modelElement=topic,target=target)
                     ypCell.getPage(smwAccess)
                     counter[ypCell.status]+=1
                     if debug:
@@ -58,12 +56,12 @@ class TestSMW(BaseMediawikiTest):
         topic=context.topics["City"]
         withEditor=not self.inPublicCI()
         withEditor=False
-        for target_key in ["category","concept","form","help","listOf","template"]:
+        for target_key in ["category","concept","form","help","listOf","template","properties"]:
             smwTarget=SMWTarget.getSMWTargets()[target_key]
-            ypCell=YpCell(topic=topic,target=smwTarget,debug=debug)
+            ypCell=YpCell.createYpCell(target=smwTarget,topic=topic,debug=debug)
             markup_diff=ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
             diff_lines=markup_diff.split("\n")
-            print(f"""found {len(diff_lines)} line differences for {ypCell.pageTitle}""")
+            print(f"""found {len(diff_lines)} line differences for {ypCell.getPageTitle()}""")
             if self.debug:
                 print(markup_diff)       
             

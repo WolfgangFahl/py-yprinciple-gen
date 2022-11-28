@@ -4,8 +4,9 @@ Created on 25.11.2022
 @author: wf
 '''
 from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
-from meta.metamodel import Context
+from meta.metamodel import Context,Topic
 from yprinciple.ypcell import YpCell
+from yprinciple.target import Target
 
 class GeneratorGrid:
     """
@@ -48,6 +49,7 @@ class GeneratorGrid:
                                                 disabled=False)
         self.targetsColumnHeader=self.jp.Div(text="Targets",a=self.gridHeaderRow,
             classes=self.headerClasses,style=self.headerStyle)
+        self.targetsColumnHeader.inner_html="<strong>Target</strong>"
         self.targetSelectionHeader=self.jp.Div(a=self.gridRows,classes="row")
         self.jp.Label(a=self.targetSelectionHeader,inner_html="<strong>Topics</strong>",classes=self.headerClasses,style=self.headerStyle)
         self.createSimpleCheckbox(a=self.targetSelectionHeader, labelText="↘",title="select all",input=self.onSelectAllClick)
@@ -119,8 +121,7 @@ class GeneratorGrid:
                 checkbox.check(checked)
         except BaseException as ex:
             self.app.handleException(ex)
-            
-   
+        
     async def addRows(self,context:Context):
         """
         add the rows for the given topic
@@ -134,7 +135,7 @@ class GeneratorGrid:
             _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.targets.values():
-                ypCell=YpCell(topic=topic,target=target)
+                ypCell=YpCell.createYpCell(target=target, topic=topic)
                 labelText=ypCell.getLabelText()
                 labelText=labelText.replace(":",":<br>")
                 checkbox=SimpleCheckbox(labelText="", a=_topicRow, groupClasses="col-1")
