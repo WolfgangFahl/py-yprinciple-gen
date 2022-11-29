@@ -30,6 +30,15 @@ class Target:
     def getPageTitle(self,modelElement)->str:
         pageTitle=f"{self.name}:{modelElement.name}"
         return pageTitle   
+    
+    def getFileName(self,modelElement,purpose):
+        prefix=self.getPageTitle(modelElement)
+        # workaround for macos
+        # https://apple.stackexchange.com/questions/173529/when-did-the-colon-character-become-an-allowed-character-in-the-filesystem
+        prefix=prefix.replace(":","｜")
+        prefix=prefix.replace(" ","_")
+        filename=f"{prefix}{purpose}.wiki"
+        return filename
         
     def generate(self,topic:'Topic')->str:
         """

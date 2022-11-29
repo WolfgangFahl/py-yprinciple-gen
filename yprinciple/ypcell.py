@@ -54,21 +54,18 @@ class YpCell:
             str: the markup diff
         """
         markup_diff=""
+        # ignore multi targets
         if self.target.is_multi:
-            for ypCell in self.subCells.values():
-                markup_diff+=ypCell.generate(smwAccess, dryRun, withEditor)
-            return markup_diff
-        target_key=self.target.target_key
+            return None
         markup=self.target.generate(self.modelElement)
         if withEditor:
-            Editor.open_tmp_text(markup,file_name=f"{target_key}_gen.wiki")
+            Editor.open_tmp_text(markup,file_name=self.target.getFileName(self.modelElement,"wiki_gen"))
         self.getPage(smwAccess)
         if self.pageText:
             markup_diff=WikiPush.getDiff(self.pageText, markup)
             if withEditor:
-                Editor.open_tmp_text(markup,file_name=f"{target_key}_gen.wiki")
-                Editor.open_tmp_text(self.pageText,file_name=f"{target_key}_markup.wiki")
-                Editor.open_tmp_text(markup_diff,file_name=f"{target_key}_diff.txt")
+                Editor.open_tmp_text(self.pageText,file_name=self.target.getFileName(self.modelElement,"wiki_page"))
+                Editor.open_tmp_text(markup_diff,file_name=self.target.getFileName(self.modelElement,"wiki_diff"))
         if not dryRun:
             self.page.edit(markup,f"modified by {Version.name} {Version.version}")
             # update status

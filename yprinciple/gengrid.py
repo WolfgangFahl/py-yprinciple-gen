@@ -64,19 +64,35 @@ class GeneratorGrid:
             self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
             self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,classes=classes,input=self.onSelectColumnClick)
     
+    def getCheckedYpCells(self):
+        """
+        get all checked YpCells
+        """
+        checkedYpCells=[]
+        # generate in order of rows
+        for checkbox_row in self.checkboxes.values():
+            for checkbox,ypCell in checkbox_row.values():
+                if checkbox.isChecked():
+                    checkedYpCells.append(ypCell)
+                for subCell in ypCell.subCells.values():
+                    checkbox=self.checkbox_by_uuid[subCell.checkbox_id]
+                    if checkbox.isChecked():
+                        checkedYpCells.append(subCell)
+        return checkedYpCells
+                
+        
     async def onGenerateButtonClick(self,_msg):
         """
         react on the generate button having been clicked
         """
-        for checkbox_row in self.checkboxes.values():
-            for checkbox,ypCell in checkbox_row.values():
-                if checkbox.isChecked():
-                    try:
-                        ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
-                        await self.app.wp.update()
-                    except BaseException as ex:
-                        self.app.handleException(ex)
-                        
+        cellsToGen=self.getCheckedYpCells()
+        for ypCell in cellsToGen:
+            try:
+                ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
+                await self.app.wp.update()
+            except BaseException as ex:
+                self.app.handleException(ex)
+                    
     def check_ypcell_box(self,checkbox,ypCell,checked:bool):
         """
         check the given checkbox and the ypCell belonging to it
