@@ -3,7 +3,8 @@ Created on 25.11.2022
 
 @author: wf
 '''
-from jpwidgets.bt5widgets import Collapsible,IconButton,SimpleCheckbox
+from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
+from jpwidgets.widgets import HideShow
 from meta.metamodel import Context,Topic
 from yprinciple.ypcell import YpCell
 from yprinciple.target import Target
@@ -225,8 +226,8 @@ class GeneratorGrid:
                 progress_steps+=1
                 ypCell=YpCell.createYpCell(target=target, topic=topic)
                 if len(ypCell.subCells)>0:
-                    #prop_div=Collapsible("properties",collapsed=True,a=_topicRow)
-                    prop_div=self.jp.Div(a=_topicRow,classes=self.getCols(target))
+                    prop_div_col=self.jp.Div(a=_topicRow,classes=self.getCols(target))
+                    prop_div=HideShow(a=prop_div_col,show_content=False,hide_show_label=("properties","properties"))
                     a=prop_div
                     classes=""
                 else:
