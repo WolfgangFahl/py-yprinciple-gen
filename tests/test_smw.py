@@ -62,8 +62,9 @@ class TestSMW(BaseMediawikiTest):
             smwTarget=SMWTarget.getSMWTargets()[target_key]
             ypCell=YpCell.createYpCell(target=smwTarget,topic=topic,debug=debug)
             markup_diff=ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
-            diff_lines=markup_diff.split("\n")
-            print(f"""found {len(diff_lines)} line differences for {ypCell.getPageTitle()}""")
-            if self.debug:
-                print(markup_diff)       
-            
+            if markup_diff:
+                diff_lines=markup_diff.split("\n")
+                print(f"""found {len(diff_lines)} line differences for {ypCell.getPageTitle()}""")
+                if self.debug:
+                    print(markup_diff)       
+                
