@@ -412,7 +412,7 @@ class ListOfTarget(SMWTarget):
 {{{{#ask: [[Concept:{topic.name}]]
 |mainlabel={topic.name}"""
         for prop in topic.properties.values():
-            markup+=f"| ?{topic.name}  {prop.name} = {prop.name}\n"
+            markup+=f"|?{topic.name} {prop.name} = {prop.name}\n"
         markup+=f"""{self.askSort(topic)}}}}}
 [[:Category:{topic.name}]]
     """
@@ -438,8 +438,47 @@ class TemplateTarget(SMWTarget):
         markup=f"""<noinclude>{self.copyright()}
 === see also ===
 {self.seealso(topic)}
+=== Usage ===
+<pre>{{{{{topic.name}
+"""
+        for prop in topic.properties.values():
+            markup+=f"|{prop.name}=\n"
+        markup+=f"""|storemode=property or subjobject or none"
+}}}}
 [[Category:Template]]
-</noinclude><includeonly></includeonly>"""
+</noinclude><includeonly>{{{{#switch:{{{{{{storemode|}}}}}}
+|none=
+|subobject={{{{#subobject:-
+|isA={topic.name}
+"""
+        for prop in topic.properties.values():
+            markup+=f"|{prop.name}={{{{{{{prop.name}|}}}}}}\n"
+        markup+=f"""}}}}
+|#default={{{{#set:
+|isA={topic.name}
+"""
+        for prop in topic.properties.values():
+            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
+        markup+=f"""}}}}\n""" # end of #set
+        markup+=f"""}}}}\n""" # end of #switch
+        markup+=f"""{{{{{{!}}}} class='wikitable'
+! colspan='2' {{{{!}}}}{topic.name}
+{{{{!}}}}-
+{{{{#switch:{{{{{{storemode|}}}}}}|property=
+! colspan='2' style='text-align:left' {{{{!}}}} {{{{Icon|name=edit|size=24}}}}{{{{Link|target=Special:FormEdit/{topic.name}{{{{FULLPAGENAME}}}}|title=edit}}}}
+{{{{!}}}}-
+}}}}
+"""
+        for prop in topic.properties.values():
+            markup+=f"""!{prop.name}
+{{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}
+{{{{!}}}}-\n"""
+        markup+=f"{{{{!}}}}}}" # end of table
+        if hasattr(topic, "defaultstoremode"):
+            if topic.defaultstoremode=="property":
+                markup+=f"[[Category:{topic.name}]]{{{{#default_form:{topic.name}}}}}\n"
+    
+        markup+="""</includeonly>"""
         return markup
     
 class PropertyMultiTarget(SMWTarget):
