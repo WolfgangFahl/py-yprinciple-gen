@@ -373,8 +373,8 @@ class FormTarget(SMWTarget):
         """      
         multiple="|multiple" if isMultiple else ""
         markup=f"""<div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"></div>
-{{{{section|{topic.name}|level=1|hidden}}}}
-={topic.name}
+{{{{{{section|{topic.name}|level=1|hidden}}}}}}
+={topic.name}=
 {{{{{{for template|{topic.name}{multiple}}}}}}}
 {{| class="wikitable"
 ! colspan='2' | {topic.name} 
@@ -393,12 +393,12 @@ class FormTarget(SMWTarget):
             values_from  =f"|values from={prop.values_from}"  if getattr(prop,"values_from",None) else ""
             defaultValue =f"|default={prop.defaultValue}"     if getattr(prop,"defaultValue",None) else ""
             allowedValues=f"|values={prop.allowedValues}"     if getattr(prop,"allowedValues",None) else "" 
-            markup+=f"""{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
+            markup+=f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
 |-
 """    
-        markup+=f"""{{{{{{field|storemode|default={topic.defaultstoremode}|hidden}}}}}}\n""" 
         markup+=f"""|-
 |}}
+{{{{{{field|storemode|default={topic.defaultstoremode}|hidden}}}}}}
 {{{{{{end template}}}}}}
 <!-- {topic.name} -->
         """
