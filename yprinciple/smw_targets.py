@@ -522,7 +522,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 ! colspan='2' {{{{!}}}}{topic.name}
 {{{{!}}}}-
 {{{{#switch:{{{{{{storemode|}}}}}}|property=
-! colspan='2' style='text-align:left' {{{{!}}}} {{{{Icon|name=edit|size=24}}}}{{{{Link|target=Special:FormEdit/{topic.name}{{{{FULLPAGENAME}}}}|title=edit}}}}
+! colspan='2' style='text-align:left' {{{{!}}}} {{{{Icon|name=edit|size=24}}}}{{{{Link|target=Special:FormEdit/{topic.name}/{{{{FULLPAGENAME}}}}|title=edit}}}}
 {{{{!}}}}-
 }}}}
 """
