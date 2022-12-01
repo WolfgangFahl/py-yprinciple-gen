@@ -372,7 +372,10 @@ class FormTarget(SMWTarget):
             isMultiple(bool): True if there are multiple values allowed
         """      
         multiple="|multiple" if isMultiple else ""
-        markup=f"""{{{{{{for template|{topic.name}{multiple}}}}}}}
+        markup=f"""<div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"></div>
+{{{{section|{topic.name}|level=1|hidden}}}}
+={topic.name}
+{{{{{{for template|{topic.name}{multiple}}}}}}}
 {{| class="wikitable"
 ! colspan='2' | {topic.name} 
 |-
@@ -390,11 +393,13 @@ class FormTarget(SMWTarget):
             values_from  =f"|values from={prop.values_from}"  if getattr(prop,"values_from",None) else ""
             defaultValue =f"|default={prop.defaultValue}"     if getattr(prop,"defaultValue",None) else ""
             allowedValues=f"|values={prop.allowedValues}"     if getattr(prop,"allowedValues",None) else "" 
-            markup+=f"""{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}\n"""    
+            markup+=f"""{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
+|-
+"""    
         markup+=f"""{{{{{{field|storemode|default={topic.defaultstoremode}|hidden}}}}}}\n""" 
-        markup+="""|-
+        markup+=f"""|-
 |}}
-{{{{{{end template}}}
+{{{{{{end template}}}}}}
 <!-- {topic.name} -->
         """
         return markup
