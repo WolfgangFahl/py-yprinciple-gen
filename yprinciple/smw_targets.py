@@ -363,6 +363,42 @@ class FormTarget(SMWTarget):
     
     """
     
+    def formTemplate(self,topic:Topic,isMultiple:bool):
+        """
+        create the SMW pagefomrs markups for the given topic
+        
+        Args:
+            topic(Topic): the topic to create the markup for
+            isMultiple(bool): True if there are multiple values allowed
+        """      
+        multiple="|multiple" if isMultiple else ""
+        markup=f"""{{{{{{for template|{topic.name}{multiple}}}}}}}
+{{| class="wikitable"
+! colspan='2' | {topic.name} 
+|-
+"""    
+        for prop in topic.propertiesByIndex():
+            markup+=f"""! {prop.label}:
+<!-- {prop.type} {prop.name} -->\n"""
+            inputType    =f"|input type={prop.inputType}"     if getattr(prop,"inputType",None) else ""
+            if "textarea"==getattr(prop,"inputType",None):
+                inputType+="|editor=wikieditor"
+            size         =f"|size={prop.size}"                if getattr(prop,"size",None) else ""
+            mandatory    =f"|mandatory"                       if getattr(prop,"mandatory",None) else ""
+            uploadable   =f"|uploadable"                      if getattr(prop,"uploadable",None) else ""
+            size         =f"|size={prop.size}"                if getattr(prop,"size",None) else ""
+            values_from  =f"|values from={prop.values_from}"  if getattr(prop,"values_from",None) else ""
+            defaultValue =f"|default={prop.defaultValue}"     if getattr(prop,"defaultValue",None) else ""
+            allowedValues=f"|values={prop.allowedValues}"     if getattr(prop,"allowedValues",None) else "" 
+            markup+=f"""{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}\n"""    
+        markup+=f"""{{{{{{field|storemode|default={topic.defaultstoremode}|hidden}}}}}}\n""" 
+        markup+="""|-
+|}}
+{{{{{{end template}}}
+<!-- {topic.name} -->
+        """
+        return markup
+    
     def generate(self,topic:Topic)->str:
         """
         generate the form page for the given topic
@@ -373,11 +409,31 @@ class FormTarget(SMWTarget):
         Returns:
             str: the generated wiki markup 
         """
+        multiple="subobject"==topic.defaultstoremode
         markup=f"""<noinclude>
 This is the {self.profiWiki()}-Form for "{topic.name}".
+
+Create a new {topic.name} by entering a new pagetitle for a {topic.name}
+into the field below. 
+
+If you enter an existing {topic.name} pagetitle - you will edit the {topic.name}
+with that pagetitle.
+{{{{#forminput:form={topic.name}|values from concept={topic.name}}}}}
+
 === see also ===
 {self.seealso(topic)}
-</noinclude><includeonly></includeonly>
+</noinclude><includeonly>{self.formTemplate(topic,multiple)}
+
+{{{{{{section|Freitext|level=1|hidden}}}}}}
+=Freitext=
+{{{{{{standard input|free text|rows=10}}}}}}
+
+{{{{{{standard input|summary}}}}}}
+{{{{{{standard input|changes}}}}}}
+
+{{{{{{standard input|save}}}}}}
+{{{{{{standard input|cancel}}}}}}
+</includeonly>
         """
         return markup
     
@@ -436,6 +492,7 @@ class TemplateTarget(SMWTarget):
             str: the generated wiki markup 
         """
         markup=f"""<noinclude>{self.copyright()}
+This is the {self.profiWiki()}-Template for "{topic.name}".
 === see also ===
 {self.seealso(topic)}
 === Usage ===
@@ -525,9 +582,7 @@ class PropertyTarget(SMWTarget):
         Returns: 
             str: the wiki markup for the given property
         """
-        #@TODO get linked topic for the property
-        #topic_name=prop.topic.name
-        topic_name="?"
+        topic_name=prop.topic
         topicWithConcept=f"Concept:{topic_name}"
         markup=f"""{{{{Property
 |name={prop.name}
