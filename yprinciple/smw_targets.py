@@ -632,6 +632,19 @@ class PythonTarget(SMWTarget):
     generator for Python Code for a Topic
     """
     
+    def pythonPropType(self,prop:Property)->str:
+        """
+        get the python property type for the given Property
+        """
+        ptype="str"
+        typestr=prop.type
+        typestr=typestr.replace("Types/","")
+        if typestr=="Boolean":
+            ptype="bool"
+        elif typestr=="Number":
+            ptype="float"
+        return ptype
+    
     def generate(self, topic:'Topic')->str:
         """
         generate python code for the given topic
@@ -648,7 +661,7 @@ class {topic.name}:
 '''
         
         for prop in topic.propertiesByIndex():
-            markup+=f'''    {prop.name}:Optional[str] # {getattr(prop,"documentation","")}\n'''
+            markup+=f'''    {prop.name}:Optional[{self.pythonPropType(prop)}] # {getattr(prop,"documentation","")}\n'''
         markup+=f'''
     @classmethod
     def askQuery(cls):
