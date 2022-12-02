@@ -24,7 +24,7 @@ class SMWTarget(Target):
             "template": TemplateTarget("Template","file-document"),
             "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
             "property": PropertyTarget("Property",showInGrid=False),
-            "python": Target("Python","snake",showInGrid=False)
+            "python": PythonTarget("Python","snake")
         }
         for target_key,target in targets.items():
             target.target_key=target_key
@@ -104,6 +104,26 @@ topic links:"""
         sortClause=f"|sort={sort}\n" if sort else ""
         orderClause=f"|order={order}\n" if order else ""
         markup=f"{sortClause}{orderClause}"
+        return markup
+    
+    def askQuery(self,topic:Topic,mainlabel:str=None)->str:
+        """
+        get the askQuery for the given topic
+        
+        Args:
+            topic(Topic): the topic to get the ask query for
+            mainlabel(str): the mainlabel to use - topic.name as default
+        Returns:
+            str: the markup for the query
+        """
+        if mainlabel is None:
+            mainlabel=topic.name
+        markup=f"""{{{{#ask: [[Concept:{topic.name}]]
+|mainlabel={mainlabel}
+"""
+        for prop in topic.properties.values():
+            markup+=f"|?{topic.name} {prop.name} = {prop.name}\n"
+        markup+=f"""{self.askSort(topic)}}}}}"""
         return markup
     
     def copyright(self)->str:
@@ -470,11 +490,7 @@ class ListOfTarget(SMWTarget):
 == {topic.getPluralName()} ==
 {{{{#ask: [[Concept:{topic.name}]]|format=count}}}}
 {{{{#forminput:form={topic.name}|button text=add {topic.name}}}}}
-{{{{#ask: [[Concept:{topic.name}]]
-|mainlabel={topic.name}"""
-        for prop in topic.properties.values():
-            markup+=f"|?{topic.name} {prop.name} = {prop.name}\n"
-        markup+=f"""{self.askSort(topic)}}}}}
+{self.askQuery(topic)}
 [[:Category:{topic.name}]]
     """
         return markup
@@ -611,3 +627,53 @@ This is a Property with type {{{{#show: {{{{FULLPAGENAMEE}}}} | ?Property type#-
 """
         return markup
     
+class PythonTarget(SMWTarget):
+    """
+    generator for Python Code for a Topic
+    """
+    
+    def generate(self, topic:'Topic')->str:
+        """
+        generate python code for the given topic
+        """
+        markup=f'''from dataclasses import dataclass
+from typing import Optional
+import dacite
+@dataclass
+class {topic.name}:
+    """
+    {topic.documentation}
+    """
+    pageTitle:str
+'''
+        
+        for prop in topic.propertiesByIndex():
+            markup+=f'''    {prop.name}:Optional[str] # {getattr(prop,"documentation","")}\n'''
+        markup+=f'''
+    @classmethod
+    def askQuery(cls):
+        """
+        get the ask Query for {topic.name}
+        
+        Returns:
+            str: the mediawiki markup for the ask query
+        """
+        ask="""{self.askQuery(topic,mainlabel="pageTitle")}"""
+        return ask
+        
+    @classmethod
+    def fromDict(cls,data:dict):
+        """
+        create a {topic.name} from the given dict
+        
+        Args:
+            data(dict): the dict to create the {topic.name} from
+        
+        Returns:
+            {topic.name}: the freshly created {topic.name}
+        """
+        {topic.name.lower()}=dacite.from_dict(data_class=cls,data=data)
+        return {topic.name.lower()}
+        '''
+        
+        return markup

@@ -5,7 +5,7 @@ Created on 25.11.2022
 '''
 from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
 from jpwidgets.widgets import HideShow
-from meta.metamodel import Context,Topic
+from meta.metamodel import Context
 from yprinciple.ypcell import YpCell
 from yprinciple.target import Target
 import uuid

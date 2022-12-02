@@ -58,6 +58,7 @@ class YPGenApp(App):
         self.useSidif=State(True)
         self.dryRun=State(True)
         self.openEditor=State(False)
+        self.explainDepth=0
         
     def setSMW(self,wikiId:str):
         """
@@ -98,9 +99,9 @@ class YPGenApp(App):
         self.generatorGrid=GeneratorGrid(self.targets,a=self.gridRows,app=self)
         if self.useSidif:
             if self.mw_context is not None:
-                context,error=Context.fromWikiContext(self.mw_context, self.args.debug)
+                context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
                 if error is not None:
-                    self.errors.inner_html=str(error)
+                    self.errors.inner_html=errMsg.replace("\n","<br>")
                 else:
                     await self.generatorGrid.addRows(context)
             
@@ -125,6 +126,7 @@ class YPGenApp(App):
         react on a the wikiuser being changed via a Select control
         """
         try:
+            self.clearErrors()
             self.setSMW(msg.value)
             await self.add_or_update_context_select()
             await self.wp.update()
@@ -136,6 +138,7 @@ class YPGenApp(App):
         react on a the wikiuser being changed via a Select control
         """
         try:
+            self.clearErrors()
             self.context_name=msg.value
             self.mw_context=self.mw_contexts.get(self.context_name,None)
             self.setContext(self.mw_context)
@@ -208,6 +211,13 @@ class YPGenApp(App):
                 self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser))
             self.wikiLink=self.jp.A(a=self.colB2,title=self.wikiId,text=self.wikiId,href=self.mw_context.wiki_url)
              
+    def onExplainDepthChange(self,msg):
+        self.explainDepth=int(msg.value)
+                 
+    def addExplainDepthSelect(self):
+        self.explainDepthSelect=self.createSelect("explain depth",value=0,change=self.onExplainDepthChange,a=self.colB1)
+        for depth in range(17):
+            self.explainDepthSelect.add(self.jp.Option(value=depth,text=str(depth)))
                 
     async def add_or_update_context_select(self):
         """
@@ -236,6 +246,7 @@ class YPGenApp(App):
         self.setupRowsAndCols()
         self.addLanguageSelect()
         self.addWikiUserSelect()
+        self.addExplainDepthSelect()
         return self.wp
     
     async def about(self)->"jp.WebPage":

@@ -28,7 +28,7 @@ class TestSMW(BaseMediawikiTest):
         smwAccess=SMWAccess("ceur-ws",debug=debug)
         counter=Counter()
         for mw_context in smwAccess.getMwContexts().values():
-            context,error=Context.fromWikiContext(mw_context, debug=debug)
+            context,error,errMsg=Context.fromWikiContext(mw_context, debug=debug)
             self.assertIsNone(error)
             for target in SMWTarget.getSMWTargets().values():
                 if not target.showInGrid:
@@ -53,7 +53,7 @@ class TestSMW(BaseMediawikiTest):
         smwAccess=SMWAccess("cr",debug=debug)
         mw_contexts=smwAccess.getMwContexts()
         mw_context=mw_contexts["CrSchema"]
-        context,error=Context.fromWikiContext(mw_context, debug=debug)
+        context,error,errMsg=Context.fromWikiContext(mw_context, debug=debug)
         self.assertIsNone(error)
         topic=context.topics["City"]
         withEditor=not self.inPublicCI()
