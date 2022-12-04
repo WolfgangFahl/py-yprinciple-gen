@@ -14,7 +14,7 @@ JpConfig.set("STATIC_DIRECTORY",static_dir)
 JpConfig.set("VERBOSE","False")
 JpConfig.setup()
 from jpwidgets.bt5widgets import App,About,ProgressBar,Switch,State
-from wikibot.wikiuser import WikiUser
+from wikibot3rd.wikiuser import WikiUser
 from meta.mw import SMWAccess
 from meta.metamodel import Context
 from yprinciple.smw_targets import SMWTarget
@@ -258,7 +258,6 @@ class YPGenApp(App):
         '''
         self.setupRowsAndCols()
         self.aboutDiv=About(a=self.colB1,version=self.version)
-        # @TODO Refactor to pyJustpyWidgets
         return self.wp
         
     async def content(self)->"jp.WebPage":

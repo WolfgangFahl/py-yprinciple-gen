@@ -6,7 +6,7 @@ Created on 2022-11-25
 from meta.metamodel import MetaModelElement
 from yprinciple.target import Target
 from meta.mw import SMWAccess
-from wikibot.wikipush import WikiPush
+from wikibot3rd.wikipush import WikiPush
 from yprinciple.editor import Editor
 from yprinciple.version import Version
 

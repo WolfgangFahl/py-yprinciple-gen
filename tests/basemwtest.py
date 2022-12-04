@@ -4,7 +4,7 @@ Created on 2022-11-24
 @author: wf
 '''
 import os
-from wikibot.wikiuser import WikiUser
+from wikibot3rd.wikiuser import WikiUser
 from tests.basetest import Basetest
 
 class BaseMediawikiTest(Basetest):

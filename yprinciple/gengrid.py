@@ -24,7 +24,7 @@ class GeneratorGrid:
         Args:
             targets(dict): a list of targets
             a: the parent element
-            app: the parent spp
+            app: the parent app
             
         """
         self.gridRows=a
