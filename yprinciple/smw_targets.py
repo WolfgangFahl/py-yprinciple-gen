@@ -123,6 +123,7 @@ topic links:"""
 """
         for prop in topic.properties.values():
             markup+=f"|?{topic.name} {prop.name} = {prop.name}\n"
+        markup+=f"| limit={topic.getListLimit()}\n"
         markup+=f"""{self.askSort(topic)}}}}}"""
         return markup
     
