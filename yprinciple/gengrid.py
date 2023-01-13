@@ -85,6 +85,8 @@ class GeneratorGrid:
         """
         react on the generate button having been clicked
         """
+        # force login 
+        self.app.smwAccess.wikiClient.login()
         cellsToGen=self.getCheckedYpCells()
         for ypCell in cellsToGen:
             try:
