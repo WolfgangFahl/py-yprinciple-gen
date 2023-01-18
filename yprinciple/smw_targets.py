@@ -612,9 +612,10 @@ class PropertyTarget(SMWTarget):
 |documentation={prop.documentation}
 |type=Special:Types/{prop.type}
 """
+        # @TODO read from metamodel
         for prop_name in ["index","sortPos","primaryKey","mandatory",
            "namespace","size","uploadable","defaultValue","inputType",
-           "allowedValues","values_from","showInGrid","isLink"]:
+           "allowedValues","values_from","formatterURI","showInGrid","isLink"]:
             if hasattr(prop, prop_name):
                 value=getattr(prop,prop_name,None)
                 if value is not None:
@@ -623,7 +624,12 @@ class PropertyTarget(SMWTarget):
         markup+=f"""|topic={(topicWithConcept)}
 |storemode=prop       
 }}}}      
-[[Has type::{prop.type}]]
+* [[Has type::{prop.type}]]
+"""
+        if hasattr(prop, "formatterURI"):
+            markup+=f"""* External formatter uri: [[External formatter uri::{prop.formatterURI}]]
+"""
+        markup+="""
 This is a Property with type {{{{#show: {{{{FULLPAGENAMEE}}}} | ?Property type#- }}}}
 """
         return markup
