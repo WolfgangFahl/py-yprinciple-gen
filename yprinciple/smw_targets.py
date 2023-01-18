@@ -629,7 +629,7 @@ class PropertyTarget(SMWTarget):
         if hasattr(prop, "formatterURI"):
             markup+=f"""* External formatter uri: [[External formatter uri::{prop.formatterURI}]]
 """
-        markup+="""
+        markup+=f"""
 This is a Property with type {{{{#show: {{{{FULLPAGENAMEE}}}} | ?Property type#- }}}}
 """
         return markup
