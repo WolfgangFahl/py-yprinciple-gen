@@ -237,7 +237,12 @@ class GeneratorGrid:
             checkbox_row=self.checkboxes[topic_name]
             _topicRow=self.jp.Div(a=self.gridRows,classes="row",style='color:black')
             topicHeader=self.jp.Div(a=_topicRow,text=topic_name,classes=self.headerClasses,style=self.headerStyle)
-            icon_url=f"{topic.iconUrl}" if topic.iconUrl.startswith("http") else f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
+            if topic.iconUrl.startswith("http"):
+                icon_url=f"{topic.iconUrl}"  
+            elif self.app.mw_context is not None:
+                icon_url=f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
+            else:
+                icon_url="?"
             _topicIcon=self.jp.Img(src=icon_url, a=topicHeader,width=f'{self.iconSize}',height=f'{self.iconSize}')
             self.createSimpleCheckbox(labelText="→",title=f"select all {topic_name}",a=_topicRow,input=self.onSelectRowClick)
             for target in self.displayTargets():

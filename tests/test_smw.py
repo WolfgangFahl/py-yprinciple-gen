@@ -6,17 +6,17 @@ Created on 2022-11-24
 from collections import Counter
 from meta.mw import SMWAccess
 from meta.metamodel import Context
-from tests.basemwtest import BaseMediawikiTest
+from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
 
-class TestSMW(BaseMediawikiTest):
+class TestSMW(BaseSemanticMediawikiTest):
     """
     test Semantic MediaWiki handling
     """
     
     def setUp(self, debug=False, profile=True):
-        BaseMediawikiTest.setUp(self, debug=debug, profile=profile)
+        BaseSemanticMediawikiTest.setUp(self, debug=debug, profile=profile)
         for wikiId in ["wiki","ceur-ws","cr"]:
             self.getWikiUser(wikiId, save=True)
             
@@ -49,12 +49,8 @@ class TestSMW(BaseMediawikiTest):
         test the generate functionality
         """
         debug=self.debug
-        debug=False
-        smwAccess=SMWAccess("cr",debug=debug)
-        mw_contexts=smwAccess.getMwContexts()
-        mw_context=mw_contexts["CrSchema"]
-        context,error,errMsg=Context.fromWikiContext(mw_context, debug=debug)
-        self.assertIsNone(error)
+        debug=True
+        smwAccess,context=self.getContext("cr", "CrSchema", debug)
         topic=context.topics["City"]
         withEditor=not self.inPublicCI()
         withEditor=False

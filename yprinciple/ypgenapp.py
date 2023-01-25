@@ -209,7 +209,9 @@ class YPGenApp(App):
             self.wikiuser_select=self.createSelect("wikiId", value=self.wikiId, change=self.onChangeWikiUser, a=self.colB1)
             for wikiUser in sorted(self.wikiUsers):
                 self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser))
-            self.wikiLink=self.jp.A(a=self.colB2,title=self.wikiId,text=self.wikiId,href=self.mw_context.wiki_url)
+            if self.mw_context is not None:
+                url=self.mw_context.wiki_url
+                self.wikiLink=self.jp.A(a=self.colB2,title=self.wikiId,text=self.wikiId,href=url)
              
     def onExplainDepthChange(self,msg):
         self.explainDepth=int(msg.value)
@@ -226,7 +228,11 @@ class YPGenApp(App):
         try:
             if self.contextSelect is None:
                 self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colC1)
-                self.contextLink=self.jp.A(a=self.colC2,title=self.context_name,text=self.context_name,href=self.mw_context.sidif_url())
+                if self.mw_context is not None:
+                    url=self.mw_context.sidif_url()
+                else:
+                    url="?"
+                self.contextLink=self.jp.A(a=self.colC2,title=self.context_name,text=self.context_name,href=url)
             else:
                 self.contextSelect.delete_components()
                 self.setContext(None)
