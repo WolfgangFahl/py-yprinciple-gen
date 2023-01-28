@@ -549,8 +549,15 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 }}}}
 """
         for prop in topic.properties.values():
+            # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
+            # show Links for external Identifiers in templates
+            if prop.type=="External identifier":
+                link_markup="{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
+                pass
+            else:
+                link_markup=""
             markup+=f"""!{prop.name}
-{{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}
+{{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}{link_markup}
 {{{{!}}}}-\n"""
         markup+=f"{{{{!}}}}}}" # end of table
         if hasattr(topic, "defaultstoremode"):
