@@ -134,8 +134,9 @@ topic links:"""
         Returns:
             str: the copyright markup
         """
-        markup="""<!--
-  --     Copyright (C) 2015-2022 BITPlan GmbH
+        currentYear = datetime.now().year
+        markup=f"""<!--
+  --     Copyright (C) 2015-{currentYear} BITPlan GmbH
   -- 
   --     Pater-Delp-Str. -- 1
   --     D-47877 -- Willich-Schiefbahn
@@ -211,11 +212,12 @@ topic links:"""
             str: the plantuml markup to be generated
             
         """
+        currentYear = datetime.now().year
         markup=f"""=== {title} ===
 <uml format='{output_format}'>
 title {topic.name}
 note as {topic.name}DiagramNote
-Copyright (c) 2015-2022 BITPlan GmbH
+Copyright (c) 2015-{currentYear} BITPlan GmbH
 [[http://www.bitplan.com]]
 end note
 note as {topic.name}Note
@@ -552,11 +554,11 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
             # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
             # show Links for external Identifiers in templates
             if prop.type=="External identifier":
-                link_markup="{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
+                link_markup="→{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
                 pass
             else:
                 link_markup=""
-            markup+=f"""!{prop.name}
+            markup+=f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
 {{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}{link_markup}
 {{{{!}}}}-\n"""
         markup+=f"{{{{!}}}}}}" # end of table

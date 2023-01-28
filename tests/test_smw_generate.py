@@ -31,7 +31,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
         """
         debug=self.debug
-        #debug=True
+        debug=True
         for _topicname,_target_key,_smwTarget,markup in self.getMarkup(debug,target_keys=["template"]):
             if debug:
                 print(markup)
@@ -42,7 +42,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         test Topic link handling
         """
         debug=self.debug
-        #debug=True
+        debug=True
         for topicname,target_key,smwTarget,markup in self.getMarkup(debug):
             if debug:
                 print(markup)
