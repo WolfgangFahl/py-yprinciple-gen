@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 from yprinciple.version import Version
 from yprinciple.ypgenapp import YPGenApp
+from yprinciple.genbatch import GeneratorBatch
 import os
 import sys
 import traceback
@@ -57,6 +58,7 @@ USAGE
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument("--about",help="show about info [default: %(default)s]",action="store_true")
         parser.add_argument('--context', default="MetaModel",help='context to generate from [default: %(default)s]')
+        parser.add_arugment("-a","--all",action="store_true",help="generate all elements")
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
         parser.add_argument('--host',default=JustpyServer.getDefaultHost(),help="the host to serve / listen from [default: %(default)s]")
         parser.add_argument('--port',type=int,default=8778,help="the port to serve from [default: %(default)s]")
@@ -78,6 +80,9 @@ USAGE
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
             pass
+        elif args.all:
+            genBatch=GeneratorBatch(args=args)
+            genBatch.start()
         pass
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
