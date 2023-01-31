@@ -78,8 +78,7 @@ class GeneratorGrid:
                     checkbox=self.checkbox_by_uuid[subCell.checkbox_id]
                     if checkbox.isChecked():
                         checkedYpCells.append(subCell)
-        return checkedYpCells
-                
+        return checkedYpCells   
         
     async def onGenerateButtonClick(self,_msg):
         """
