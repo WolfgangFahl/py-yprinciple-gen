@@ -90,6 +90,9 @@ class YpCell:
         Returns:
             FileGenResult: the generated result
         """
+        # ignore multi targets
+        if self.target.is_multi:
+            return None
         markup=self.generateMarkup(withEditor=withEditor)
         path=None
         if not dryRun:
