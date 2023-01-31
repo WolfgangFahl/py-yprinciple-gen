@@ -100,7 +100,7 @@ USAGE
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
             pass
-        elif args.genViaApi or args.genViaBackup:
+        elif args.genToFile or args.genViaBackup:
             gen=GeneratorAPI.fromArgs(args)
             dryRun=not args.noDry
             # @TODO allow to select targets and topics
