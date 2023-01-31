@@ -106,7 +106,7 @@ USAGE
             # @TODO allow to select targets and topics
             if args.genViaApi:
                 gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)
-            if args.genViaBackup:
+            if args.genToFile:
                 gen.generateToFile(target_dir=args.targetPath,target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor) 
         pass
     except KeyboardInterrupt:
