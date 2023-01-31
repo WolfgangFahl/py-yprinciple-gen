@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 from yprinciple.version import Version
 from yprinciple.ypgenapp import YPGenApp
-from yprinciple.genbatch import GeneratorBatch
+from yprinciple.genapi import GeneratorAPI
 import os
 import sys
 import traceback
@@ -16,15 +16,45 @@ import webbrowser
 # import after app!
 from jpcore.justpy_app import JustpyServer
 
-class YPGen():
+class YPGen:
     """
     Y-Principle Generator
     """
 
+    @classmethod
+    def getArgParser(cls,description:str,version_msg)->ArgumentParser:
+        """
+        Setup command line argument parser
+        
+        Args:
+            description(str): the description
+            version_msg(str): the version message
+            
+        Returns:
+            ArgumentParser: the argument parser
+        """
+        parser = ArgumentParser(description=description, formatter_class=RawDescriptionHelpFormatter)
+        parser.add_argument("--about",help="show about info [default: %(default)s]",action="store_true")
+        parser.add_argument('--context', default="MetaModel",help='context to generate from [default: %(default)s]')
+        parser.add_argument("--topics",nargs="*",help="list of topic names\n[default: %(default)s]")
+        parser.add_argument("--targets",nargs="*",help="list of target names\n[default: %(default)s]")
+        parser.add_argument("-ga","--genViaApi",action="store_true",help="generate elements via Api")
+        parser.add_argument("-gf","--genToFile",action="store_true",help="generate elements to files")
+        parser.add_argument("--targetPath", dest="targetPath", help="path for the files to be generated - uses wikibackup default path for wikiId if not specified", required=False)
+        parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
+        parser.add_argument("-nd","--noDry", action="store_true", help="switch off dry run [default: %(default)s]")   
+        parser.add_argument("--editor", action="store_true", help="open editor for results [default: %(default)s]")       
+        parser.add_argument('--host',default=JustpyServer.getDefaultHost(),help="the host to serve / listen from [default: %(default)s]")
+        parser.add_argument('--port',type=int,default=8778,help="the port to serve from [default: %(default)s]")
+        parser.add_argument("--serve",help="start webserver",action="store_true")
+        parser.add_argument('--wikiId', default="wiki",help='id of the wiki to generate for [default: %(default)s]')
+        parser.add_argument('-q', '--quiet', help="not verbose [default: %(default)s]" )
+        parser.add_argument('-V', '--version', action='version', version=version_msg)
+        return parser
+    
 __version__ = Version.version
 __date__ = Version.date
 __updated__ = Version.updated
-
 
 def main(argv=None): # IGNORE:C0111
     '''main program.'''
@@ -54,17 +84,7 @@ def main(argv=None): # IGNORE:C0111
 USAGE
 ''' % (program_shortdesc, user_name,str(__date__))
     try:
-        # Setup argument parser
-        parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
-        parser.add_argument("--about",help="show about info [default: %(default)s]",action="store_true")
-        parser.add_argument('--context', default="MetaModel",help='context to generate from [default: %(default)s]')
-        parser.add_arugment("-a","--all",action="store_true",help="generate all elements")
-        parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
-        parser.add_argument('--host',default=JustpyServer.getDefaultHost(),help="the host to serve / listen from [default: %(default)s]")
-        parser.add_argument('--port',type=int,default=8778,help="the port to serve from [default: %(default)s]")
-        parser.add_argument("--serve",help="start webserver",action="store_true")
-        parser.add_argument('--wikiId', default="wiki",help='id of the wiki to generate for [default: %(default)s]')
-        parser.add_argument('-V', '--version', action='version', version=program_version_message)
+        parser=YPGen.getArgParser(description=program_license,version_msg=program_version_message)
         args = parser.parse_args(argv)
         if len(argv) < 1:
             parser.print_usage()
@@ -80,9 +100,14 @@ USAGE
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
             pass
-        elif args.all:
-            genBatch=GeneratorBatch(args=args)
-            genBatch.start()
+        elif args.genViaApi or args.genViaBackup:
+            gen=GeneratorAPI.fromArgs(args)
+            dryRun=not args.noDry
+            # @TODO allow to select targets and topics
+            if args.genViaApi:
+                gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)
+            if args.genViaBackup:
+                gen.generateToFile(target_dir=args.targetPath,target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor) 
         pass
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###

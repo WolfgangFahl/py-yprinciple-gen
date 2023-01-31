@@ -31,11 +31,22 @@ class Target:
         pageTitle=f"{self.name}:{modelElement.name}"
         return pageTitle   
     
-    def getFileName(self,modelElement,purpose):
+    def getFileName(self,modelElement,purpose:str,fixcolon:bool=False)->str:
+        """
+        get the filename for the given modelElement and purpose
+        
+        Args:
+            modelElement:
+            purpose(str): the purpose e.g. Help/Category ...
+            
+        Returns:
+            str: a file name
+        """
         prefix=self.getPageTitle(modelElement)
         # workaround for macos
         # https://apple.stackexchange.com/questions/173529/when-did-the-colon-character-become-an-allowed-character-in-the-filesystem
-        prefix=prefix.replace(":","｜")
+        if fixcolon:
+            prefix=prefix.replace(":","｜")
         prefix=prefix.replace(" ","_")
         filename=f"{prefix}{purpose}.wiki"
         return filename

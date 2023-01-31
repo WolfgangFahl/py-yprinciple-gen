@@ -90,7 +90,8 @@ class GeneratorGrid:
         cellsToGen=self.getCheckedYpCells()
         for ypCell in cellsToGen:
             try:
-                ypCell.generate(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
+                genResult=ypCell.generateViaMwApi(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
+                # @TODO show links to gen results old_page,new_page and diff
                 await self.app.wp.update()
             except BaseException as ex:
                 self.app.handleException(ex)

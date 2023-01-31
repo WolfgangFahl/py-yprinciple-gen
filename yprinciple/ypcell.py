@@ -3,12 +3,50 @@ Created on 2022-11-25
 
 @author: wf
 '''
+import os
 from meta.metamodel import MetaModelElement
 from yprinciple.target import Target
 from meta.mw import SMWAccess
 from wikibot3rd.wikipush import WikiPush
 from yprinciple.editor import Editor
 from yprinciple.version import Version
+from dataclasses import dataclass
+
+@dataclass
+class GenResult:
+    """
+    generator Result
+    """
+    # markup for new page
+    markup: str
+    
+@dataclass
+class MwGenResult(GenResult):
+    # changes made
+    markup_diff: str
+    # @TODO use correct typing for MwClient Page object (pywikibot compatible?)
+    old_page: object
+    new_page: object
+
+    def getDiffUrl(self)->str:
+        """
+        get the diff url of the two pages (if any)
+        
+        Returns:
+            str: the url of the diff
+        """
+        diff_url=None
+        if self.old_page and self.new_page:
+            oldid=self.old_page.revision
+            newid=self.new_page.revision
+            site=self.new_page.site
+            diff_url=f"{site.scheme}://{site.host}{site.path}index.php?title={self.new_page.page_title}&type=revision&diff={newid}&oldid={oldid}"
+            pass
+        return diff_url
+    
+@dataclass
+class FileGenResult(GenResult):
+    path:str
 
 class YpCell:
     """
@@ -39,8 +77,48 @@ class YpCell:
         if target.is_multi:
             target.addSubCells(ypCell=ypCell,topic=topic,debug=debug)
         return ypCell
+    
+    def generateToFile(self,target_dir:str,dryRun:bool=True,withEditor:bool=False)->FileGenResult:
+        """
+        generate the given cell and store the result to a file in the given target directory
         
-    def generate(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->str:
+        Args:
+            target_dir(str): path to the target directory
+            dryRun(bool): if True do not push the result
+            withEditor(bool): if True open Editor when in dry Run mode
+            
+        Returns:
+            FileGenResult: the generated result
+        """
+        markup=self.generateMarkup(withEditor=withEditor)
+        path=None
+        if not dryRun:
+            filename=self.target.getFileName(self.modelElement,"")
+            path=f"{target_dir}/{filename}"
+            if not os.path.isdir(target_dir):
+                os.makedirs(target_dir,exist_ok=True)
+            with open(path, "w") as markup_file:
+                markup_file.write(markup)
+            pass
+        genResult=FileGenResult(markup=markup,path=path)
+        return genResult
+    
+    def generateMarkup(self,withEditor:bool=False):
+        """
+        generate the markup
+        
+        Args:
+            withEditor(bool): if True open Editor when in dry Run mode
+   
+        Returns:
+            str: the markup
+        """
+        markup=self.target.generate(self.modelElement)
+        if withEditor:
+            Editor.open_tmp_text(markup,file_name=self.target.getFileName(self.modelElement,"wiki_gen",fixcolon=True))
+        return markup
+        
+    def generateViaMwApi(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->str:
         """
         generate the given cell and upload the result via the given
         Semantic MediaWiki Access
@@ -57,10 +135,9 @@ class YpCell:
         # ignore multi targets
         if self.target.is_multi:
             return None
-        markup=self.target.generate(self.modelElement)
-        if withEditor:
-            Editor.open_tmp_text(markup,file_name=self.target.getFileName(self.modelElement,"wiki_gen"))
-        self.getPage(smwAccess)
+        markup=self.generateMarkup(withEditor=withEditor)
+        old_page=self.getPage(smwAccess)
+        new_page=None
         if self.pageText:
             markup_diff=WikiPush.getDiff(self.pageText, markup)
             if withEditor:
@@ -70,8 +147,11 @@ class YpCell:
             self.page.edit(markup,f"modified by {Version.name} {Version.version}")
             # update status
             # @TODO make diff/status available
-            self.getPage(smwAccess)
-        return markup_diff
+            new_page=self.getPage(smwAccess)
+        else:
+            markup_diff=markup
+        genResult=MwGenResult(markup=markup,markup_diff=markup_diff,old_page=old_page,new_page=new_page)
+        return genResult
         
     def getLabelText(self)->str:
         """
