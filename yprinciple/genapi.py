@@ -76,27 +76,41 @@ class GeneratorAPI:
                     targets[target_name]=allTargets[target_name]
         return targets
     
-    def yieldTopicsAndTargets(self,hint:str,target_names:list=None,topic_names:list=None):
+    def yieldYpCells(self,hint:str,target_names:list=None,topic_names:list=None,with_subcells:bool=True):
         """
         generate/yield topics and targets via nested loop
         
         Args:
             hint(str): hint message to show how the yield is used
+            with_subcells: if True yield sub cells (one level)
             target_name(list): if set filter targets by name
             topic_names(list): if set filter topics by name
         Returns:
-            generator
-        """  
+            generator(YpCell)
+        """
+        def showMsg(topic_name:str,ypCell:YpCell):
+            if self.verbose:
+                target_name=ypCell.target.name
+                print(f"generating {target_name} for {topic_name} {hint}...") 
+            pass
+              
         targets=self.filterTargets(target_names)
         for topic_name,topic in self.context.topics.items():
             # filter topic names
             if topic_names is not None and not topic_name in topic_names:
                 continue
-            for target_name,target in targets.items():
+            for _target_name,target in targets.items():
                 if target.showInGrid:
-                    if self.verbose:
-                        print(f"generating {target_name} for {topic_name} {hint}...")
-                    yield topic,target
+                    ypCell=YpCell.createYpCell(target=target, topic=topic)
+                    if ypCell.target.is_multi:
+                        if with_subcells:
+                            for subCell in ypCell.subCells.values():
+                                showMsg(topic_name,subCell)
+                                yield subCell
+                    else:
+                        showMsg(topic_name,ypCell)
+                        yield ypCell
+                        
           
     def generateViaMwApi(self,target_names:list=None,topic_names:list=None,dryRun:bool=True,withEditor:bool=False):
         """
@@ -113,8 +127,7 @@ class GeneratorAPI:
         """
         self.smwAccess.wikiClient.login()
         genResults=[]
-        for topic,target in self.yieldTopicsAndTargets("via Mediawiki Api", target_names, topic_names):
-            ypCell=YpCell.createYpCell(target=target, topic=topic)
+        for ypCell in self.yieldYpCells("via Mediawiki Api", target_names, topic_names):
             genResult=ypCell.generateViaMwApi(smwAccess=self.smwAccess,dryRun=dryRun,withEditor=withEditor)
             if self.debug or self.verbose:
                 diff_url=genResult.getDiffUrl()
@@ -143,8 +156,7 @@ class GeneratorAPI:
         if target_dir is None:
             home = Path.home()
             target_dir=f"{home}/wikibackup/{self.wikiId}"
-        for topic,target in self.yieldTopicsAndTargets(f" to file in {target_dir}", target_names, topic_names):
-            ypCell=YpCell.createYpCell(target=target, topic=topic)
+        for ypCell in self.yieldYpCells(f" to file in {target_dir}", target_names, topic_names):
             genResult=ypCell.generateToFile(target_dir=target_dir,dryRun=dryRun,withEditor=withEditor)
             genResults.append(genResult)
         return genResults

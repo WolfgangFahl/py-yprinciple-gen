@@ -68,11 +68,11 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         gen=GeneratorAPI.fromArgs(args)
         self.assertIsNone(gen.error)
         self.assertIsNone(gen.errMsg)
-        #if not self.inPublicCI():
-        #    genResults=gen.generateViaMwApi(args.targets, args.topics,dryRun=not args.noDry)
-        #    self.assertTrue(len(genResults)==1)
-        #    genResult=genResults[0]
-        #    self.assertTrue(isinstance(genResult,MwGenResult))
+        if not self.inPublicCI():
+            genResults=gen.generateViaMwApi(args.targets, args.topics,dryRun=not args.noDry)
+            self.assertTrue(len(genResults)==1)
+            genResult=genResults[0]
+            self.assertTrue(isinstance(genResult,MwGenResult))
         genResults=gen.generateToFile(target_dir="/tmp/ypgentest",target_names=args.targets,topic_names=args.topics,dryRun=False)
         self.assertTrue(len(genResults)==1)
         genResult=genResults[0]
