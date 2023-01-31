@@ -57,7 +57,7 @@ class TestSMW(BaseSemanticMediawikiTest):
         for target_key in ["category","concept","form","help","listOf","template","properties"]:
             smwTarget=SMWTarget.getSMWTargets()[target_key]
             ypCell=YpCell.createYpCell(target=smwTarget,topic=topic,debug=debug)
-            markup_diff=ypCell.generate(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
+            markup_diff=ypCell.generateViaMwApi(smwAccess=smwAccess,dryRun=True,withEditor=withEditor)
             if markup_diff:
                 diff_lines=markup_diff.split("\n")
                 print(f"""found {len(diff_lines)} line differences for {ypCell.getPageTitle()}""")
