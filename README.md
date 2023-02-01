@@ -1,5 +1,5 @@
 # py-yprinciple-gen
-python Library for Scholars to achieve "Standing on the shoulders of giants - with direct access to the clouds"
+python Library for code generation according to the Y-Principle 
 
 [![Join the discussion at https://github.com/WolfgangFahl/py-yprinciple-gen/discussions](https://badges.gitter.im/py-yprinciple-gen/community.svg)](https://github.com/WolfgangFahl/py-yprinciple-gen/discussions)
 [![pypi](https://img.shields.io/pypi/pyversions/py-yprinciple-gen)](https://pypi.org/project/py-yprinciple-gen/)
