@@ -135,7 +135,7 @@ class YPGenApp(App):
         
     async def onChangeContext(self,msg):
         """
-        react on a the wikiuser being changed via a Select control
+        react on the wikiuser being changed via a Select control
         """
         try:
             self.clearErrors()
@@ -165,7 +165,7 @@ class YPGenApp(App):
         self.colB2=self.jp.Div(classes="col-2",a=self.rowB)
         self.colC1=self.jp.Div(classes="col-3",a=self.rowC)
         self.colC2=self.jp.Div(classes="col-2",a=self.rowC)
-        self.colD1=self.jp.Div(classes="col-12",a=self.rowD)
+        self.colD1=self.jp.Div(classes="col-12 flex flex-row  gap-4",a=self.rowD)
         self.colE1=self.jp.Div(classes="col-12",a=self.rowE)
         # standard elements
         self.errors=self.jp.Div(a=self.colA1,style='color:red')
@@ -220,6 +220,13 @@ class YPGenApp(App):
         self.explainDepthSelect=self.createSelect("explain depth",value=0,change=self.onExplainDepthChange,a=self.colB1)
         for depth in range(17):
             self.explainDepthSelect.add(self.jp.Option(value=depth,text=str(depth)))
+
+    def handleHideShowSizeInfo(self, msg):
+        """
+        handles switching visibility of size information
+        """
+        show_size = msg.checked
+        self.generatorGrid.set_hide_show_status_of_cell_debug_msg(hidden=not show_size)
                 
     async def add_or_update_context_select(self):
         """
@@ -280,6 +287,7 @@ class YPGenApp(App):
         self.useSidifButton=self.addSwitch(a=self.colD1,labelText="use SiDIF",state=self.useSidif)
         self.dryRunButton=self.addSwitch(a=self.colD1,labelText="dry Run",state=self.dryRun)
         self.openEditorButton=self.addSwitch(a=self.colD1,labelText="open Editor",state=self.openEditor)
+        self.hideShowSizeInfo = Switch(a=self.colD1, labelText="size info", state=None, on_change=self.handleHideShowSizeInfo)
         return self.wp
     
     def start(self,host,port,debug):

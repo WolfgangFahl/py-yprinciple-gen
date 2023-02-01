@@ -3,10 +3,12 @@ Created on 25.11.2022
 
 @author: wf
 '''
+import typing
+
 from jpwidgets.bt5widgets import IconButton,SimpleCheckbox
 from jpwidgets.widgets import HideShow
 from meta.metamodel import Context
-from yprinciple.ypcell import YpCell
+from yprinciple.ypcell import MwGenResult, YpCell
 from yprinciple.target import Target
 import uuid
 
@@ -46,11 +48,12 @@ class GeneratorGrid:
         bs_secondary="#6c757d"
         self.headerStyle=f"font-size: 1.0rem;background-color: {self.headerBackground}"
         self.lightHeaderStyle=f"background-color: {self.lightHeaderBackground}"
-        self.generateButton = IconButton(iconName="play",
-                                                classes="btn btn-primary btn-sm col-1",
-                                                a=self.gridHeaderRow,
-                                                click=self.onGenerateButtonClick,
-                                                disabled=False)
+        self.generateButton = IconButton(
+                iconName="play",
+                classes="btn btn-primary btn-sm col-1",
+                a=self.gridHeaderRow,
+                click=self.onGenerateButtonClick,
+                disabled=False)
         self.targetsColumnHeader=self.jp.Div(text="Targets",a=self.gridHeaderRow,
             classes=self.headerClasses,style=self.headerStyle)
         self.targetsColumnHeader.inner_html="<strong>Target</strong>"
@@ -63,8 +66,9 @@ class GeneratorGrid:
             target_title=self.jp.Span(a=target_div,inner_html=target.name+"<br>",classes="align-middle")
             self.icon=self.jp.I(a=target_div,classes=f'mdi mdi-{target.icon_name}',style=f"color:{bs_secondary};font-size:{self.iconSize};")     
             self.createSimpleCheckbox(labelText="↓", title=f"select all {target.name}",a=self.targetSelectionHeader,classes=classes,input=self.onSelectColumnClick)
+        self.cell_debug_msg_divs = []
     
-    def getCheckedYpCells(self):
+    def getCheckedYpCells(self) -> typing.List[YpCell]:
         """
         get all checked YpCells
         """
@@ -88,11 +92,31 @@ class GeneratorGrid:
         self.app.smwAccess.wikiClient.login()
         cellsToGen=self.getCheckedYpCells()
         for ypCell in cellsToGen:
+            cell_checkbox = self.checkbox_by_uuid.get(ypCell.checkbox_id, None)
+            status_div = cell_checkbox.status_div
+            status_div.delete_components()
+            status_div.text = ""
             try:
-                genResult=ypCell.generateViaMwApi(smwAccess=self.app.smwAccess,dryRun=self.app.dryRun.value,withEditor=self.app.openEditor.value)
-                # @TODO show links to gen results old_page,new_page and diff
+                genResult = ypCell.generateViaMwApi(
+                        smwAccess=self.app.smwAccess,
+                        dryRun=self.app.dryRun.value,
+                        withEditor=self.app.openEditor.value
+                )
+                if cell_checkbox is not None:
+                    delta_color = ""
+                    if genResult.page_changed():
+                        delta_color = "text-red-500"
+                    else:
+                        delta_color = "text-green-500"
+                    self.jp.A(
+                            a=status_div,
+                            href=genResult.getDiffUrl(),
+                            text="Δ",
+                            classes="text-xl font-bold " + delta_color
+                    )
                 await self.app.wp.update()
             except BaseException as ex:
+                self.jp.Div(a=status_div, text="❗", title=str(ex))
                 self.app.handleException(ex)
                     
     def check_ypcell_box(self,checkbox,ypCell,checked:bool):
@@ -209,7 +233,13 @@ class GeneratorGrid:
             delim="<br>" 
         else:
             delim="&nbsp;"
-        checkbox.label.inner_html=f"{link}{delim}{ypCell.statusMsg}"
+        self.jp.Div(a=checkbox.label, inner_html=f"{link}{delim}")
+        content = self.jp.Div(a=checkbox.label, classes="flex flex-row gap-2")
+        debug_div = self.jp.Div(a=content, inner_html=f"{ypCell.statusMsg}")
+        debug_div.hidden(getattr(self, "cell_hide_size_info", True))
+        status_div = self.jp.Div(a=content, text=ypCell.status)
+        checkbox.status_div = status_div
+        self.cell_debug_msg_divs.append(debug_div)
         # link ypCell with Checkbox via a unique identifier
         ypCell.checkbox_id=uuid.uuid4()
         checkbox.data["ypcell_uuid"]=ypCell.checkbox_id
@@ -270,3 +300,13 @@ class GeneratorGrid:
             pass
         # done
         self.app.progressBar.updateProgress(0)
+
+    def set_hide_show_status_of_cell_debug_msg(self, hidden: bool = False):
+        """
+        Sets the hidden status of all cell debug messages
+        Args:
+            hidden: If True hide debug messages else show them
+        """
+        self.cell_hide_size_info = hidden
+        for div in self.cell_debug_msg_divs:
+            div.hidden(hidden)

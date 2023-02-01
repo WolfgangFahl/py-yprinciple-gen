@@ -43,7 +43,17 @@ class MwGenResult(GenResult):
             diff_url=f"{site.scheme}://{site.host}{site.path}index.php?title={self.new_page.page_title}&type=revision&diff={newid}&oldid={oldid}"
             pass
         return diff_url
-    
+
+    def page_changed(self) -> bool:
+        """
+        Check if changes were applied to the new page
+        Returns:
+            bool: True if the content of the page changed otherwise False
+        """
+        old_revision_id = getattr(self.old_page, "revision", None)
+        new_revision_id = getattr(self.new_page, "revision", None)
+        return old_revision_id != new_revision_id
+
 @dataclass
 class FileGenResult(GenResult):
     path:str
@@ -121,7 +131,7 @@ class YpCell:
             Editor.open_tmp_text(markup,file_name=self.target.getFileName(self.modelElement,"wiki_gen",fixcolon=True))
         return markup
         
-    def generateViaMwApi(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->str:
+    def generateViaMwApi(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->MwGenResult:
         """
         generate the given cell and upload the result via the given
         Semantic MediaWiki Access
@@ -132,7 +142,7 @@ class YpCell:
             withEditor(bool): if True open Editor when in dry Run mode
             
         Returns:
-            str: the markup diff
+            MwGenResult
         """
         markup_diff=""
         # ignore multi targets
@@ -203,5 +213,5 @@ class YpCell:
             else:
                 self.pageText=None
             self.status=f"✅" if self.pageText else "❌"
-            self.statusMsg=f"{len(self.pageText)}✅" if self.pageText else "❌"     
+            self.statusMsg=f"{len(self.pageText)}" if self.pageText else ""
         return self.page
