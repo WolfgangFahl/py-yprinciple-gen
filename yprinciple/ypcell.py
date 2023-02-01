@@ -146,10 +146,10 @@ class YpCell:
             if withEditor:
                 Editor.open_tmp_text(self.pageText,file_name=self.target.getFileName(self.modelElement,"wiki_page"))
                 Editor.open_tmp_text(markup_diff,file_name=self.target.getFileName(self.modelElement,"wiki_diff"))
-        if not dryRun:
+        if not dryRun and self.page:
             self.page.edit(markup,f"modified by {Version.name} {Version.version}")
             # update status
-            # @TODO make diff/status available
+            # @TODO make diff/status available see https://github.com/WolfgangFahl/py-yprinciple-gen/issues/15
             new_page=self.getPage(smwAccess)
         else:
             markup_diff=markup

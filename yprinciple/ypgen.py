@@ -38,7 +38,7 @@ class YPGen:
         parser.add_argument('--context', default="MetaModel",help='context to generate from [default: %(default)s]')
         parser.add_argument("--topics",nargs="*",help="list of topic names\n[default: %(default)s]")
         parser.add_argument("--targets",nargs="*",help="list of target names\n[default: %(default)s]")
-        parser.add_argument("-ga","--genViaApi",action="store_true",help="generate elements via Api")
+        parser.add_argument("-ga","--genViaMwApi",action="store_true",help="generate elements via Api")
         parser.add_argument("-gf","--genToFile",action="store_true",help="generate elements to files")
         parser.add_argument("--targetPath", dest="targetPath", help="path for the files to be generated - uses wikibackup default path for wikiId if not specified", required=False)
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
@@ -100,11 +100,10 @@ USAGE
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
             pass
-        elif args.genToFile or args.genViaBackup:
+        elif args.genToFile or args.genViaMwApi:
             gen=GeneratorAPI.fromArgs(args)
             dryRun=not args.noDry
-            # @TODO allow to select targets and topics
-            if args.genViaApi:
+            if args.genViaMwApi:
                 gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)
             if args.genToFile:
                 gen.generateToFile(target_dir=args.targetPath,target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor) 
