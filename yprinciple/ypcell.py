@@ -4,6 +4,8 @@ Created on 2022-11-25
 @author: wf
 '''
 import os
+import typing
+
 from meta.metamodel import MetaModelElement
 from yprinciple.target import Target
 from meta.mw import SMWAccess
@@ -28,7 +30,7 @@ class MwGenResult(GenResult):
     old_page: object
     new_page: object
 
-    def getDiffUrl(self)->str:
+    def getDiffUrl(self) -> typing.Union[str, None]:
         """
         get the diff url of the two pages (if any)
         
@@ -131,7 +133,7 @@ class YpCell:
             Editor.open_tmp_text(markup,file_name=self.target.getFileName(self.modelElement,"wiki_gen",fixcolon=True))
         return markup
         
-    def generateViaMwApi(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False)->MwGenResult:
+    def generateViaMwApi(self,smwAccess=None,dryRun:bool=True,withEditor:bool=False) -> typing.Union[MwGenResult, None]:
         """
         generate the given cell and upload the result via the given
         Semantic MediaWiki Access
@@ -142,7 +144,8 @@ class YpCell:
             withEditor(bool): if True open Editor when in dry Run mode
             
         Returns:
-            MwGenResult
+            MwGenResult:
+            None: if target is multi
         """
         markup_diff=""
         # ignore multi targets
