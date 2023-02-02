@@ -102,15 +102,19 @@ class GeneratorGrid:
                         dryRun=self.app.dryRun.value,
                         withEditor=self.app.openEditor.value
                 )
-                if cell_checkbox is not None:
+                if genResult is not None and cell_checkbox is not None:
                     delta_color = ""
-                    if genResult.page_changed():
-                        delta_color = "text-red-500"
+                    diff_url = genResult.getDiffUrl()
+                    if diff_url is not None:
+                        if genResult.page_changed():
+                            delta_color = "text-red-500"
+                        else:
+                            delta_color = "text-green-500"
                     else:
-                        delta_color = "text-green-500"
+                        delta_color = "text-gray-500"
                     self.jp.A(
                             a=status_div,
-                            href=genResult.getDiffUrl(),
+                            href=diff_url,
                             text="Δ",
                             classes="text-xl font-bold " + delta_color
                     )
