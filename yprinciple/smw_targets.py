@@ -533,7 +533,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 |isA={topic.name}
 """
         for prop in topic.properties.values():
-            markup+=f"|{prop.name}={{{{{{{prop.name}|}}}}}}\n"
+            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
         markup+=f"""}}}}
 |#default={{{{#set:
 |isA={topic.name}
@@ -556,6 +556,8 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
             if prop.type=="External identifier":
                 link_markup="→{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
                 pass
+            elif prop.type=="Page":
+                link_markup="→[[{{PAGENAME}}]]"
             else:
                 link_markup=""
             markup+=f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
