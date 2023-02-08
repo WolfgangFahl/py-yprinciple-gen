@@ -557,7 +557,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
                 link_markup="→{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
                 pass
             elif prop.type=="Page":
-                link_markup="→[[{{PAGENAME}}]]"
+                link_markup=f"→[[{{{{{{{prop.name}|}}}}}}]]"
             else:
                 link_markup=""
             markup+=f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
