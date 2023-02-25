@@ -102,6 +102,9 @@ USAGE
             pass
         elif args.genToFile or args.genViaMwApi:
             gen=GeneratorAPI.fromArgs(args)
+            if gen.error:
+                print(f"{gen.errmsg}", file=sys.stderr)
+                return 3
             dryRun=not args.noDry
             if args.genViaMwApi:
                 gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)

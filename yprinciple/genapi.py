@@ -54,7 +54,12 @@ class GeneratorAPI:
         self.smwAccess=SMWAccess(wikiId)
         self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(context_name,None)
-        self.context,self.error,self.errMsg=Context.fromWikiContext(self.mw_context, debug=self.debug)
+        if not self.mw_context:
+            self.context=None
+            self.errmsg=f"Could not read context {context_name} from {wikiId}"
+            self.error=Exception(self.errmsg)
+        else:    
+            self.context,self.error,self.errMsg=Context.fromWikiContext(self.mw_context, debug=self.debug)
       
     def filterTargets(self,target_names:list=None)->dict:
         """
