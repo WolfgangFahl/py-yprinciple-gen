@@ -41,6 +41,7 @@ class YPGen:
         parser.add_argument("-ga","--genViaMwApi",action="store_true",help="generate elements via Api")
         parser.add_argument("-gf","--genToFile",action="store_true",help="generate elements to files")
         parser.add_argument("--targetPath", dest="targetPath", help="path for the files to be generated - uses wikibackup default path for wikiId if not specified", required=False)
+        parser.add_argument("--sidif", help="path to SiDIF input file")
         parser.add_argument("-d", "--debug", dest="debug", action="store_true", help="show debug info [default: %(default)s]")
         parser.add_argument("-nd","--noDry", action="store_true", help="switch off dry run [default: %(default)s]")   
         parser.add_argument("--editor", action="store_true", help="open editor for results [default: %(default)s]")       

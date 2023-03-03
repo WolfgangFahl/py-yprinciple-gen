@@ -620,8 +620,10 @@ class PropertyTarget(SMWTarget):
         markup=f"""{{{{Property
 |name={prop.name}
 |label={prop.label} 
-|documentation={prop.documentation}
-|type=Special:Types/{prop.type}
+        """
+        if hasattr(prop, "documentation"):
+            markup+=f"""|documentation={prop.documentation}\n"""
+        markup+=f"""|type=Special:Types/{prop.type}
 """
         # @TODO read from metamodel
         for prop_name in ["index","sortPos","primaryKey","mandatory",

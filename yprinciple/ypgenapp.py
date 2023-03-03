@@ -19,6 +19,7 @@ from meta.mw import SMWAccess
 from meta.metamodel import Context
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.gengrid import GeneratorGrid
+from yprinciple.genapi import GeneratorAPI
 
 class YPGenApp(App):
     """
@@ -51,7 +52,9 @@ class YPGenApp(App):
         self.wikiUsers=WikiUser.getWikiUsers()
         self.wikiLink=None
         self.contextLink=None
-        self.setSMW(args.wikiId)
+            
+        self.genapi=GeneratorAPI.fromArgs(args)
+        self.setMWContext()
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
         # states
@@ -60,20 +63,26 @@ class YPGenApp(App):
         self.openEditor=State(False)
         self.explainDepth=0
         
-    def setSMW(self,wikiId:str):
+    def setGenApiFromWikiId(self,wikiId:str):
         """
         set the semantic MediaWiki
         """
-        self.smwAccess=SMWAccess(wikiId)
-        self.mw_contexts=self.smwAccess.getMwContexts()
-        self.mw_context=self.mw_contexts.get(self.context_name,None)
-        self.setContext(self.mw_context)
+        self.genapi=GeneratorAPI(verbose=self.debug,debug=self.debug)  
+        self.genapi.setWikiAndGetContexts(wikiId)
+        self.smwAccess=self.genapi.smwAccess
         if self.wikiLink is not None:
             self.wikiLink.text=wikiId
             self.wikiLink.title=wikiId
             wikiUser=self.smwAccess.wikiClient.wikiUser
             if wikiUser:
                 self.wikiLink.href=wikiUser.getWikiUrl()
+        self.setMWContext()
+ 
+    def setMWContext(self):
+        self.mw_contexts=self.genapi.mw_contexts
+        mw_context=self.mw_contexts.get(self.context_name,None)
+        if mw_context is not None:
+            self.setContext(mw_context)
             
     def setContext(self,mw_context):
         """
@@ -127,7 +136,7 @@ class YPGenApp(App):
         """
         try:
             self.clearErrors()
-            self.setSMW(msg.value)
+            self.setGenApiFromWikiId(msg.value)
             await self.add_or_update_context_select()
             await self.wp.update()
         except BaseException as ex:

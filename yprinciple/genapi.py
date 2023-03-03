@@ -7,7 +7,7 @@ from pathlib import Path
 from meta.mw import SMWAccess
 from meta.metamodel import Context
 from yprinciple.smw_targets import SMWTarget
-from yprinciple.ypcell import YpCell, MwGenResult, FileGenResult
+from yprinciple.ypcell import YpCell
 
 class GeneratorAPI:
     """
@@ -27,7 +27,6 @@ class GeneratorAPI:
         """
         self.verbose=verbose
         self.debug=debug
-    
         
     @classmethod
     def fromArgs(cls,args)->"GeneratorAPI":
@@ -41,8 +40,20 @@ class GeneratorAPI:
             GeneratorAPI:
         """
         gen=GeneratorAPI(verbose=not args.quiet,debug=args.debug)
-        gen.readContext(args.wikiId,args.context)
+        gen.setWikiAndGetContexts(args.wikiId)
+        if args.sidif:
+            gen.context,gen.error,gen.errMsg=Context.fromSiDIF_input(args.sidif, debug=args.debug)
+        else:
+            gen.readContext(args.wikiId,args.context)
         return gen
+    
+    def setWikiAndGetContexts(self,wikiId):
+        """
+        set my wiki and get Contexts
+        """
+        self.wikiId=wikiId
+        self.smwAccess=SMWAccess(wikiId)
+        self.mw_contexts=self.smwAccess.getMwContexts()
        
     def readContext(self,wikiId:str,context_name:str):
         """
@@ -50,9 +61,6 @@ class GeneratorAPI:
             wikiId(str): the wikiId of the wiki to read the context from
             context_name: the name of the context to read
         """
-        self.wikiId=wikiId
-        self.smwAccess=SMWAccess(wikiId)
-        self.mw_contexts=self.smwAccess.getMwContexts()
         self.mw_context=self.mw_contexts.get(context_name,None)
         if not self.mw_context:
             self.context=None
@@ -94,6 +102,12 @@ class GeneratorAPI:
             generator(YpCell)
         """
         def showMsg(topic_name:str,ypCell:YpCell):
+            """
+            show a message for the given topic_name
+            
+            Args:
+                topic_name(str): topic
+            """
             if self.verbose:
                 target_name=ypCell.target.name
                 print(f"generating {target_name} for {topic_name} {hint}...") 
