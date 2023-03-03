@@ -80,52 +80,6 @@ topic links:"""
         for topicLink in topic.sourceTopicLinks.values():
             markup+=f"* [[:Category:{topicLink.targetTopic.name}]]\n"
         return markup
-        
-    def askSort(self,topic:Topic)->str:
-        """
-        generate the sort clause for an SMW ask query
-        
-        Args:
-            topic(Topic): the topic to generate wiki markup for
-                
-        Returns:
-            str: the generated wiki markup 
-        """
-        sort=""
-        order=""
-        delim=""
-        sortproperties=topic.sortProperties()
-        for prop in sortproperties:
-            direction="ascending" if getattr(prop,"sortAscending",True) else "descending"
-            sort+=delim+f"{topic.name} {prop.name}"
-            order+=delim+direction
-            delim=","
-            pass
-        sortClause=f"|sort={sort}\n" if sort else ""
-        orderClause=f"|order={order}\n" if order else ""
-        markup=f"{sortClause}{orderClause}"
-        return markup
-    
-    def askQuery(self,topic:Topic,mainlabel:str=None)->str:
-        """
-        get the askQuery for the given topic
-        
-        Args:
-            topic(Topic): the topic to get the ask query for
-            mainlabel(str): the mainlabel to use - topic.name as default
-        Returns:
-            str: the markup for the query
-        """
-        if mainlabel is None:
-            mainlabel=topic.name
-        markup=f"""{{{{#ask: [[Concept:{topic.name}]]
-|mainlabel={mainlabel}
-"""
-        for prop in topic.properties.values():
-            markup+=f"|?{topic.name} {prop.name} = {prop.name}\n"
-        markup+=f"| limit={topic.getListLimit()}\n"
-        markup+=f"""{self.askSort(topic)}}}}}"""
-        return markup
     
     def copyright(self)->str:
         """
@@ -493,7 +447,7 @@ class ListOfTarget(SMWTarget):
 == {topic.getPluralName()} ==
 {{{{#ask: [[Concept:{topic.name}]]|format=count}}}}
 {{{{#forminput:form={topic.name}|button text=add {topic.name}}}}}
-{self.askQuery(topic)}
+{topic.askQuery()}
 [[:Category:{topic.name}]]
     """
         return markup
