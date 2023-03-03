@@ -52,9 +52,9 @@ class YPGenApp(App):
         self.wikiUsers=WikiUser.getWikiUsers()
         self.wikiLink=None
         self.contextLink=None
-            
-        self.genapi=GeneratorAPI.fromArgs(args)
-        self.setMWContext()
+        
+        # see also setGenApiFromWikiId    
+        self.setGenApiFromArgs(args)
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
         # states
@@ -63,22 +63,25 @@ class YPGenApp(App):
         self.openEditor=State(False)
         self.explainDepth=0
         
-    def setGenApiFromWikiId(self,wikiId:str):
+    def setGenApiFromArgs(self,args):
         """
         set the semantic MediaWiki
         """
-        self.genapi=GeneratorAPI(verbose=self.debug,debug=self.debug)  
-        self.genapi.setWikiAndGetContexts(wikiId)
+        self.genapi=GeneratorAPI.fromArgs(args)
+        self.genapi.setWikiAndGetContexts(args.wikiId)
         self.smwAccess=self.genapi.smwAccess
         if self.wikiLink is not None:
-            self.wikiLink.text=wikiId
-            self.wikiLink.title=wikiId
+            self.wikiLink.text=args.wikiId
+            self.wikiLink.title=args.wikiId
             wikiUser=self.smwAccess.wikiClient.wikiUser
             if wikiUser:
                 self.wikiLink.href=wikiUser.getWikiUrl()
         self.setMWContext()
  
     def setMWContext(self):
+        """
+        set my context
+        """
         self.mw_contexts=self.genapi.mw_contexts
         mw_context=self.mw_contexts.get(self.context_name,None)
         if mw_context is not None:
@@ -88,6 +91,7 @@ class YPGenApp(App):
         """
         set the Context
         """
+        self.mw_context=mw_context
         if self.contextLink is not None:
             if mw_context is not None:
                 self.contextLink.title=f"{mw_context.context}({mw_context.since} at {mw_context.master}"
@@ -136,7 +140,9 @@ class YPGenApp(App):
         """
         try:
             self.clearErrors()
-            self.setGenApiFromWikiId(msg.value)
+            # change wikiUser
+            self.args.wikiId=msg.value
+            self.setGenApiFromArgs(self.args)
             await self.add_or_update_context_select()
             await self.wp.update()
         except BaseException as ex:
