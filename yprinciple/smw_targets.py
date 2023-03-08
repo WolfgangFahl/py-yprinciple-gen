@@ -358,6 +358,10 @@ class FormTarget(SMWTarget):
 |-
 """    
         for prop in topic.propertiesByIndex():
+            if prop.isLink:
+                prop.values_from=f"concept={prop.topicLink.source}"
+                prop.inputType="dropdown"
+                pass
             markup+=f"""! {prop.label}:
 <!-- {prop.type} {prop.name} -->\n"""
             inputType    =f"|input type={prop.inputType}"     if getattr(prop,"inputType",None) else ""

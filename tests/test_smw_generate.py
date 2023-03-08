@@ -49,10 +49,15 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         test Topic link handling
         """
         debug=self.debug
-        debug=True
+        #debug=True
         for topicname,target_key,smwTarget,markup in self.getMarkup(debug):
-            if debug:
-                print(markup)
+            if target_key=="form":
+                if debug:
+                    print(markup)
+                if topicname=="Event":
+                    expected="{{{field|city|property=Event city|input type=dropdown|values from=concept=City}}}"
+                    self.assertTrue(expected in markup)
+                    
                 pass
             
     def test_genbatch(self):
