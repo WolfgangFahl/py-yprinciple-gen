@@ -360,7 +360,7 @@ class FormTarget(SMWTarget):
         for prop in topic.propertiesByIndex():
             values_from_key="values from="
             if prop.isLink:
-                prop.values_from=f"concept={prop.topicLink.source}"
+                prop.values_from=f"{prop.topicLink.source}"
                 prop.inputType="dropdown"
                 values_from_key="values from concept="
                 pass
