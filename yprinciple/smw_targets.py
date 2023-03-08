@@ -358,9 +358,11 @@ class FormTarget(SMWTarget):
 |-
 """    
         for prop in topic.propertiesByIndex():
+            values_from_key="values from="
             if prop.isLink:
                 prop.values_from=f"concept={prop.topicLink.source}"
                 prop.inputType="dropdown"
+                values_from_key="values from concept="
                 pass
             markup+=f"""! {prop.label}:
 <!-- {prop.type} {prop.name} -->\n"""
@@ -371,7 +373,7 @@ class FormTarget(SMWTarget):
             mandatory    =f"|mandatory"                       if getattr(prop,"mandatory",None) else ""
             uploadable   =f"|uploadable"                      if getattr(prop,"uploadable",None) else ""
             size         =f"|size={prop.size}"                if getattr(prop,"size",None) else ""
-            values_from  =f"|values from={prop.values_from}"  if getattr(prop,"values_from",None) else ""
+            values_from  =f"|{values_from_key}{prop.values_from}"  if getattr(prop,"values_from",None) else ""
             defaultValue =f"|default={prop.defaultValue}"     if getattr(prop,"defaultValue",None) else ""
             allowedValues=f"|values={prop.allowedValues}"     if getattr(prop,"allowedValues",None) else "" 
             markup+=f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
