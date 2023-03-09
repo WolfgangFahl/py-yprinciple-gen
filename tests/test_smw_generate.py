@@ -55,7 +55,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
                 if debug:
                     print(markup)
                 if topicname=="Event":
-                    expected="{{{field|city|property=Event city|input type=dropdown|values from=concept=City}}}"
+                    expected="{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
                     self.assertTrue(expected in markup)
                     
                 pass
