@@ -1,7 +1,7 @@
 # py-yprinciple-gen
-python Library for code generation according to the Y-Principle 
+python Library for code generation according to the Y-Principle
 
-[![Join the discussion at https://github.com/WolfgangFahl/py-yprinciple-gen/discussions](https://badges.gitter.im/py-yprinciple-gen/community.svg)](https://github.com/WolfgangFahl/py-yprinciple-gen/discussions)
+[![Join the discussion at https://github.com/WolfgangFahl/pypy-yprinciple-gen/discussions](https://img.shields.io/github/discussions/WolfgangFahl/pypy-yprinciple-gen)](https://github.com/WolfgangFahl/pypy-yprinciple-gen/discussions)
 [![pypi](https://img.shields.io/pypi/pyversions/py-yprinciple-gen)](https://pypi.org/project/py-yprinciple-gen/)
 [![Github Actions Build](https://github.com/WolfgangFahl/py-yprinciple-gen/workflows/Build/badge.svg?branch=main)](https://github.com/WolfgangFahl/py-yprinciple-gen/actions?query=workflow%3ABuild+branch%3Amain)
 [![PyPI Status](https://img.shields.io/pypi/v/py-yprinciple-gen.svg)](https://pypi.python.org/pypi/py-yprinciple-gen/)
@@ -12,5 +12,3 @@ python Library for code generation according to the Y-Principle
 
 ## Docs and Tutorials
 [Wiki](https://wiki.bitplan.com/index.php/py-yprinciple-gen)
-
-
