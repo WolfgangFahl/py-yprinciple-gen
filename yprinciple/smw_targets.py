@@ -651,7 +651,7 @@ class {topic.name}:
         Returns:
             str: the mediawiki markup for the ask query
         """
-        ask="""{topic.askQuery(topic,mainlabel="pageTitle",listLimit=10000)}"""
+        ask="""{topic.askQuery(mainlabel="pageTitle",listLimit=10000)}"""
         return ask
         
     @classmethod
