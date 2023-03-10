@@ -75,10 +75,13 @@ class SMWTarget(Target):
 * [[Concept:{topic.name}]]
 * [[:Category:{topic.name}]]
 * [[:Template:{topic.name}]]
-* [[:Form:{topic.name}]] 
-topic links:"""
-        for topicLink in topic.sourceTopicLinks.values():
-            markup+=f"* [[:Category:{topicLink.targetTopic.name}]]\n"
+* [[:Form:{topic.name}]]
+""" 
+        topicLinks=topic.targetTopicLinks.values()
+        if len(topicLinks)>0:
+            markup+="topic links:\n"""
+            for topicLink in topicLinks:
+                markup+=f"* [[Concept:{topicLink.targetTopic.name}]]\n"
         return markup
     
     def copyright(self)->str:
