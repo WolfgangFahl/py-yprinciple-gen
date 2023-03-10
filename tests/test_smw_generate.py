@@ -20,11 +20,11 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         for wikiId in ["cr"]:
             self.getWikiUser(wikiId, save=True)
             
-    def getMarkup(self,debug:bool=False,topicNames=["Event"],target_keys=["category","concept","form","help","listOf","template"]):
+    def getMarkup(self,debug:bool=False,wikiId="cr",context_name="CrSchema",topicNames=["Event"],target_keys=["category","concept","form","help","listOf","template"]):
         """
         get the markups for a given context, topicNames and target keys
         """
-        _smwAccess,context=self.getContext("cr", "CrSchema", debug)
+        _smwAccess,context=self.getContext(wikiId, context_name, debug)
         for topicname in topicNames:
             topic=context.topics[topicname]
             for target_key in target_keys:
@@ -50,15 +50,25 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         debug=self.debug
         #debug=True
-        for topicname,target_key,smwTarget,markup in self.getMarkup(debug):
-            if target_key=="form":
+        for _topicname,_target_key,_smwTarget,markup in self.getMarkup(target_keys=["form"],debug=debug):
+            if debug:
+                print(markup)
+            expected="{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
+            self.assertTrue(expected in markup)
+                    
+    def test_Issue28_MasterDetail_viewmode(self):
+        """
+        test master/detail viewmode generation
+        """
+        debug=self.debug
+        debug=True
+        for _topicname,target_key,_smwTarget,markup in self.getMarkup(wikiId="wiki",context_name="MetaModel",topicNames=["Context"],target_keys=["template"],debug=debug):
+            if target_key=="template":
                 if debug:
                     print(markup)
-                if topicname=="Event":
-                    expected="{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
+                expected_parts=["= topics =","{{#ask:[[Concept:Topic]][[Topic context::{{FULLPAGENAME}}]]"]
+                for expected in expected_parts:
                     self.assertTrue(expected in markup)
-                    
-                pass
             
     def test_genbatch(self):
         """

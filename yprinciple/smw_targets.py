@@ -502,6 +502,20 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
             markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
         markup+=f"""}}}}\n""" # end of #set
         markup+=f"""}}}}\n""" # end of #switch
+        markup+=f"""{{{{#switch:{{{{{{viewmode|}}}}}}"""
+        markup+="|hidden="
+        markup+="|masterdetail=\n"
+        for topicLink in topic.sourceTopicLinks.values():
+            if topicLink.targetTopic:
+                markup+=f"= {topicLink.targetRole} =\n"
+                markup+=f"{{{{#ask:[[Concept:{topicLink.targetTopic.name}]]"
+                markup+=f"[[{topicLink.targetTopic.name} {topicLink.sourceRole}::{{{{FULLPAGENAME}}}}]]\n"
+                for prop in topicLink.targetTopic.propertiesByIndex():
+                    markup+=f"| ?{topicLink.targetTopic.name} {prop.name} = {prop.name}\n"
+                    pass
+                markup+=f"}}}}" # end #ask
+                pass
+        markup+="|#default="
         markup+=f"""{{{{{{!}}}} class='wikitable'
 ! colspan='2' {{{{!}}}}{topic.name}
 {{{{!}}}}-
@@ -523,7 +537,9 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
             markup+=f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
 {{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}{link_markup}
 {{{{!}}}}-\n"""
-        markup+=f"{{{{!}}}}}}" # end of table
+        markup+=f"{{{{!}}}}}}\n" # end of table
+        markup+=f"""}}}}\n""" # end of #switch viewmode
+ 
         if hasattr(topic, "defaultstoremode"):
             if topic.defaultstoremode=="property":
                 markup+=f"[[Category:{topic.name}]]{{{{#default_form:{topic.name}}}}}\n"
