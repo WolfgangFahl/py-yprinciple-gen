@@ -499,7 +499,13 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 |isA={topic.name}
 """
         for prop in topic.properties.values():
-            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
+            # separator handling
+            sep=""
+            if prop.isLink:
+                tl=prop.topicLink
+                if hasattr(tl,"separator"):
+                    sep=f"|+sep={tl.separator}"
+            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}{sep}\n"
         markup+=f"""}}}}\n""" # end of #set
         markup+=f"""}}}}\n""" # end of #switch
         markup+=f"""{{{{#switch:{{{{{{viewmode|}}}}}}"""
@@ -527,10 +533,10 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
         for prop in topic.properties.values():
             # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
             # show Links for external Identifiers in templates
-            if prop.type=="External identifier":
-                link_markup="→{{#show: {{PAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
+            if prop.type=="External identifier" or prop.isLink:
+                link_markup="→{{#show: {{FULLPAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
                 pass
-            elif prop.type=="Page":
+            elif prop.type=="Page":           
                 link_markup=f"→[[{{{{{{{prop.name}|}}}}}}]]"
             else:
                 link_markup=""
@@ -667,7 +673,7 @@ class {topic.name}:
         Returns:
             str: the mediawiki markup for the ask query
         """
-        ask="""{topic.askQuery(mainlabel="pageTitle",listLimit=10000)}"""
+        ask="""{topic.askQuery(mainlabel="pageTitle",filterShowInGrid=False,listLimit=10000)}"""
         return ask
         
     @classmethod

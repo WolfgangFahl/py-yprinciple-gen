@@ -38,11 +38,11 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
         """
         debug=self.debug
-        debug=True
+        #debug=True
         for _topicname,_target_key,_smwTarget,markup in self.getMarkup(debug,target_keys=["template"]):
             if debug:
                 print(markup)
-            self.assertTrue("{{#show: {{PAGENAME}}|?Event wikidataid}}" in markup)
+            self.assertTrue("{{#show: {{FULLPAGENAME}}|?Event wikidataid}}" in markup)
                 
     def test_Issue12_TopicLink_handling(self):
         """
@@ -56,12 +56,16 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
             expected="{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
             self.assertTrue(expected in markup)
                     
-    def test_Issue28_MasterDetail_viewmode(self):
+    def test_Issue28_viewmode_masterdetail(self):
         """
-        test master/detail viewmode generation
+        test master/detail viewmode generation and TopicLink separator
+        
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/28
+        refactor viewmode "masterdetail"
+        
         """
         debug=self.debug
-        debug=True
+        #debug=True
         for _topicname,target_key,_smwTarget,markup in self.getMarkup(wikiId="wiki",context_name="MetaModel",topicNames=["Context"],target_keys=["template"],debug=debug):
             if target_key=="template":
                 if debug:
@@ -69,6 +73,23 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
                 expected_parts=["= topics =","{{#ask:[[Concept:Topic]][[Topic context::{{FULLPAGENAME}}]]"]
                 for expected in expected_parts:
                     self.assertTrue(expected in markup)
+                    
+    def test_Issue29_TopicLink_separator(self):
+        """
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/29
+        1:N relation using TopicLink separator
+    
+        """
+        debug=self.debug
+        #debug=True
+        for _topicname,target_key,_smwTarget,markup in self.getMarkup(topicNames=["Paper"],target_keys=["template"],debug=debug):
+            if target_key=="template":
+                if debug:
+                    print(markup)
+                expected_parts=["|Paper authors={{{authors|}}}|+sep=,","{{!}}&nbsp;{{#if:{{{authors|}}}|{{{authors}}}|}}→{{#show: {{FULLPAGENAME}}|?Paper authors}}"]
+                for expected in expected_parts:
+                    self.assertTrue(expected in markup)
+        
             
     def test_genbatch(self):
         """
