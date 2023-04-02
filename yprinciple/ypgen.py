@@ -9,6 +9,7 @@ from argparse import RawDescriptionHelpFormatter
 from yprinciple.version import Version
 from yprinciple.ypgenapp import YPGenApp
 from yprinciple.genapi import GeneratorAPI
+from yprinciple.push import Push
 import os
 import sys
 import traceback
@@ -47,8 +48,10 @@ class YPGen:
         parser.add_argument("--editor", action="store_true", help="open editor for results [default: %(default)s]")       
         parser.add_argument('--host',default=JustpyServer.getDefaultHost(),help="the host to serve / listen from [default: %(default)s]")
         parser.add_argument('--port',type=int,default=8778,help="the port to serve from [default: %(default)s]")
+        parser.add_argument("--push", action="store_true", help="push from source to target [default: %(default)s]")       
         parser.add_argument("--serve",help="start webserver",action="store_true")
-        parser.add_argument('--wikiId', default="wiki",help='id of the wiki to generate for [default: %(default)s]')
+        parser.add_argument('--wikiId',"-t","--target", default="wiki",help='id of the wiki to generate for [default: %(default)s]')
+        parser.add_argument('--source',"-s", default="profiwiki",help='id of the wiki to get concept and contexts (schemas) from [default: %(default)s]')
         parser.add_argument('-q', '--quiet', help="not verbose [default: %(default)s]" )
         parser.add_argument('-V', '--version', action='version', version=version_msg)
         return parser
@@ -111,6 +114,9 @@ USAGE
                 gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)
             if args.genToFile:
                 gen.generateToFile(target_dir=args.targetPath,target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor) 
+        elif args.push:
+            push=Push(args)
+            push.push()       
         pass
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
