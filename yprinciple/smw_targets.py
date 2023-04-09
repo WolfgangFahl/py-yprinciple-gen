@@ -183,7 +183,7 @@ end note
 class {topic.name} {{
 """
         for prop in topic.properties.values():
-            prop_type=getattr(prop,"type","string")
+            prop_type=getattr(prop,"type","Text")
             markup+=f"  {prop_type} {prop.name}\n"
         markup+=f"""}}
 {topic.name}Note .. {topic.name}
@@ -368,8 +368,9 @@ class FormTarget(SMWTarget):
                 prop.inputType="dropdown"
                 values_from_key="values from concept="
                 pass
+            prop_type=getattr(prop,"type","Text")
             markup+=f"""! {prop.label}:
-<!-- {prop.type} {prop.name} -->\n"""
+<!-- {prop_type} {prop.name} -->\n"""
             inputType    =f"|input type={prop.inputType}"     if getattr(prop,"inputType",None) else ""
             if "textarea"==getattr(prop,"inputType",None):
                 inputType+="|editor=wikieditor"
@@ -537,10 +538,11 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
         for prop in topic.properties.values():
             # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
             # show Links for external Identifiers in templates
-            if prop.type=="External identifier" or prop.isLink:
+            prop_type=getattr(prop,"type","Text")
+            if prop_type=="External identifier" or prop.isLink:
                 link_markup="→{{#show: {{FULLPAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
                 pass
-            elif prop.type=="Page":           
+            elif prop_type=="Page":           
                 link_markup=f"→[[{{{{{{{prop.name}|}}}}}}]]"
             else:
                 link_markup=""
@@ -609,7 +611,8 @@ class PropertyTarget(SMWTarget):
         """
         if hasattr(prop, "documentation"):
             markup+=f"""|documentation={prop.documentation}\n"""
-        markup+=f"""|type=Special:Types/{prop.type}
+        prop_type=getattr(prop,"type","Text")
+        markup+=f"""|type=Special:Types/{prop_type}
 """
         # @TODO read from metamodel
         for prop_name in ["index","sortPos","primaryKey","mandatory",
