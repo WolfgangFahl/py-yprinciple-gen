@@ -183,7 +183,8 @@ end note
 class {topic.name} {{
 """
         for prop in topic.properties.values():
-            markup+=f"  {prop.type} {prop.name}\n"
+            prop_type=getattr(prop,"type","string")
+            markup+=f"  {prop_type} {prop.name}\n"
         markup+=f"""}}
 {topic.name}Note .. {topic.name}
 """

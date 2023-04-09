@@ -20,5 +20,5 @@ class Push:
         """
         push according to the arguments
         """
-
+        
         pass
