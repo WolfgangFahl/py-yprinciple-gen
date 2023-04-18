@@ -3,6 +3,8 @@ Created on 2023-01-30
 
 @author: wf
 '''
+import traceback
+import sys
 from pathlib import Path
 from meta.mw import SMWAccess
 from meta.metamodel import Context
@@ -130,6 +132,13 @@ class GeneratorAPI:
                         showMsg(topic_name,ypCell)
                         yield ypCell
                         
+    def handleFailure(self,ypCell,ex):
+        """
+        handle the given failure
+        """
+        print(f"Warning ⚠️: generating {ypCell.target} for {ypCell.modelElement} failed with {str(ex)}",file=sys.stderr,flush=True)
+        if self.debug:
+            print(traceback.format_exc())
           
     def generateViaMwApi(self,target_names:list=None,topic_names:list=None,dryRun:bool=True,withEditor:bool=False):
         """
@@ -147,13 +156,16 @@ class GeneratorAPI:
         self.smwAccess.wikiClient.login()
         genResults=[]
         for ypCell in self.yieldYpCells("via Mediawiki Api", target_names, topic_names):
-            genResult=ypCell.generateViaMwApi(smwAccess=self.smwAccess,dryRun=dryRun,withEditor=withEditor)
-            if self.debug or self.verbose:
-                diff_url=genResult.getDiffUrl()
-                diff_info="" if diff_url is None else diff_url
-                diff_info+=f"({len(genResult.markup_diff)})"
-                print(f"diff: {diff_info}")
-            genResults.append(genResult)
+            try:
+                genResult=ypCell.generateViaMwApi(smwAccess=self.smwAccess,dryRun=dryRun,withEditor=withEditor)
+                if self.debug or self.verbose:
+                    diff_url=genResult.getDiffUrl()
+                    diff_info="" if diff_url is None else diff_url
+                    diff_info+=f"({len(genResult.markup_diff)})"
+                    print(f"diff: {diff_info}")
+                genResults.append(genResult)
+            except Exception as ex:
+                self.handleFailure(ypCell, ex)
         return genResults
  
     def generateToFile(self,target_dir=None,target_names:list=None,topic_names:list=None,dryRun:bool=True,withEditor:bool=False):
@@ -176,7 +188,10 @@ class GeneratorAPI:
             home = Path.home()
             target_dir=f"{home}/wikibackup/{self.wikiId}"
         for ypCell in self.yieldYpCells(f" to file in {target_dir}", target_names, topic_names):
-            genResult=ypCell.generateToFile(target_dir=target_dir,dryRun=dryRun,withEditor=withEditor)
-            genResults.append(genResult)
+            try:
+                genResult=ypCell.generateToFile(target_dir=target_dir,dryRun=dryRun,withEditor=withEditor)
+                genResults.append(genResult)
+            except Exception as ex:
+                self.handleFailure(ypCell,ex)
         return genResults
  
