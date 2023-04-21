@@ -224,11 +224,14 @@ class GeneratorAPI:
             print(f"pushing concept {self.args.context} from {self.args.source} to {self.wikiId} ...")
         all_page_titles=[]
         for topic_name in topic_names:
+            topic=self.context.topics[topic_name]
             for page_titles,page_query,query_field in [
                     ([f"Concept:{topic_name}"],None,None),
-                    ([f"Form:{topic_name}"],None,None),
+                    ([f"Category:{topic_name}"],None,None),
                     ([f"Template:{topic_name}"],None,None),
+                    ([f"Form:{topic_name}"],None,None),
                     ([f"Help:{topic_name}"],None,None),
+                    ([f"List of {topic.pluralName}"],None,None),
                     (None,f"{{{{#ask: [[Property topic::Concept:{topic_name}]]|?#=page}}}}","page"),
                     (None,f"{{{{#ask: [[Topic name::{topic_name}]]|?Topic context=context}}}}","context")     
                 ]:   
