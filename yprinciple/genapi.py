@@ -64,7 +64,7 @@ class GeneratorAPI:
         self.wikiId=args.wikiId
         self.smwAccess=SMWAccess(args.wikiId)
         self.smwSourceAccess=SMWAccess(args.source) if args.push else None
-        self.smwContextAccess=self.smwSourceAccess if args.push else None
+        self.smwContextAccess=self.smwSourceAccess if args.push else self.smwAccess
         self.mw_contexts=self.smwContextAccess.getMwContexts()
        
     def readContext(self,wikiId:str,context_name:str):
