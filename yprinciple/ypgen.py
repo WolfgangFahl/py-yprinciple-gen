@@ -9,7 +9,6 @@ from argparse import RawDescriptionHelpFormatter
 from yprinciple.version import Version
 from yprinciple.ypgenapp import YPGenApp
 from yprinciple.genapi import GeneratorAPI
-from yprinciple.push import Push
 import os
 import sys
 import traceback
@@ -52,6 +51,8 @@ class YPGen:
         parser.add_argument("--serve",help="start webserver",action="store_true")
         parser.add_argument('--wikiId',"-t","--target", default="wiki",help='id of the wiki to generate for [default: %(default)s]')
         parser.add_argument('--source',"-s", default="profiwiki",help='id of the wiki to get concept and contexts (schemas) from [default: %(default)s]')
+        parser.add_argument("-l", "--login", dest="login", action='store_true', help="login to source wiki for access permission")
+        parser.add_argument("-f", "--force", dest="force", action='store_true', help="force to overwrite existing pages")
         parser.add_argument('-q', '--quiet', help="not verbose [default: %(default)s]" )
         parser.add_argument('-V', '--version', action='version', version=version_msg)
         return parser
@@ -104,7 +105,7 @@ USAGE
             webbrowser.open(url)
             ypGenApp.start(host=args.host, port=args.port,debug=args.debug)
             pass
-        elif args.genToFile or args.genViaMwApi:
+        elif args.genToFile or args.genViaMwApi or args.push:
             gen=GeneratorAPI.fromArgs(args)
             if gen.error:
                 print(f"{gen.errmsg}", file=sys.stderr)
@@ -114,9 +115,8 @@ USAGE
                 gen.generateViaMwApi(target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor)
             if args.genToFile:
                 gen.generateToFile(target_dir=args.targetPath,target_names=args.targets,topic_names=args.topics, dryRun=dryRun, withEditor=args.editor) 
-        elif args.push:
-            push=Push(args)
-            push.push()       
+            if args.push:
+                gen.push()       
         pass
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###

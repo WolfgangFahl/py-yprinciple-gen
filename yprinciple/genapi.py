@@ -10,6 +10,7 @@ from meta.mw import SMWAccess
 from meta.metamodel import Context
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
+from wikibot3rd.wikipush import WikiPush
 
 class GeneratorAPI:
     """
@@ -29,6 +30,7 @@ class GeneratorAPI:
         """
         self.verbose=verbose
         self.debug=debug
+        self.args=None
         
     @classmethod
     def fromArgs(cls,args)->"GeneratorAPI":
@@ -42,20 +44,28 @@ class GeneratorAPI:
             GeneratorAPI:
         """
         gen=GeneratorAPI(verbose=not args.quiet,debug=args.debug)
-        gen.setWikiAndGetContexts(args.wikiId)
+        gen.setWikiAndGetContexts(args)
         if args.sidif:
             gen.context,gen.error,gen.errMsg=Context.fromSiDIF_input(args.sidif, debug=args.debug)
         else:
-            gen.readContext(args.wikiId,args.context)
+            wikiId=args.source if args.push else args.wikiId
+            gen.readContext(wikiId,args.context)
+        # remember complete arguments (e.g. for push)
+        gen.args=args
         return gen
     
-    def setWikiAndGetContexts(self,wikiId):
+    def setWikiAndGetContexts(self,args):
         """
-        set my wiki and get Contexts
+        set my wiki and get Contexts for the given args
+        
+        Args:
+            args: command line arguments
         """
-        self.wikiId=wikiId
-        self.smwAccess=SMWAccess(wikiId)
-        self.mw_contexts=self.smwAccess.getMwContexts()
+        self.wikiId=args.wikiId
+        self.smwAccess=SMWAccess(args.wikiId)
+        self.smwSourceAccess=SMWAccess(args.source) if args.push else None
+        self.smwContextAccess=self.smwSourceAccess if args.push else None
+        self.mw_contexts=self.smwContextAccess.getMwContexts()
        
     def readContext(self,wikiId:str,context_name:str):
         """
@@ -194,4 +204,37 @@ class GeneratorAPI:
             except Exception as ex:
                 self.handleFailure(ypCell,ex)
         return genResults
- 
+    
+    def push(self):
+        """
+        push according to my command line args
+        """
+        if not self.args.source:
+            raise "missing source wiki"
+        if self.args.topics:
+            topic_names=self.args.topics
+        else:
+            topic_names=self.context.topics.keys()
+        login=self.args.login
+        force=self.args.force
+        ignore=True
+        fromWikiId=self.args.source
+        wikiPush=WikiPush(fromWikiId=fromWikiId,toWikiId=self.smwAccess.wikiId,login=login,verbose=not self.args.quiet,debug=self.args.debug)
+        if not self.args.quiet:
+            print(f"pushing concept {self.args.context} from {self.args.source} to {self.wikiId} ...")
+        all_page_titles=[]
+        for topic_name in topic_names:
+            for page_titles,page_query,query_field in [
+                    ([f"Concept:{topic_name}"],None,None),
+                    ([f"Form:{topic_name}"],None,None),
+                    ([f"Template:{topic_name}"],None,None),
+                    ([f"Help:{topic_name}"],None,None),
+                    (None,f"{{{{#ask: [[Property topic::Concept:{topic_name}]]|?#=page}}}}","page"),
+                    (None,f"{{{{#ask: [[Topic name::{topic_name}]]|?Topic context=context}}}}","context")     
+                ]:   
+                if not page_titles:
+                    page_titles=wikiPush.query(page_query, wiki=self.smwSourceAccess.wikiClient, queryField=query_field)
+                all_page_titles.extend(page_title for page_title in page_titles if page_title not in all_page_titles)    
+        failed=wikiPush.push(pageTitles=all_page_titles,force=force,ignore=ignore,withImages=True)
+        if len(failed)>0:
+            print(f"Warning {len(failed)} push attempts failed")

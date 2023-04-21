@@ -68,7 +68,7 @@ class YPGenApp(App):
         set the semantic MediaWiki
         """
         self.genapi=GeneratorAPI.fromArgs(args)
-        self.genapi.setWikiAndGetContexts(args.wikiId)
+        self.genapi.setWikiAndGetContexts(args)
         self.smwAccess=self.genapi.smwAccess
         if self.wikiLink is not None:
             self.wikiLink.text=args.wikiId
