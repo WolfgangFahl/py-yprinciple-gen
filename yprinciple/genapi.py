@@ -240,4 +240,7 @@ class GeneratorAPI:
                 all_page_titles.extend(page_title for page_title in page_titles if page_title not in all_page_titles)    
         failed=wikiPush.push(pageTitles=all_page_titles,force=force,ignore=ignore,withImages=True)
         if len(failed)>0:
-            print(f"Warning {len(failed)} push attempts failed")
+            print(f"️Error {len(failed)} push attempts failed ❌️")
+            for i,fail_name in enumerate(failed[:20]):
+                print(f"    {i+1:2}: {fail_name} ❌") 
+                
