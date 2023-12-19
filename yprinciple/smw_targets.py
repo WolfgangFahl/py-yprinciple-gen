@@ -4,7 +4,7 @@ Created on 2022-11-26
 @author: wf
 '''
 from yprinciple.target import Target
-from meta.metamodel import Topic, TopicLink, Property
+from meta.metamodel import Topic, TopicLink, Property, MetaModelElement
 from datetime import datetime
 from yprinciple.version import Version
 import yprinciple.ypcell as ypcell
