@@ -4,8 +4,8 @@ Created on 2022-11-24
 @author: wf
 '''
 import html
-import os
-
+from nicegui import ui
+from nicegui.client import Client
 from meta.metamodel import Context
 from meta.mw import SMWAccess
 from ngwidgets.input_webserver import InputWebserver
@@ -16,7 +16,7 @@ from yprinciple.genapi import GeneratorAPI
 from yprinciple.gengrid import GeneratorGrid
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.version import Version
-
+from ngwidgets.progress import NiceguiProgressbar
 
 class YPGenServer(InputWebserver):
     """
@@ -44,44 +44,44 @@ class YPGenServer(InputWebserver):
         InputWebserver.__init__(
             self, config=YPGenServer.get_config()
         )
- 
-    
-class YPGenApp(WebSolution):
-    """
-    Y-Principle Generator Web Application / Solution
-    """
-    
-    def __init__(self,version,title:str,args:None):
-        '''
-        Constructor
         
-        Args:
-            version(Version): the version info for the app
-        '''
-        self.args=args
+    def configure_run(self):
+        InputWebserver.configure_run(self)
+        args=self.args
         self.wikiId=args.wikiId
         self.context_name=args.context
-        self.addMenuLink(text='Home',icon='home', href="/")
-        self.addMenuLink(text='github',icon='github', href=version.cm_url)
-        self.addMenuLink(text='Chat',icon='chat',href=version.chat_url)
-        self.addMenuLink(text='Documentation',icon='file-document',href=version.doc_url)
-        self.addMenuLink(text='Settings',icon='cog',href="/settings")
-        self.addMenuLink(text='About',icon='information',href="/about")
         
         # wiki users
         self.wikiUsers=WikiUser.getWikiUsers()
         self.wikiLink=None
         self.contextLink=None
+    
+class YPGenApp(WebSolution):
+    """
+    Y-Principle Generator Web Application / Solution
+    """
+    def __init__(self, webserver: YPGenServer, client: Client):
+        """
+        Initializes the InputWebSolution instance with the webserver and client.
+
+        Args:
+            webserver (NiceGuiWebserver): The webserver instance this solution is part of.
+            client (Client): The client interacting with this solution.
+        """
+        super().__init__(webserver, client)
         
-        # see also setGenApiFromWikiId    
-        self.setGenApiFromArgs(args)
+    def prepare_ui(self):
+        WebSolution.prepare_ui(self)    
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
         # states
-        self.useSidif=State(True)
-        self.dryRun=State(True)
-        self.openEditor=State(False)
+        self.useSidif=True
+        self.dryRun=True
+        self.openEditor=False
         self.explainDepth=0
+         # see also setGenApiFromWikiId    
+        self.setGenApiFromArgs(self.webserver.args)
+        
         
     def setGenApiFromArgs(self,args):
         """
@@ -97,7 +97,7 @@ class YPGenApp(WebSolution):
             if wikiUser:
                 self.wikiLink.href=wikiUser.getWikiUrl()
         self.setMWContext()
- 
+        
     def setMWContext(self):
         """
         set my context
@@ -122,6 +122,10 @@ class YPGenApp(WebSolution):
                 self.contextLink.text="?"
                 self.contextLink.href="https://wiki.bitplan.com/index.php/Concept:Context"
     
+    
+        
+   
+   
     async def showGenerateGrid(self):
         """
         show the grid for generating code
@@ -180,51 +184,7 @@ class YPGenApp(WebSolution):
             await self.showGenerateGrid()
         except BaseException as ex:
             self.handleException(ex)
-        
-    def setupRowsAndCols(self):
-        """
-        setup the general layout
-        """
-        head_html="""<link rel="stylesheet" href="/static/css/md_style_indigo.css">"""
-        self.wp=self.getWp(head_html)
-        self.button_classes = """btn btn-primary"""
-        # rows
-        self.rowA=self.jp.Div(classes="row",a=self.contentbox)
-        self.rowB=self.jp.Div(classes="row",a=self.contentbox)
-        self.rowC=self.jp.Div(classes="row",a=self.contentbox)
-        self.rowD=self.jp.Div(classes="row",a=self.contentbox)
-        self.rowE=self.jp.Div(classes="row",a=self.contentbox)
-        # columns
-        self.colA1=self.jp.Div(classes="col-12",a=self.rowA)
-        self.colB1=self.jp.Div(classes="col-3",a=self.rowB)
-        self.colB2=self.jp.Div(classes="col-2",a=self.rowB)
-        self.colC1=self.jp.Div(classes="col-3",a=self.rowC)
-        self.colC2=self.jp.Div(classes="col-2",a=self.rowC)
-        self.colD1=self.jp.Div(classes="col-12 flex flex-row  gap-4",a=self.rowD)
-        self.colE1=self.jp.Div(classes="col-12",a=self.rowE)
-        # standard elements
-        self.errors=self.jp.Div(a=self.colA1,style='color:red')
-        self.messages=self.jp.Div(a=self.colE1,style='color:black')  
-        self.progressBar = ProgressBar(a=self.rowC)
-        self.gridRows=self.jp.Div(a=self.contentbox,name="gridRows") 
-        self.contextSelect=None
-        
-    def addSwitch(self,a,labelText:str,state:State):
-        """
-        add a switch
-        
-        Args:
-            a: parent Component
-            labelText(str): label text for the switch
-            field_wrap(list): pass by reference work around to allow a boolean
-            variable to be modifie
-            
-        Returns:
-            the switch component
-        """ 
-        button=Switch(a=a,labelText=labelText,state=state)
-        return button
-        
+             
     def addLanguageSelect(self):
         """
         add a language selector
@@ -284,32 +244,37 @@ class YPGenApp(WebSolution):
         except BaseException as ex:
             self.handleException(ex)
         
-    async def settings(self)->"jp.WebPage":
-        '''
-        settings
-        
-        Returns:
-            jp.WebPage: a justpy webpage renderer
-        '''
-        self.setupRowsAndCols()
+    def configure_settings(self):
+        """
+        override settings
+        """
         self.addLanguageSelect()
         self.addWikiUserSelect()
         self.addExplainDepthSelect()
-        return self.wp
     
-    async def content(self)->"jp.WebPage":
-        '''
-        provide the main content page
+    async def home(self):
+        """
+        provide the main content / home page
+  
+        home page 
+        """
+        def show():
+            """
+            show the ui
+            """
+            self.progressBar = NiceguiProgressbar()
+            self.gridRows=ui.row()
+            self.contextSelect=None
+  
+            #self.addWikiUserSelect()
+            #await self.add_or_update_context_select()
+            #self.wp.on("page_ready", self.onPageReady)
+            
+            self.useSidifButton=ui.switch("use SiDIF").bind(self,"useSidif")
+            self.dryRunButton = ui.switch("dry Run").bind(self, 'dryRun')
+            self.openEditorButton = ui.switch("open Editor").bind(self, 'openEditor')
+            self.hideShowSizeInfo = ui.switch("size info").bind(self, 'hideShowSizeInfoState')
+            
+        await self.setup_content_div(show)
         
-        Returns:
-            jp.WebPage: a justpy webpage renderer
-        '''
-        self.setupRowsAndCols()
-        self.addWikiUserSelect()
-        await self.add_or_update_context_select()
-        self.wp.on("page_ready", self.onPageReady)
-        self.useSidifButton=self.addSwitch(a=self.colD1,labelText="use SiDIF",state=self.useSidif)
-        self.dryRunButton=self.addSwitch(a=self.colD1,labelText="dry Run",state=self.dryRun)
-        self.openEditorButton=self.addSwitch(a=self.colD1,labelText="open Editor",state=self.openEditor)
-        self.hideShowSizeInfo = Switch(a=self.colD1, labelText="size info", state=None, on_change=self.handleHideShowSizeInfo)
-        return self.wp
+        

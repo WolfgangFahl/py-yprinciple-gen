@@ -6,8 +6,8 @@ Created on 25.11.2022
 import typing
 import uuid
 
-from jpwidgets.bt5widgets import IconButton, SimpleCheckbox
-from jpwidgets.widgets import HideShow
+#from jpwidgets.bt5widgets import IconButton, SimpleCheckbox
+#from jpwidgets.widgets import HideShow
 from meta.metamodel import Context
 
 from yprinciple.target import Target
