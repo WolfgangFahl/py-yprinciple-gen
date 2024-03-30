@@ -1,60 +1,66 @@
-'''
+"""
 Created on 2022-11-26
 
 @author: wf
-'''
-from yprinciple.target import Target
-from meta.metamodel import Topic, TopicLink, Property, MetaModelElement
+"""
 from datetime import datetime
-from yprinciple.version import Version
+
+from meta.metamodel import MetaModelElement, Property, Topic, TopicLink
+
 import yprinciple.ypcell as ypcell
+from yprinciple.target import Target
+from yprinciple.version import Version
+
 
 class SMWTarget(Target):
     """
-    a specialized generation target for Semantic MediaWiki 
+    a specialized generation target for Semantic MediaWiki
     """
+
     @classmethod
     def getSMWTargets(cls):
-        targets={
-            "category": CategoryTarget("Category","archive"),
-            "concept": ConceptTarget("Concept","puzzle"),
-            "form": FormTarget("Form","form-select"),
-            "help": HelpTarget("Help","help-box"),
-            "listOf": ListOfTarget("List of","format-list-bulleted"),
-            "template": TemplateTarget("Template","file-document"),
-            "properties": PropertyMultiTarget("Properties","alpha-p-circle",is_multi=True),
-            "property": PropertyTarget("Property",showInGrid=False),
-            "python": PythonTarget("Python","snake")
+        targets = {
+            "category": CategoryTarget("Category", "archive"),
+            "concept": ConceptTarget("Concept", "puzzle"),
+            "form": FormTarget("Form", "form-select"),
+            "help": HelpTarget("Help", "help-box"),
+            "listOf": ListOfTarget("List of", "format-list-bulleted"),
+            "template": TemplateTarget("Template", "file-document"),
+            "properties": PropertyMultiTarget(
+                "Properties", "alpha-p-circle", is_multi=True
+            ),
+            "property": PropertyTarget("Property", showInGrid=False),
+            "python": PythonTarget("Python", "snake"),
         }
-        for target_key,target in targets.items():
-            target.target_key=target_key
-        targets["properties"].subTarget=targets["property"]
+        for target_key, target in targets.items():
+            target.target_key = target_key
+        targets["properties"].subTarget = targets["property"]
         return targets
-    
-    def i18n(self,text:str)->str:
+
+    def i18n(self, text: str) -> str:
         """
         return the internationalized version of the given text
-        
+
         Args:
             text(str): the text to internationalize
-            
+
         Returns:
             str: the internationalized version of the text
         """
         # @TODO implement language support for non english wikis
-        return text;
-    
-    def topicHeader(self,topic:'Topic')->str:
+        return text
+
+    def topicHeader(self, topic: "Topic") -> str:
         """
         get the topic header for the given topic
-        
+
         Args:
             topic(Topic): the topic to generate a header for
-            
+
         Returns:
             str: the markup to be generated
         """
-        markup=f"""{{{{#ask: [[Topic name::{topic.name}]]
+        markup = f"""{{{{#ask: [[Topic name::{topic.name}]]
 |mainlabel=-
 |?Topic icon = icon
 |? = Topic
@@ -64,35 +70,35 @@ class SMWTarget(Target):
 }}}}
 """
         return markup
-    
-    def seealso(self,topic:Topic)->str:
+
+    def seealso(self, topic: Topic) -> str:
         """
         generate wiki markup to to show relevant links for a topic
         """
-        markup=f"""see also
+        markup = f"""see also
 * [[List of {topic.pluralName}]]
 * [[Help:{topic.name}]]
 * [[Concept:{topic.name}]]
 * [[:Category:{topic.name}]]
 * [[:Template:{topic.name}]]
 * [[:Form:{topic.name}]]
-""" 
-        topicLinks=topic.targetTopicLinks.values()
-        if len(topicLinks)>0:
-            markup+="topic links:\n"""
+"""
+        topicLinks = topic.targetTopicLinks.values()
+        if len(topicLinks) > 0:
+            markup += "topic links:\n" ""
             for topicLink in topicLinks:
-                markup+=f"* [[Concept:{topicLink.targetTopic.name}]]\n"
+                markup += f"* [[Concept:{topicLink.targetTopic.name}]]\n"
         return markup
-    
-    def copyright(self)->str:
+
+    def copyright(self) -> str:
         """
         get the copyright markup
-        
+
         Returns:
             str: the copyright markup
         """
         currentYear = datetime.now().year
-        markup=f"""<!--
+        markup = f"""<!--
   --     Copyright (C) 2015-{currentYear} BITPlan GmbH
   -- 
   --     Pater-Delp-Str. -- 1
@@ -103,33 +109,45 @@ class SMWTarget(Target):
   -- 
 -->"""
         return markup
-    
-    def profiWiki(self)->str:
+
+    def profiWiki(self) -> str:
         """
         markup for profiWiki
         """
-        markup="[https://wiki.bitplan.com/index.php/ProfiWiki BITPlan Y-Prinzip ProfiWiki]"
+        markup = (
+            "[https://wiki.bitplan.com/index.php/ProfiWiki BITPlan Y-Prinzip ProfiWiki]"
+        )
         return markup
-       
-    def bitplanumlci(self,fontSize:int=12)->str:
+
+    def bitplanumlci(self, fontSize: int = 12) -> str:
         """
         create plantuml skin params for BITPlan corporate identity
-        
+
         Args:
             fontSize(int): the font size to use
-            
+
         Returns:
             str: the wiki markup to be generated
         """
         currentYear = datetime.now().year
-        markup=f"""' BITPlan Corporate identity skin params
+        markup = f"""' BITPlan Corporate identity skin params
 ' Copyright (c) 2015-{currentYear} BITPlan GmbH
 ' see https://wiki.bitplan.com/index.php/PlantUmlSkinParams#BITPlanCI
 ' skinparams generated by {Version.name}
 """
-        skinparams= ["note", "component", "package", "usecase","activity","classAttribute","interface","class","object"]
+        skinparams = [
+            "note",
+            "component",
+            "package",
+            "usecase",
+            "activity",
+            "classAttribute",
+            "interface",
+            "class",
+            "object",
+        ]
         for skinparam in skinparams:
-            markup+=f"""skinparam {skinparam} {{
+            markup += f"""skinparam {skinparam} {{
   BackGroundColor #FFFFFF
   FontSize {fontSize}
   ArrowColor #FF8000
@@ -138,39 +156,39 @@ class SMWTarget(Target):
   FontName Technical
 }}
 """
-        markup+="""hide Circle
+        markup += """hide Circle
 ' end of skinparams '"""
         return markup
-    
-    def plantUmlRelation(self,topicLink:TopicLink)->str:
+
+    def plantUmlRelation(self, topicLink: TopicLink) -> str:
         """
         generate wiki markup for a TopicLink/relation
-        
-        Args:    
+
+        Args:
             topicLink(TopicLink): the topicLink to generate the relation for
-            
+
         Returns:
             str: the wiki markup to generate
         """
-        sourceMany="*" if topicLink.sourceMultiple else "1"
-        targetMany="*" if topicLink.targetMultiple else "1"
-        markup=f"""{topicLink.source} "{topicLink.sourceRole} ({sourceMany})" -- "{topicLink.targetRole}({targetMany})" {topicLink.target}\n"""
+        sourceMany = "*" if topicLink.sourceMultiple else "1"
+        targetMany = "*" if topicLink.targetMultiple else "1"
+        markup = f"""{topicLink.source} "{topicLink.sourceRole} ({sourceMany})" -- "{topicLink.targetRole}({targetMany})" {topicLink.target}\n"""
         return markup
-    
-    def uml(self,title:str,topic:'Topic',output_format:str='svg')->str:
+
+    def uml(self, title: str, topic: "Topic", output_format: str = "svg") -> str:
         """
         get the uml (plantuml) markup for  the given topic
-        
+
         Args:
             topic(Topic): the topic to generate a header for
             output_format(str): the output format to use - default: svg
-            
+
         Returns:
             str: the plantuml markup to be generated
-            
+
         """
         currentYear = datetime.now().year
-        markup=f"""=== {title} ===
+        markup = f"""=== {title} ===
 <uml format='{output_format}'>
 title {topic.name}
 note as {topic.name}DiagramNote
@@ -183,42 +201,43 @@ end note
 class {topic.name} {{
 """
         for prop in topic.properties.values():
-            prop_type=getattr(prop,"type","Text")
-            markup+=f"  {prop_type} {prop.name}\n"
-        markup+=f"""}}
+            prop_type = getattr(prop, "type", "Text")
+            markup += f"  {prop_type} {prop.name}\n"
+        markup += f"""}}
 {topic.name}Note .. {topic.name}
 """
-        # Relations/Topic Links        
-        for topicLink in topic.sourceTopicLinks.values(): 
-            markup+=f"{self.plantUmlRelation(topicLink)}"
-        for topicLink in topic.targetTopicLinks.values(): 
-            markup+=f"{self.plantUmlRelation(topicLink)}"
-        markup+=f"""{self.bitplanumlci(12)}
+        # Relations/Topic Links
+        for topicLink in topic.sourceTopicLinks.values():
+            markup += f"{self.plantUmlRelation(topicLink)}"
+        for topicLink in topic.targetTopicLinks.values():
+            markup += f"{self.plantUmlRelation(topicLink)}"
+        markup += f"""{self.bitplanumlci(12)}
 </uml>"""
         return markup
-    
+
+
 class CategoryTarget(SMWTarget):
     """
-    the target to generate "Category" pages 
-    
+    the target to generate "Category" pages
+
     see https://wiki.bitplan.com/index.php/SiDIFTemplates#category
     """
-    
-    def generate(self,topic:'Topic')->str:
+
+    def generate(self, topic: "Topic") -> str:
         """
         generate a category page for the given topic
-        
+
         e.g. https://wiki.bitplan.com/index.php/Category:Topic
-        
+
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#category
-        
+
         Args:
             topic(Topic): the topic to generate wiki markup for
-            
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        markup=f"""__NOTOC__
+        markup = f"""__NOTOC__
 {{{{#ask: [[Topic name::{topic.name}]] | ?Topic wikiDocumentation= | mainlabel=-}}}}
 {topic.getPluralName()} may be added and edited with the form [[Form:{topic.name}]]
 * [[List of {topic.getPluralName()}]]
@@ -233,34 +252,37 @@ class CategoryTarget(SMWTarget):
 === Properties ===
 """
         for prop in topic.properties.values():
-            markup+=f"* [[Property:{topic.name} {prop.name}]]\n"
-        markup+="""</div>
+            markup += f"* [[Property:{topic.name} {prop.name}]]\n"
+        markup += """</div>
 </div>"""
         return markup
-        
+
+
 class ConceptTarget(SMWTarget):
     """
-    the target to generate "Concept" pages 
-    
+    the target to generate "Concept" pages
+
     see https://wiki.bitplan.com/index.php/SiDIFTemplates#concept
     """
-    
-    def generate(self,topic:'Topic')->str:
+
+    def generate(self, topic: "Topic") -> str:
         """
         generate a result for the given topic
-        
+
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#concept
-        
+
         Args:
             topic(Topic): the topic to generate wiki markup for
-            
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        conceptClause=f"""[[{topic.name} {topic.conceptProperty.name}::+]]""" \
-            if hasattr(topic,"conceptProperty") \
+        conceptClause = (
+            f"""[[{topic.name} {topic.conceptProperty.name}::+]]"""
+            if hasattr(topic, "conceptProperty")
             else f"""[[Category:{topic.name}]]"""
-        markup=f"""{{{{Topic
+        )
+        markup = f"""{{{{Topic
 |name={topic.name}
 |pluralName={topic.getPluralName()}
 |icon={topic.icon}
@@ -292,25 +314,24 @@ class ConceptTarget(SMWTarget):
         return markup
 
 
-    
 class HelpTarget(SMWTarget):
     """
     the help Target
     """
 
-    def generate(self,topic:'Topic')->str:
+    def generate(self, topic: "Topic") -> str:
         """
         generate a result for the given topic
-        
+
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#help
-        
+
         Args:
             topic(Topic): the topic to generate wiki markup for
-            
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        markup=f"""[[File:Help_Icon.png|right]]
+        markup = f"""[[File:Help_Icon.png|right]]
 == Help for {topic.name} ==
 {self.topicHeader(topic)}
 === Documentation ===
@@ -334,76 +355,93 @@ class HelpTarget(SMWTarget):
 [[Category:{topic.name}]]
 """
         return markup
-    
+
+
 class FormTarget(SMWTarget):
     """
-    the target to generate "Form" pages 
+    the target to generate "Form" pages
     e.g. https://wiki.bitplan.com/index.php/Form:Topic
-    
+
     see https://wiki.bitplan.com/index.php/SiDIFTemplates#form
-    
+
     """
-    
-    def formTemplate(self,topic:Topic,isMultiple:bool):
+
+    def formTemplate(self, topic: Topic, isMultiple: bool):
         """
         create the SMW pagefomrs markups for the given topic
-        
+
         Args:
             topic(Topic): the topic to create the markup for
             isMultiple(bool): True if there are multiple values allowed
-        """      
-        multiple="|multiple" if isMultiple else ""
-        markup=f"""<div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"></div>
+        """
+        multiple = "|multiple" if isMultiple else ""
+        markup = f"""<div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"></div>
 {{{{{{section|{topic.name}|level=1|hidden}}}}}}
 ={topic.name}=
 {{{{{{for template|{topic.name}{multiple}}}}}}}
 {{| class="wikitable"
 ! colspan='2' | {topic.name} 
 |-
-"""    
+"""
         for prop in topic.propertiesByIndex():
-            values_from_key="values from="
+            values_from_key = "values from="
             if prop.isLink:
-                prop.values_from=f"{prop.topicLink.source}"
-                prop.inputType="dropdown"
-                values_from_key="values from concept="
+                prop.values_from = f"{prop.topicLink.source}"
+                prop.inputType = "dropdown"
+                values_from_key = "values from concept="
                 pass
-            prop_type=getattr(prop,"type","Text")
-            markup+=f"""! {prop.label}:
+            prop_type = getattr(prop, "type", "Text")
+            markup += f"""! {prop.label}:
 <!-- {prop_type} {prop.name} -->\n"""
-            inputType    =f"|input type={prop.inputType}"     if getattr(prop,"inputType",None) else ""
-            if "textarea"==getattr(prop,"inputType",None):
-                inputType+="|editor=wikieditor"
-            size         =f"|size={prop.size}"                if getattr(prop,"size",None) else ""
-            mandatory    =f"|mandatory"                       if getattr(prop,"mandatory",None) else ""
-            uploadable   =f"|uploadable"                      if getattr(prop,"uploadable",None) else ""
-            size         =f"|size={prop.size}"                if getattr(prop,"size",None) else ""
-            values_from  =f"|{values_from_key}{prop.values_from}"  if getattr(prop,"values_from",None) else ""
-            defaultValue =f"|default={prop.defaultValue}"     if getattr(prop,"defaultValue",None) else ""
-            allowedValues=f"|values={prop.allowedValues}"     if getattr(prop,"allowedValues",None) else "" 
-            markup+=f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
+            inputType = (
+                f"|input type={prop.inputType}"
+                if getattr(prop, "inputType", None)
+                else ""
+            )
+            if "textarea" == getattr(prop, "inputType", None):
+                inputType += "|editor=wikieditor"
+            size = f"|size={prop.size}" if getattr(prop, "size", None) else ""
+            mandatory = f"|mandatory" if getattr(prop, "mandatory", None) else ""
+            uploadable = f"|uploadable" if getattr(prop, "uploadable", None) else ""
+            size = f"|size={prop.size}" if getattr(prop, "size", None) else ""
+            values_from = (
+                f"|{values_from_key}{prop.values_from}"
+                if getattr(prop, "values_from", None)
+                else ""
+            )
+            defaultValue = (
+                f"|default={prop.defaultValue}"
+                if getattr(prop, "defaultValue", None)
+                else ""
+            )
+            allowedValues = (
+                f"|values={prop.allowedValues}"
+                if getattr(prop, "allowedValues", None)
+                else ""
+            )
+            markup += f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
 |-
-"""    
-        markup+=f"""|-
+"""
+        markup += f"""|-
 |}}
 {{{{{{field|storemode|default={topic.defaultstoremode}|hidden}}}}}}
 {{{{{{end template}}}}}}
 <!-- {topic.name} -->
         """
         return markup
-    
-    def generate(self,topic:Topic)->str:
+
+    def generate(self, topic: Topic) -> str:
         """
         generate the form page for the given topic
 
         Args:
             topic(Topic): the topic to generate wiki markup for
-                
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        multiple="subobject"==topic.defaultstoremode
-        markup=f"""<noinclude>
+        multiple = "subobject" == topic.defaultstoremode
+        markup = f"""<noinclude>
 This is the {self.profiWiki()}-Form for "{topic.name}".
 
 Create a new {topic.name} by entering a new pagetitle for a {topic.name}
@@ -429,31 +467,32 @@ with that pagetitle.
 </includeonly>
         """
         return markup
-    
+
+
 class ListOfTarget(SMWTarget):
     """
-    the target to generate "List of" pages 
+    the target to generate "List of" pages
     e.g. https://wiki.bitplan.com/index.php/List_of_Topics
-    
+
     see https://wiki.bitplan.com/index.php/SiDIFTemplates#listof
-    
+
     """
-    
-    def getPageTitle(self,modelElement)->str:
-        pageTitle=f"List of {modelElement.pluralName}"
+
+    def getPageTitle(self, modelElement) -> str:
+        pageTitle = f"List of {modelElement.pluralName}"
         return pageTitle
-    
-    def generate(self,topic:Topic)->str:
+
+    def generate(self, topic: Topic) -> str:
         """
         generate the list of page for the given topic
 
         Args:
             topic(Topic): the topic to generate wiki markup for
-                
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        markup=f"""__NOCACHE__
+        markup = f"""__NOCACHE__
 {self.topicHeader(topic)}
 == {topic.getPluralName()} ==
 {{{{#ask: [[Concept:{topic.name}]]|format=count}}}}
@@ -462,25 +501,26 @@ class ListOfTarget(SMWTarget):
 [[:Category:{topic.name}]]
     """
         return markup
-    
+
+
 class TemplateTarget(SMWTarget):
     """
     the template Target
     """
 
-    def generate(self,topic:'Topic')->str:
+    def generate(self, topic: "Topic") -> str:
         """
         generate a template for the given topic
-        
+
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#template
-        
+
         Args:
             topic(Topic): the topic to generate wiki markup for
-            
+
         Returns:
-            str: the generated wiki markup 
+            str: the generated wiki markup
         """
-        markup=f"""<noinclude>{self.copyright()}
+        markup = f"""<noinclude>{self.copyright()}
 This is the {self.profiWiki()}-Template for "{topic.name}".
 === see also ===
 {self.seealso(topic)}
@@ -488,8 +528,8 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 <pre>{{{{{topic.name}
 """
         for prop in topic.properties.values():
-            markup+=f"|{prop.name}=\n"
-        markup+=f"""|storemode=property or subjobject or none"
+            markup += f"|{prop.name}=\n"
+        markup += f"""|storemode=property or subjobject or none"
 }}}}
 [[Category:Template]]
 </noinclude><includeonly>{{{{#switch:{{{{{{storemode|}}}}}}
@@ -498,36 +538,38 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 |isA={topic.name}
 """
         for prop in topic.properties.values():
-            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
-        markup+=f"""}}}}
+            markup += f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
+        markup += f"""}}}}
 |#default={{{{#set:
 |isA={topic.name}
 """
         for prop in topic.properties.values():
             # separator handling
-            sep=""
+            sep = ""
             if prop.isLink:
-                tl=prop.topicLink
-                if hasattr(tl,"separator"):
-                    sep=f"|+sep={tl.separator}"
-            markup+=f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}{sep}\n"
-        markup+=f"""}}}}\n""" # end of #set
-        markup+=f"""}}}}\n""" # end of #switch
-        markup+=f"""{{{{#switch:{{{{{{viewmode|}}}}}}"""
-        markup+="|hidden="
-        markup+="|masterdetail=\n"
+                tl = prop.topicLink
+                if hasattr(tl, "separator"):
+                    sep = f"|+sep={tl.separator}"
+            markup += f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}{sep}\n"
+        markup += f"""}}}}\n"""  # end of #set
+        markup += f"""}}}}\n"""  # end of #switch
+        markup += f"""{{{{#switch:{{{{{{viewmode|}}}}}}"""
+        markup += "|hidden="
+        markup += "|masterdetail=\n"
         for topicLink in topic.sourceTopicLinks.values():
             if topicLink.targetTopic:
-                markup+=f"= {topicLink.targetRole} =\n"
-                markup+=f"{{{{#ask:[[Concept:{topicLink.targetTopic.name}]]"
-                markup+=f"[[{topicLink.targetTopic.name} {topicLink.sourceRole}::{{{{FULLPAGENAME}}}}]]\n"
+                markup += f"= {topicLink.targetRole} =\n"
+                markup += f"{{{{#ask:[[Concept:{topicLink.targetTopic.name}]]"
+                markup += f"[[{topicLink.targetTopic.name} {topicLink.sourceRole}::{{{{FULLPAGENAME}}}}]]\n"
                 for prop in topicLink.targetTopic.propertiesByIndex():
-                    markup+=f"| ?{topicLink.targetTopic.name} {prop.name} = {prop.name}\n"
+                    markup += (
+                        f"| ?{topicLink.targetTopic.name} {prop.name} = {prop.name}\n"
+                    )
                     pass
-                markup+=f"}}}}" # end #ask
+                markup += f"}}}}"  # end #ask
                 pass
-        markup+="|#default="
-        markup+=f"""{{{{{{!}}}} class='wikitable'
+        markup += "|#default="
+        markup += f"""{{{{{{!}}}} class='wikitable'
 ! colspan='2' {{{{!}}}}{topic.name}
 {{{{!}}}}-
 {{{{#switch:{{{{{{storemode|}}}}}}|property=
@@ -538,127 +580,149 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
         for prop in topic.properties.values():
             # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
             # show Links for external Identifiers in templates
-            prop_type=getattr(prop,"type","Text")
-            if prop_type=="External identifier" or prop.isLink:
-                link_markup="→{{#show: {{FULLPAGENAME}}|"+f"?{topic.name} {prop.name}"+"}}"
+            prop_type = getattr(prop, "type", "Text")
+            if prop_type == "External identifier" or prop.isLink:
+                link_markup = (
+                    "→{{#show: {{FULLPAGENAME}}|" + f"?{topic.name} {prop.name}" + "}}"
+                )
                 pass
-            elif prop_type=="Page":           
-                link_markup=f"→[[{{{{{{{prop.name}|}}}}}}]]"
+            elif prop_type == "Page":
+                link_markup = f"→[[{{{{{{{prop.name}|}}}}}}]]"
             else:
-                link_markup=""
-            markup+=f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
+                link_markup = ""
+            markup += f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
 {{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}{link_markup}
 {{{{!}}}}-\n"""
-        markup+=f"{{{{!}}}}}}\n" # end of table
-        markup+=f"""}}}}\n""" # end of #switch viewmode
- 
+        markup += f"{{{{!}}}}}}\n"  # end of table
+        markup += f"""}}}}\n"""  # end of #switch viewmode
+
         if hasattr(topic, "defaultstoremode"):
-            if topic.defaultstoremode=="property":
-                markup+=f"[[Category:{topic.name}]]{{{{#default_form:{topic.name}}}}}\n"
-    
-        markup+="""</includeonly>"""
+            if topic.defaultstoremode == "property":
+                markup += (
+                    f"[[Category:{topic.name}]]{{{{#default_form:{topic.name}}}}}\n"
+                )
+
+        markup += """</includeonly>"""
         return markup
-    
+
+
 class PropertyMultiTarget(SMWTarget):
     """
     the Property Multi Target
     """
-    
-    def addSubCells(self,ypCell:'YpCell',topic:Topic,debug:bool=False):
+
+    def addSubCells(self, ypCell: "YpCell", topic: Topic, debug: bool = False):
         """
         add the subcells for the given ypCell and topic
-        
+
         Args:
             ypCell: the ypCell
             topic(Topic): the topic to add subcells for
         """
         for prop in topic.properties.values():
-            subCell=ypcell.YpCell(modelElement=prop,target=self.subTarget,debug=debug)
-            ypCell.subCells[prop.name]=subCell
-    
+            subCell = ypcell.YpCell(
+                modelElement=prop, target=self.subTarget, debug=debug
+            )
+            ypCell.subCells[prop.name] = subCell
+
+
 class PropertyTarget(SMWTarget):
     """
     the Property Target
     """
-    
-    def getPageTitle(self,prop)->str:
+
+    def getPageTitle(self, prop) -> str:
         """
         get the page title for the given property
-        
+
         Args:
             prop: the Property to get the page title for
-            
+
         Returns:
             str: the markup
         """
-        pageTitle=f"{self.name}:{prop.topic} {prop.name}"
+        pageTitle = f"{self.name}:{prop.topic} {prop.name}"
         return pageTitle
-    
-    def generate(self,prop:Property)->str:
+
+    def generate(self, prop: Property) -> str:
         """
         generate wiki markup for the given property
-        
+
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#propertiesdefs
-        
-        Returns: 
+
+        Returns:
             str: the wiki markup for the given property
         """
-        topic_name=prop.topic
-        topicWithConcept=f"Concept:{topic_name}"
-        markup=f"""{{{{Property
+        topic_name = prop.topic
+        topicWithConcept = f"Concept:{topic_name}"
+        markup = f"""{{{{Property
 |name={prop.name}
 |label={prop.label} 
         """
         if hasattr(prop, "documentation"):
-            markup+=f"""|documentation={prop.documentation}\n"""
-        prop_type=getattr(prop,"type","Text")
-        markup+=f"""|type=Special:Types/{prop_type}
+            markup += f"""|documentation={prop.documentation}\n"""
+        prop_type = getattr(prop, "type", "Text")
+        markup += f"""|type=Special:Types/{prop_type}
 """
         # @TODO read from metamodel
-        for prop_name in ["index","sortPos","primaryKey","mandatory",
-           "namespace","size","uploadable","defaultValue","inputType",
-           "allowedValues","values_from","formatterURI","showInGrid","isLink"]:
+        for prop_name in [
+            "index",
+            "sortPos",
+            "primaryKey",
+            "mandatory",
+            "namespace",
+            "size",
+            "uploadable",
+            "defaultValue",
+            "inputType",
+            "allowedValues",
+            "values_from",
+            "formatterURI",
+            "showInGrid",
+            "isLink",
+        ]:
             if hasattr(prop, prop_name):
-                value=getattr(prop,prop_name,None)
+                value = getattr(prop, prop_name, None)
                 if value is not None:
-                    markup+=f"|{prop_name}={value}\n"                   
+                    markup += f"|{prop_name}={value}\n"
                     # e.g. |index={prop.index}
-        markup+=f"""|topic={(topicWithConcept)}
+        markup += f"""|topic={(topicWithConcept)}
 |storemode=prop       
 }}}}      
 * [[Has type::{prop.type}]]
 """
         if hasattr(prop, "formatterURI"):
-            markup+=f"""* External formatter uri: [[External formatter uri::{prop.formatterURI}]]
+            markup += f"""* External formatter uri: [[External formatter uri::{prop.formatterURI}]]
 """
-        markup+=f"""
+        markup += f"""
 This is a Property with type {{{{#show: {{{{FULLPAGENAMEE}}}} | ?Property type#- }}}}
 """
         return markup
-    
+
+
 class PythonTarget(SMWTarget):
     """
     generator for Python Code for a Topic
     """
-    
-    def pythonPropType(self,prop:Property)->str:
+
+    def pythonPropType(self, prop: Property) -> str:
         """
         get the python property type for the given Property
         """
-        ptype="str"
-        typestr=prop.type
-        typestr=typestr.replace("Types/","")
-        if typestr=="Boolean":
-            ptype="bool"
-        elif typestr=="Number":
-            ptype="float"
+        ptype = "str"
+        typestr = prop.type
+        typestr = typestr.replace("Types/", "")
+        if typestr == "Boolean":
+            ptype = "bool"
+        elif typestr == "Number":
+            ptype = "float"
         return ptype
-    
-    def generate(self, topic:'Topic')->str:
+
+    def generate(self, topic: "Topic") -> str:
         """
         generate python code for the given topic
         """
-        markup=f'''from dataclasses import dataclass
+        markup = f'''from dataclasses import dataclass
 from typing import Optional
 import dacite
 @dataclass
@@ -668,10 +732,10 @@ class {topic.name}:
     """
     pageTitle:str
 '''
-        
+
         for prop in topic.propertiesByIndex():
-            markup+=f'''    {prop.name}:Optional[{self.pythonPropType(prop)}] # {getattr(prop,"documentation","")}\n'''
-        markup+=f'''
+            markup += f"""    {prop.name}:Optional[{self.pythonPropType(prop)}] # {getattr(prop,"documentation","")}\n"""
+        markup += f'''
     @classmethod
     def askQuery(cls):
         """
@@ -697,5 +761,5 @@ class {topic.name}:
         {topic.name.lower()}=dacite.from_dict(data_class=cls,data=data)
         return {topic.name.lower()}
         '''
-        
+
         return markup

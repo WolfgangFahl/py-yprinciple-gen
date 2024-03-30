@@ -1,17 +1,20 @@
-'''
+"""
 Created on 2022-11-24
 
 @author: wf
-'''
+"""
 import os
+
 from wikibot3rd.wikiuser import WikiUser
+
 from tests.basetest import Basetest
+
 
 class BaseMediawikiTest(Basetest):
     """
     special mediawiki tests
     """
-    
+
     def setUp(self, debug=False, profile=True):
         Basetest.setUp(self, debug=debug, profile=profile)
 
@@ -24,16 +27,29 @@ class BaseMediawikiTest(Basetest):
         if not os.path.isfile(iniFile):
             wikiDict = None
             if wikiId == "wiki":
-                wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com", "url": "https://wiki.bitplan.com",
-                            "scriptPath": "", "version": "MediaWiki 1.35.5"}
+                wikiDict = {
+                    "wikiId": wikiId,
+                    "email": "noreply@nouser.com",
+                    "url": "https://wiki.bitplan.com",
+                    "scriptPath": "",
+                    "version": "MediaWiki 1.35.5",
+                }
             if wikiId == "ceur-ws":
-                wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com",
-                            "url": "https://ceur-ws.bitplan.com", "scriptPath": "",
-                            "version": "MediaWiki 1.35.5"}
+                wikiDict = {
+                    "wikiId": wikiId,
+                    "email": "noreply@nouser.com",
+                    "url": "https://ceur-ws.bitplan.com",
+                    "scriptPath": "",
+                    "version": "MediaWiki 1.35.5",
+                }
             if wikiId == "cr":
-                wikiDict = {"wikiId": wikiId, "email": "noreply@nouser.com",
-                            "url": "https://cr.bitplan.com", "scriptPath": "",
-                            "version": "MediaWiki 1.35.5"}
+                wikiDict = {
+                    "wikiId": wikiId,
+                    "email": "noreply@nouser.com",
+                    "url": "https://cr.bitplan.com",
+                    "scriptPath": "",
+                    "version": "MediaWiki 1.35.5",
+                }
             if wikiDict is None:
                 raise Exception(f"wikiId {wikiId} is not known")
             else:

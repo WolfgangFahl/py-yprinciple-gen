@@ -3,27 +3,52 @@ Created on 2022-11-24
 
 @author: wf
 '''
-import os
 import html
-from jpcore.compat import Compatibility;Compatibility(0,11,3)
-from jpcore.justpy_config import JpConfig
-script_dir = os.path.dirname(os.path.abspath(__file__))
-static_dir = script_dir+"/resources/static"
-JpConfig.set("STATIC_DIRECTORY",static_dir)
-# shut up justpy
-JpConfig.set("VERBOSE","False")
-JpConfig.setup()
-from jpwidgets.bt5widgets import App,About,ProgressBar,Switch,State
-from wikibot3rd.wikiuser import WikiUser
-from meta.mw import SMWAccess
-from meta.metamodel import Context
-from yprinciple.smw_targets import SMWTarget
-from yprinciple.gengrid import GeneratorGrid
-from yprinciple.genapi import GeneratorAPI
+import os
 
-class YPGenApp(App):
+from meta.metamodel import Context
+from meta.mw import SMWAccess
+from ngwidgets.input_webserver import InputWebserver
+from ngwidgets.webserver import WebserverConfig, WebSolution
+from wikibot3rd.wikiuser import WikiUser
+
+from yprinciple.genapi import GeneratorAPI
+from yprinciple.gengrid import GeneratorGrid
+from yprinciple.smw_targets import SMWTarget
+from yprinciple.version import Version
+
+
+class YPGenServer(InputWebserver):
     """
-    Y-Principle Generator Web Application
+    Y-Principle Generator webserver
+    """
+    
+    @classmethod
+    def get_config(cls) -> WebserverConfig:
+        """
+        get the configuration for this Webserver
+        """
+        copy_right = ""
+        config = WebserverConfig(
+            short_name="ypgen",
+            copy_right=copy_right,
+            version=Version(),
+            default_port=8778,
+        )
+        server_config = WebserverConfig.get(config)
+        server_config.solution_class = YPGenApp
+        return server_config
+    
+    def __init__(self):
+        """Constructs all the necessary attributes for the WebServer object."""
+        InputWebserver.__init__(
+            self, config=YPGenServer.get_config()
+        )
+ 
+    
+class YPGenApp(WebSolution):
+    """
+    Y-Principle Generator Web Application / Solution
     """
     
     def __init__(self,version,title:str,args:None):
@@ -33,9 +58,6 @@ class YPGenApp(App):
         Args:
             version(Version): the version info for the app
         '''
-        import justpy as jp
-        self.jp=jp
-        App.__init__(self, version=version,title=title)
         self.args=args
         self.wikiId=args.wikiId
         self.context_name=args.context
@@ -46,8 +68,6 @@ class YPGenApp(App):
         self.addMenuLink(text='Settings',icon='cog',href="/settings")
         self.addMenuLink(text='About',icon='information',href="/about")
         
-        jp.Route('/settings',self.settings)
-        jp.Route('/about',self.about)
         # wiki users
         self.wikiUsers=WikiUser.getWikiUsers()
         self.wikiLink=None
@@ -277,17 +297,6 @@ class YPGenApp(App):
         self.addExplainDepthSelect()
         return self.wp
     
-    async def about(self)->"jp.WebPage":
-        '''
-        show about dialog
-        
-        Returns:
-            jp.WebPage: a justpy webpage renderer
-        '''
-        self.setupRowsAndCols()
-        self.aboutDiv=About(a=self.colB1,version=self.version)
-        return self.wp
-        
     async def content(self)->"jp.WebPage":
         '''
         provide the main content page
@@ -304,11 +313,3 @@ class YPGenApp(App):
         self.openEditorButton=self.addSwitch(a=self.colD1,labelText="open Editor",state=self.openEditor)
         self.hideShowSizeInfo = Switch(a=self.colD1, labelText="size info", state=None, on_change=self.handleHideShowSizeInfo)
         return self.wp
-    
-    def start(self,host,port,debug):
-        """
-        start the server
-        """
-        self.debug=debug
-        import justpy as jp
-        jp.justpy(self.content,host=host,port=port)
