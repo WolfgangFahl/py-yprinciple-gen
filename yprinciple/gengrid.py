@@ -3,16 +3,15 @@ Created on 25.11.2022
 
 @author: wf
 """
-import typing
+from typing import Callable, List
 import uuid
-
-#from jpwidgets.bt5widgets import IconButton, SimpleCheckbox
-#from jpwidgets.widgets import HideShow
+from nicegui import ui
+from ngwidgets.webserver import WebSolution
+from ngwidgets.widgets import HideShow, Link
 from meta.metamodel import Context
 
 from yprinciple.target import Target
-from yprinciple.ypcell import MwGenResult, YpCell
-
+from yprinciple.ypcell import YpCell
 
 class GeneratorGrid:
     """
@@ -21,29 +20,25 @@ class GeneratorGrid:
     see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
     """
 
-    def __init__(self, targets: dict, a, app, iconSize: str = "32px"):
+    def __init__(self, targets: dict, parent, solution:WebSolution, iconSize: str = "32px"):
         """
         constructor
 
         Args:
             targets(dict): a list of targets
-            a: the parent element
-            app: the parent app
+            parent: the parent element
+            solution(WebSolution): the solution
 
         """
-        self.gridRows = a
-        self.app = app
-        self.jp = app.jp
-        self.wp = app.wp
+        self.gridRows = parent
+        self.solution = solution
         self.iconSize = iconSize
         self.checkboxes = {}
         self.ypcell_by_uuid = {}
         self.checkbox_by_uuid = {}
         self.targets = targets
-        self.a = a
-        self.gridHeaderRow = self.jp.Div(
-            classes="row", name="gridHeaderRow", a=self.gridRows
-        )
+        with self.gridRows:
+            self.gridHeaderRow = ui.row()
         self.headerClasses = "col-1 text-center"
         # see https://www.materialpalette.com/indigo/indigo
         # secondary text
@@ -54,58 +49,42 @@ class GeneratorGrid:
             f"font-size: 1.0rem;background-color: {self.headerBackground}"
         )
         self.lightHeaderStyle = f"background-color: {self.lightHeaderBackground}"
-        self.generateButton = IconButton(
-            iconName="play",
-            classes="btn btn-primary btn-sm col-1",
-            a=self.gridHeaderRow,
-            click=self.onGenerateButtonClick,
-            disabled=False,
-        )
-        self.targetsColumnHeader = self.jp.Div(
-            text="Targets",
-            a=self.gridHeaderRow,
-            classes=self.headerClasses,
-            style=self.headerStyle,
-        )
+        with self.gridHeaderRow:
+            self.generateButton = ui.button(
+                iconName="play",
+                classes="btn btn-primary btn-sm col-1",
+                click=self.onGenerateButtonClick,
+                disabled=False,
+            )
+            self.targetsColumnHeader = ui.row().classes(self.headerClasses).style(self.headerStyle),
         self.targetsColumnHeader.inner_html = "<strong>Target</strong>"
-        self.targetSelectionHeader = self.jp.Div(a=self.gridRows, classes="row")
-        self.jp.Label(
-            a=self.targetSelectionHeader,
-            inner_html="<strong>Topics</strong>",
-            classes=self.headerClasses,
-            style=self.headerStyle,
-        )
-        self.createSimpleCheckbox(
-            a=self.targetSelectionHeader,
+        with self.gridRows:
+            self.targetSelectionHeader = ui.row()
+            with self.targetSelectionHeader:
+                ui.label("Topics").classes(self.headerClasses).style(self.headerStyle)
+        self.create_simple_checkbox(
+            parent=self.targetSelectionHeader,
             labelText="↘",
             title="select all",
-            input=self.onSelectAllClick,
+            on_change=self.onSelectAllClick,
         )
         for target in self.displayTargets():
-            classes = self.getCols(target)
-            target_div = self.jp.Div(
-                a=self.gridHeaderRow,
-                classes=classes + " text-center",
-                style=self.headerStyle,
-            )
-            target_title = self.jp.Span(
-                a=target_div, inner_html=target.name + "<br>", classes="align-middle"
-            )
-            self.icon = self.jp.I(
-                a=target_div,
-                classes=f"mdi mdi-{target.icon_name}",
-                style=f"color:{bs_secondary};font-size:{self.iconSize};",
-            )
-            self.createSimpleCheckbox(
+            columns=self.get_colums(target)
+            with self.gridHeaderRow:
+                target_div=ui.grid(columns=columns).classes("text-center").style(self.headerStyle)   
+                with target_div:
+                    target_title = ui.html().classes("align-middle")
+                    target_title.content=target.name + "<br>"
+                    self.icon = ui.icon(target.icon_name).style=f"color:{bs_secondary};font-size:{self.iconSize};",
+            self.create_simple_checkbox(
                 labelText="↓",
                 title=f"select all {target.name}",
-                a=self.targetSelectionHeader,
-                classes=classes,
-                input=self.onSelectColumnClick,
+                parent=self.targetSelectionHeader,
+                on_change=self.onSelectColumnClick,
             )
         self.cell_debug_msg_divs = []
 
-    def getCheckedYpCells(self) -> typing.List[YpCell]:
+    def getCheckedYpCells(self) -> List[YpCell]:
         """
         get all checked YpCells
         """
@@ -126,7 +105,7 @@ class GeneratorGrid:
         react on the generate button having been clicked
         """
         # force login
-        self.app.smwAccess.wikiClient.login()
+        self.solution.smwAccess.wikiClient.login()
         cellsToGen = self.getCheckedYpCells()
         for ypCell in cellsToGen:
             cell_checkbox = self.checkbox_by_uuid.get(ypCell.checkbox_id, None)
@@ -135,9 +114,9 @@ class GeneratorGrid:
             status_div.text = ""
             try:
                 genResult = ypCell.generateViaMwApi(
-                    smwAccess=self.app.smwAccess,
-                    dryRun=self.app.dryRun.value,
-                    withEditor=self.app.openEditor.value,
+                    smwAccess=self.solution.smwAccess,
+                    dryRun=self.solution.dryRun,
+                    withEditor=self.solution.openEditor,
                 )
                 if genResult is not None and cell_checkbox is not None:
                     delta_color = ""
@@ -149,16 +128,13 @@ class GeneratorGrid:
                             delta_color = "text-green-500"
                     else:
                         delta_color = "text-gray-500"
-                    self.jp.A(
-                        a=status_div,
-                        href=diff_url,
-                        text="Δ",
-                        classes="text-xl font-bold " + delta_color,
-                    )
-                await self.app.wp.update()
+                    with status_div:
+                        link=Link.create(url=diff_url, text="Δ")
+                        _link_html=ui.html(link).classes("text-xl font-bold " + delta_color,)
             except BaseException as ex:
-                self.jp.Div(a=status_div, text="❗", title=str(ex))
-                self.app.handleException(ex)
+                with status_div:
+                    ui.label("❗").tooltip(str(ex))
+                self.solution.handle_exception(ex)
 
     def check_ypcell_box(self, checkbox, ypCell, checked: bool):
         """
@@ -187,7 +163,7 @@ class GeneratorGrid:
             for checkbox_row in self.checkboxes.values():
                 self.check_row(checkbox_row, checked)
         except BaseException as ex:
-            self.app.handleException(ex)
+            self.solution.handle_exception(ex)
         pass
 
     async def onSelectRowClick(self, msg: dict):
@@ -201,7 +177,7 @@ class GeneratorGrid:
             checkbox_row = self.checkboxes[context_name]
             self.check_row(checkbox_row, checked)
         except BaseException as ex:
-            self.app.handleException(ex)
+            self.solution.handle_exception(ex)
 
     async def onSelectColumnClick(self, msg: dict):
         """
@@ -215,7 +191,7 @@ class GeneratorGrid:
                 checkbox, ypCell = checkbox_row[target_name]
                 self.check_ypcell_box(checkbox, ypCell, checked)
         except BaseException as ex:
-            self.app.handleException(ex)
+            self.solution.handle_exception(ex)
 
     async def onParentCheckboxClick(self, msg: dict):
         """
@@ -237,62 +213,99 @@ class GeneratorGrid:
                 dt.append(target)
         return dt
 
-    def getCols(self, target: Target) -> str:
-        cols = "col-2" if target.is_multi else "col-1"
+    def get_colums(self, target: Target) -> int:
+        """
+        get the number of columns for the given target
+        
+        Args:
+            target(Target): the target
+            
+        Returns:
+            int: the number of columns to be displayed
+        """
+        cols = 2 if target.is_multi else 1
         return cols
 
-    def createSimpleCheckbox(self, labelText, title, a, classes=None, **kwargs):
+    def create_simple_checkbox(self, 
+            parent, 
+            label_text:str, 
+            title:str, 
+            classes:str=None, 
+            on_change:Callable,
+            **kwargs):
         """
-        create a simple CheckBox with header style
+        Create a NiceGUI checkbox with a label and optional tooltip, adding it to the specified parent container.
+        
+        Args:
+            parent: The parent UI element to attach the checkbox to. Must be a NiceGUI container.
+            label_text (str): The text label to display next to the checkbox.
+            title (str): The tooltip text to display when hovering over the checkbox.
+            classes (str, optional): CSS classes for additional styling. If None, uses a default.
+            **kwargs: Additional keyword arguments to pass to the checkbox.
+            
+        Returns:
+            ui.checkbox: The created checkbox instance.
         """
         if classes is None:
             classes = self.headerClasses
-        style = self.lightHeaderStyle
-        simpleCheckbox = SimpleCheckbox(
-            labelText=labelText,
-            title=title,
-            a=a,
-            classes=classes,
-            style=style,
-            **kwargs,
-        )
-        return simpleCheckbox
+        with parent:
+            checkbox = ui.checkbox(
+                label=label_text,
+                **kwargs,
+            )
+            checkbox.classes(classes)
+            checkbox.style(self.lightHeaderStyle)
+            checkbox.tooltip(title)
+        if on_change:
+            checkbox.on("change",on_change)
+        return checkbox
 
-    def createCheckBox(self, ypCell: YpCell, a, classes="col-1") -> SimpleCheckbox:
+    def create_check_box(self, 
+        yp_cell: YpCell, 
+        parent,
+        columns:int) -> ui.checkbox:
         """
-        create a CheckBox for the given YpCell
+        create a nicegui CheckBox for the given YpCell
 
         Args:
-            ypCell: YpCell - the YpCell to create a checkbox for
-
+            yp_cell: YpCell - the YpCell to create a checkbox for
+            parent: the nicegui parent element
+            columns(int) the number of columns
+  
         Returns:
-            SimpleCheckbox: the checkbox for the given cell
+            ui.checkbox: The created NiceGUI checkbox element.
         """
-        labelText = ypCell.getLabelText()
-        checkbox = SimpleCheckbox(labelText="", a=a, classes=classes)
-        ypCell.getPage(self.app.smwAccess)
-        color = "blue" if ypCell.status == "✅" else "red"
-        link = f"<a href='{ypCell.pageUrl}' style='color:{color}'>{labelText}<a>"
-        if ypCell.status == "ⓘ":
-            link = f"{labelText}"
+        label_text = yp_cell.getLabelText()
+        checkbox = self.create_simple_checkbox(parent, label_text) 
+        yp_cell.getPage(self.solution.smwAccess)
+        color = "blue" if yp_cell.status == "✅" else "red"
+        link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
+        if yp_cell.status == "ⓘ":
+            link = f"{label_text}"
         # in a one column setting we need to break link and status message
-        if "col-1" in classes:
-            labelText = labelText.replace(":", ":<br>")
+        if columns==1:
+            label_text = label_text.replace(":", ":<br>")
             delim = "<br>"
         else:
             delim = "&nbsp;"
-        self.jp.Div(a=checkbox.label, inner_html=f"{link}{delim}")
-        content = self.jp.Div(a=checkbox.label, classes="flex flex-row gap-2")
-        debug_div = self.jp.Div(a=content, inner_html=f"{ypCell.statusMsg}")
-        debug_div.hidden(getattr(self, "cell_hide_size_info", True))
-        status_div = self.jp.Div(a=content, text=ypCell.status)
-        checkbox.status_div = status_div
-        self.cell_debug_msg_divs.append(debug_div)
-        # link ypCell with Checkbox via a unique identifier
-        ypCell.checkbox_id = uuid.uuid4()
-        checkbox.data["ypcell_uuid"] = ypCell.checkbox_id
-        self.ypcell_by_uuid[ypCell.checkbox_id] = ypCell
-        self.checkbox_by_uuid[ypCell.checkbox_id] = checkbox
+        with checkbox:
+            link_html=ui.html()
+            link_html.content=f"{link}{delim}"
+            content=ui.row().classes="flex flex-row gap-2"
+            with content:
+                debug_div = ui.html()
+                debug_div.content=f"{yp_cell.statusMsg}"
+                hidden=getattr(self, "cell_hide_size_info", True)
+                debug_div.visible(not hidden)
+                status_div = ui.html()
+                status_div.content=yp_cell.status
+                checkbox.status_div = status_div
+                self.cell_debug_msg_divs.append(debug_div)
+            # link ypCell with Checkbox via a unique identifier
+            yp_cell.checkbox_id = uuid.uuid4()
+            checkbox.data["ypcell_uuid"] = yp_cell.checkbox_id
+            self.ypcell_by_uuid[yp_cell.checkbox_id] = yp_cell
+            self.checkbox_by_uuid[yp_cell.checkbox_id] = checkbox
         return checkbox
 
     async def addRows(self, context: Context):
@@ -303,7 +316,7 @@ class GeneratorGrid:
         def updateProgress():
             percent = progress_steps / total_steps * 100
             value = round(percent)
-            self.app.progressBar.updateProgress(value)
+            self.solution.progressBar.updateProgress(value)
 
         total_steps = 0
         for topic_name, topic in context.topics.items():
@@ -314,67 +327,61 @@ class GeneratorGrid:
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
-            _topicRow = self.jp.Div(a=self.gridRows, classes="row", style="color:black")
-            topicHeader = self.jp.Div(
-                a=_topicRow,
-                text=topic_name,
-                classes=self.headerClasses,
-                style=self.headerStyle,
-            )
+            with self.gridRows:
+                topic_row=ui.row()
+                with topic_row:
+                    topic_header=ui.row().classes(self.headerClasses).style(self.headerStyle)
+                    
             icon_url = None
             if hasattr(topic, "iconUrl"):
                 if topic.iconUrl.startswith("http"):
                     icon_url = f"{topic.iconUrl}"
-            if icon_url is not None and self.app.mw_context is not None:
-                icon_url = f"{self.app.mw_context.wiki_url}{topic.iconUrl}"
+            if icon_url is not None and self.solution.mw_context is not None:
+                icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
             if icon_url is None:
                 icon_url = "?"
 
-            _topicIcon = self.jp.Img(
-                src=icon_url,
-                a=topicHeader,
-                width=f"{self.iconSize}",
-                height=f"{self.iconSize}",
-            )
-            self.createSimpleCheckbox(
+            with topic_header:
+                topic_icon = ui.image(
+                    source=icon_url,
+                    style=f'width: {self.iconSize}px; height: {self.iconSize}px;'
+                )
+            checkbox=self.create_simple_checkbox(
+                parent=topic_row,
                 labelText="→",
                 title=f"select all {topic_name}",
-                a=_topicRow,
-                input=self.onSelectRowClick,
             )
+            checkbox.on('change',self.onSelectRowClick)
             for target in self.displayTargets():
                 progress_steps += 1
                 ypCell = YpCell.createYpCell(target=target, topic=topic)
                 if len(ypCell.subCells) > 0:
-                    prop_div_col = self.jp.Div(
-                        a=_topicRow, classes=self.getCols(target)
-                    )
-                    prop_div = HideShow(
-                        a=prop_div_col,
-                        show_content=False,
-                        hide_show_label=("properties", "properties"),
-                    )
-                    a = prop_div
-                    classes = ""
+                    with topic_row:
+                        columns=self.get_colums(target)
+                        prop_div_col = ui.grid(columns=columns)
+                        with prop_div_col:     
+                            prop_div = HideShow(
+                                show_content=False,
+                                hide_show_label=("properties", "properties"),
+                            )
+                            parent = prop_div
                 else:
-                    a = _topicRow
-                    classes = "col-1"
-                checkbox = self.createCheckBox(ypCell, a=a, classes=classes)
+                    parent = topic_row
+                    columns=1
+                checkbox = self.create_check_box(ypCell, parent=parent, columns=columns)
                 checkbox_row[target.name] = (checkbox, ypCell)
                 if len(ypCell.subCells) > 0:
                     checkbox.on("input", self.onParentCheckboxClick)
                     for _prop_name, subCell in ypCell.subCells.items():
-                        _subCheckBox = self.createCheckBox(
-                            subCell, a=prop_div, classes=classes
+                        _subCheckBox = self.create_check_box(
+                            subCell, parent=prop_div, columns=columns
                         )
                         progress_steps += 1
                         updateProgress()
-                        await self.app.wp.update()
                 updateProgress()
-                await self.app.wp.update()
             pass
         # done
-        self.app.progressBar.updateProgress(0)
+        self.solution.progressBar.reset()
 
     def set_hide_show_status_of_cell_debug_msg(self, hidden: bool = False):
         """
@@ -384,4 +391,4 @@ class GeneratorGrid:
         """
         self.cell_hide_size_info = hidden
         for div in self.cell_debug_msg_divs:
-            div.hidden(hidden)
+            div.visible(not hidden)

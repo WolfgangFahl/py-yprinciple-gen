@@ -122,18 +122,13 @@ class YPGenApp(WebSolution):
                 self.contextLink.text="?"
                 self.contextLink.href="https://wiki.bitplan.com/index.php/Concept:Context"
     
-    
-        
-   
    
     async def showGenerateGrid(self):
         """
         show the grid for generating code
         """
-        self.gridRows.delete_components()
-        await self.wp.update()
         # start with a new generatorGrid
-        self.generatorGrid=GeneratorGrid(self.targets,a=self.gridRows,app=self)
+        self.generatorGrid=GeneratorGrid(self.targets,parent=self.gridRows,solution=self)
         if self.useSidif:
             if self.mw_context is not None:
                 context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
