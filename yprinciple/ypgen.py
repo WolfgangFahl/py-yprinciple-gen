@@ -132,7 +132,6 @@ class YPGen(WebserverCmd):
             handled = True
         return handled
 
-
 def main(argv: list = None):
     """
     main call

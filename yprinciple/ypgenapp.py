@@ -142,16 +142,18 @@ class YPGenApp(InputWebSolution):
         """
         show the grid for generating code
         """
-        # start with a new generatorGrid
-        self.grid_container=ui.row()
-        self.generatorGrid=GeneratorGrid(self.targets,parent=self.grid_container,solution=self)
-        if self.useSidif:
-            if self.mw_context is not None:
-                context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
-                if error is not None:
-                    self.errors.inner_html=errMsg.replace("\n","<br>")
-                else:
-                    await self.generatorGrid.addRows(context)
+        try:
+            # start with a new generatorGrid
+            self.generatorGrid=GeneratorGrid(self.targets,parent=self.grid_container,solution=self)
+            if self.useSidif:
+                if self.mw_context is not None:
+                    context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
+                    if error is not None:
+                        self.log_view.push(errMsg)
+                    else:
+                        await self.generatorGrid.addRows(context)
+        except Exception as ex:
+            self.handle_exception(ex)
         
     async def onChangeLanguage(self,msg):
         """
@@ -168,7 +170,7 @@ class YPGenApp(InputWebSolution):
             # change wikiUser
             self.args.wikiId=msg.value
             self.setGenApiFromArgs(self.args)
-            await self.add_or_update_context_select()
+            await self.update_context_select()
         except BaseException as ex:
             self.handle_exception(ex)
         
@@ -240,15 +242,25 @@ class YPGenApp(InputWebSolution):
                     value=self.context_name,
                     on_change=self.onChangeContext
                 )
-            if self.mw_context is not None:
-                url=self.mw_context.sidif_url()
-            else:
-                url="?"
-            link=Link.create(url,text=self.context_name)
             self.context_link=ui.html()
-            self.context_link.content=link
+            self.update_context_link()
         except BaseException as ex:
             self.handle_exception(ex)
+            
+    def update_context_link(self):
+        """
+        """
+        if self.mw_context is not None:
+            url=self.mw_context.sidif_url()
+        else:
+            url="?"
+        link=Link.create(url,text=self.context_name)
+        self.context_link.content=link
+        
+    async def update_context_select(self):
+        """
+        """
+        pass
         
     def configure_settings(self):
         """
@@ -268,17 +280,20 @@ class YPGenApp(InputWebSolution):
             """
             show the ui
             """
-            with ui.card() as self.settings_card:
-                self.contextSelect=None
-                self.addWikiUserSelect()
-                self.add_context_select()
-            with ui.row() as self.button_bar:
-                self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
-                self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
-                self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
-                self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
-            with ui.row() as self.progress_container:
-                self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
-            background_tasks.create(self.showGenerateGrid())
+            try: 
+                with ui.grid(columns=2) as self.settings_area:
+                    self.addWikiUserSelect()
+                    self.add_context_select()
+                with ui.row() as self.button_bar:
+                    self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
+                    self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
+                    self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
+                    self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
+                with ui.row() as self.progress_container:
+                    self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
+                self.grid_container=ui.row()    
+            #background_tasks.create(self.showGenerateGrid())
+            except Exception as ex:
+                self.handle_exception(ex)
                             
         await self.setup_content_div(show)

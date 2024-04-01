@@ -51,20 +51,18 @@ class GeneratorGrid:
         self.lightHeaderStyle = f"background-color: {self.lightHeaderBackground}"
         with self.gridHeaderRow:
             self.generateButton = ui.button(
-                iconName="play",
-                classes="btn btn-primary btn-sm col-1",
-                click=self.onGenerateButtonClick,
-                disabled=False,
+                icon="play_circle",
+                on_click=self.onGenerateButtonClick
             )
-            self.targetsColumnHeader = ui.row().classes(self.headerClasses).style(self.headerStyle),
-        self.targetsColumnHeader.inner_html = "<strong>Target</strong>"
+            self.targetsColumnHeader = ui.html().classes(self.headerClasses).style(self.headerStyle)
+            self.targetsColumnHeader.content = "<strong>Target</strong>"
         with self.gridRows:
             self.targetSelectionHeader = ui.row()
             with self.targetSelectionHeader:
                 ui.label("Topics").classes(self.headerClasses).style(self.headerStyle)
         self.create_simple_checkbox(
             parent=self.targetSelectionHeader,
-            labelText="↘",
+            label_text="↘",
             title="select all",
             on_change=self.onSelectAllClick,
         )
@@ -77,7 +75,7 @@ class GeneratorGrid:
                     target_title.content=target.name + "<br>"
                     self.icon = ui.icon(target.icon_name).style=f"color:{bs_secondary};font-size:{self.iconSize};",
             self.create_simple_checkbox(
-                labelText="↓",
+                label_text="↓",
                 title=f"select all {target.name}",
                 parent=self.targetSelectionHeader,
                 on_change=self.onSelectColumnClick,
@@ -250,7 +248,7 @@ class GeneratorGrid:
             classes = self.headerClasses
         with parent:
             checkbox = ui.checkbox(
-                label=label_text,
+                label_text,
                 **kwargs,
             )
             checkbox.classes(classes)
@@ -316,7 +314,7 @@ class GeneratorGrid:
         def updateProgress():
             percent = progress_steps / total_steps * 100
             value = round(percent)
-            self.solution.progressBar.updateProgress(value)
+            self.solution.progressBar.update_value(value)
 
         total_steps = 0
         for topic_name, topic in context.topics.items():
@@ -342,16 +340,16 @@ class GeneratorGrid:
                 icon_url = "?"
 
             with topic_header:
+                style=f'width: {self.iconSize}px; height: {self.iconSize}px;'
                 topic_icon = ui.image(
                     source=icon_url,
-                    style=f'width: {self.iconSize}px; height: {self.iconSize}px;'
+                ).style(style)
+                checkbox=self.create_simple_checkbox(
+                    parent=topic_row,
+                    labelText="→",
+                    title=f"select all {topic_name}",
                 )
-            checkbox=self.create_simple_checkbox(
-                parent=topic_row,
-                labelText="→",
-                title=f"select all {topic_name}",
-            )
-            checkbox.on('change',self.onSelectRowClick)
+                checkbox.on('change',self.onSelectRowClick)
             for target in self.displayTargets():
                 progress_steps += 1
                 ypCell = YpCell.createYpCell(target=target, topic=topic)
