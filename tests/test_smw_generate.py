@@ -10,7 +10,7 @@ from yprinciple.genapi import GeneratorAPI
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import FileGenResult, MwGenResult
 from yprinciple.ypgen import YPGen
-
+from yprinciple.ypgenapp import YPGenServer
 
 class TestSMWGenerate(BaseSemanticMediawikiTest):
     """
@@ -121,7 +121,11 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         test the batch generator
         """
-        parser = YPGen.getArgParser(
+        cmd = YPGen(
+            config=YPGenServer.get_config(),
+            webserver_cls=YPGenServer,
+        )
+        parser = cmd.getArgParser(
             "YPGen automation test", "No specific version - just testing"
         )
         argv = [
