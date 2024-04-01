@@ -30,16 +30,18 @@ class GeneratorGrid:
             solution(WebSolution): the solution
 
         """
-        self.gridRows = parent
+        self.parent = parent
         self.solution = solution
         self.iconSize = iconSize
         self.checkboxes = {}
         self.ypcell_by_uuid = {}
         self.checkbox_by_uuid = {}
         self.targets = targets
-        with self.gridRows:
-            self.gridHeaderRow = ui.row()
-        self.headerClasses = "col-1 text-center"
+        with self.parent:
+            self.grid=ui.grid(columns=len(self.targets))
+            with self.grid:
+                self.gridHeaderRow = ui.row()
+        self.headerClasses = "text-center"
         # see https://www.materialpalette.com/indigo/indigo
         # secondary text
         self.headerBackground = "#c5cae9"
@@ -56,16 +58,16 @@ class GeneratorGrid:
             )
             self.targetsColumnHeader = ui.html().classes(self.headerClasses).style(self.headerStyle)
             self.targetsColumnHeader.content = "<strong>Target</strong>"
-        with self.gridRows:
+        with self.grid:
             self.targetSelectionHeader = ui.row()
             with self.targetSelectionHeader:
                 ui.label("Topics").classes(self.headerClasses).style(self.headerStyle)
-        self.create_simple_checkbox(
-            parent=self.targetSelectionHeader,
-            label_text="↘",
-            title="select all",
-            on_change=self.onSelectAllClick,
-        )
+            self.create_simple_checkbox(
+                parent=self.targetSelectionHeader,
+                label_text="↘",
+                title="select all",
+                on_change=self.onSelectAllClick,
+            )
         for target in self.displayTargets():
             columns=self.get_colums(target)
             with self.gridHeaderRow:
@@ -274,7 +276,10 @@ class GeneratorGrid:
             ui.checkbox: The created NiceGUI checkbox element.
         """
         label_text = yp_cell.getLabelText()
-        checkbox = self.create_simple_checkbox(parent, label_text) 
+        checkbox = self.create_simple_checkbox(
+            parent, 
+            label_text,
+            title=label_text) 
         yp_cell.getPage(self.solution.smwAccess)
         color = "blue" if yp_cell.status == "✅" else "red"
         link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
@@ -325,7 +330,7 @@ class GeneratorGrid:
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
-            with self.gridRows:
+            with self.parent:
                 topic_row=ui.row()
                 with topic_row:
                     topic_header=ui.row().classes(self.headerClasses).style(self.headerStyle)
@@ -346,7 +351,7 @@ class GeneratorGrid:
                 ).style(style)
                 checkbox=self.create_simple_checkbox(
                     parent=topic_row,
-                    labelText="→",
+                    label_text="→",
                     title=f"select all {topic_name}",
                 )
                 checkbox.on('change',self.onSelectRowClick)

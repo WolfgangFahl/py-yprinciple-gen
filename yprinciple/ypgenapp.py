@@ -144,7 +144,7 @@ class YPGenApp(InputWebSolution):
         """
         try:
             # start with a new generatorGrid
-            self.generatorGrid=GeneratorGrid(self.targets,parent=self.grid_container,solution=self)
+            self.generatorGrid=GeneratorGrid(self.targets,parent=self.content_div,solution=self)
             if self.useSidif:
                 if self.mw_context is not None:
                     context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
@@ -270,6 +270,23 @@ class YPGenApp(InputWebSolution):
         self.addWikiUserSelect()
         self.addExplainDepthSelect()
     
+    async def show_all(self):
+        """
+        show settings and generator grid
+        """
+        with self.content_div:
+            with ui.grid(columns=2) as self.settings_area:
+                        self.addWikiUserSelect()
+                        self.add_context_select()
+            with ui.row() as self.button_bar:
+                self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
+                self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
+                self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
+                self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
+            with ui.row() as self.progress_container:
+                self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
+        await self.showGenerateGrid()
+    
     async def home(self):
         """
         provide the main content / home page
@@ -281,18 +298,8 @@ class YPGenApp(InputWebSolution):
             show the ui
             """
             try: 
-                with ui.grid(columns=2) as self.settings_area:
-                    self.addWikiUserSelect()
-                    self.add_context_select()
-                with ui.row() as self.button_bar:
-                    self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
-                    self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
-                    self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
-                    self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
-                with ui.row() as self.progress_container:
-                    self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
-                self.grid_container=ui.row()    
-            #background_tasks.create(self.showGenerateGrid())
+                # run view 
+                background_tasks.create(self.show_all())
             except Exception as ex:
                 self.handle_exception(ex)
                             
