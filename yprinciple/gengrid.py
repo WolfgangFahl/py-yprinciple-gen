@@ -231,7 +231,7 @@ class GeneratorGrid:
             label_text:str, 
             title:str, 
             classes:str=None, 
-            on_change:Callable,
+            on_change:Callable=None,
             **kwargs):
         """
         Create a NiceGUI checkbox with a label and optional tooltip, adding it to the specified parent container.

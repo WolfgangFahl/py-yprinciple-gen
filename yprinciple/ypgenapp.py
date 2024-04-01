@@ -8,8 +8,8 @@ from nicegui import ui
 from nicegui.client import Client
 from meta.metamodel import Context
 from meta.mw import SMWAccess
-from ngwidgets.input_webserver import InputWebserver
-from ngwidgets.webserver import WebserverConfig, WebSolution
+from ngwidgets.input_webserver import InputWebserver, InputWebSolution
+from ngwidgets.webserver import WebserverConfig
 from wikibot3rd.wikiuser import WikiUser
 
 from yprinciple.genapi import GeneratorAPI
@@ -46,17 +46,13 @@ class YPGenServer(InputWebserver):
         )
         
     def configure_run(self):
+        """
+        """
         InputWebserver.configure_run(self)
-        args=self.args
-        self.wikiId=args.wikiId
-        self.context_name=args.context
-        
         # wiki users
         self.wikiUsers=WikiUser.getWikiUsers()
-        self.wikiLink=None
-        self.contextLink=None
     
-class YPGenApp(WebSolution):
+class YPGenApp(InputWebSolution):
     """
     Y-Principle Generator Web Application / Solution
     """
@@ -71,16 +67,26 @@ class YPGenApp(WebSolution):
         super().__init__(webserver, client)
         
     def prepare_ui(self):
-        WebSolution.prepare_ui(self)    
+        """
+        prepare the user interface
+        """
+        super().prepare_ui()   
+        args=self.args 
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
+        self.wikiId=args.wikiId
+        self.context_name=args.context
+        
+        self.wikiLink=None
+        self.contextLink=None
+  
         # states
         self.useSidif=True
         self.dryRun=True
         self.openEditor=False
         self.explainDepth=0
-         # see also setGenApiFromWikiId    
-        self.setGenApiFromArgs(self.webserver.args)
+        # see also setGenApiFromWikiId    
+        self.setGenApiFromArgs(args)
         
         
     def setGenApiFromArgs(self,args):
@@ -257,7 +263,7 @@ class YPGenApp(WebSolution):
             """
             show the ui
             """
-            self.progressBar = NiceguiProgressbar()
+            self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")
             self.gridRows=ui.row()
             self.contextSelect=None
   
@@ -265,11 +271,9 @@ class YPGenApp(WebSolution):
             #await self.add_or_update_context_select()
             #self.wp.on("page_ready", self.onPageReady)
             
-            self.useSidifButton=ui.switch("use SiDIF").bind(self,"useSidif")
-            self.dryRunButton = ui.switch("dry Run").bind(self, 'dryRun')
-            self.openEditorButton = ui.switch("open Editor").bind(self, 'openEditor')
-            self.hideShowSizeInfo = ui.switch("size info").bind(self, 'hideShowSizeInfoState')
+            self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
+            self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
+            self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
+            self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
             
         await self.setup_content_div(show)
-        
-        

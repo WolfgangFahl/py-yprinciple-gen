@@ -75,19 +75,16 @@ class YPGen(WebserverCmd):
         )
         parser.add_argument(
             "--wikiId",
-            "-t",
             "--target",
             default="wiki",
             help="id of the wiki to generate for [default: %(default)s]",
         )
         parser.add_argument(
             "--source",
-            "-s",
             default="profiwiki",
             help="id of the wiki to get concept and contexts (schemas) from [default: %(default)s]",
         )
         parser.add_argument(
-            "-l",
             "--login",
             dest="login",
             action="store_true",
@@ -101,14 +98,14 @@ class YPGen(WebserverCmd):
             help="force to overwrite existing pages",
         )
         parser.add_argument("-q", "--quiet", help="not verbose [default: %(default)s]")
-        parser.add_argument("-V", "--version", action="version", version=version_msg)
         return parser
 
-    def handle_args(self, args):
+    def handle_args(self):
         """
         work on the arguments
         """
         handled = super().handle_args()
+        args=self.args
         if args.genToFile or args.genViaMwApi or args.push:
             gen = GeneratorAPI.fromArgs(args)
             if gen.error:
