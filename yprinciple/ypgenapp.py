@@ -4,7 +4,7 @@ Created on 2022-11-24
 @author: wf
 '''
 import html
-from nicegui import ui
+from nicegui import ui, background_tasks
 from nicegui.client import Client
 from meta.metamodel import Context
 from meta.mw import SMWAccess
@@ -17,6 +17,7 @@ from yprinciple.gengrid import GeneratorGrid
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.version import Version
 from ngwidgets.progress import NiceguiProgressbar
+from ngwidgets.widgets import Link
 
 class YPGenServer(InputWebserver):
     """
@@ -66,12 +67,18 @@ class YPGenApp(InputWebSolution):
         """
         super().__init__(webserver, client)
         
+    def clearErrors(self):
+        """
+        """
+        # just for compatibility
+        
     def prepare_ui(self):
         """
         prepare the user interface
         """
         super().prepare_ui()   
         args=self.args 
+        self.wikiUsers=self.webserver.wikiUsers
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
         self.targets=SMWTarget.getSMWTargets()
         self.wikiId=args.wikiId
@@ -89,6 +96,11 @@ class YPGenApp(InputWebSolution):
         self.setGenApiFromArgs(args)
         
         
+    def setWikiLink(self,url,text,tooltip):
+        if self.wikiLink is not None:
+            link=Link.create(url, text, tooltip)
+            self.wikiLink.content=link
+            
     def setGenApiFromArgs(self,args):
         """
         set the semantic MediaWiki
@@ -96,12 +108,9 @@ class YPGenApp(InputWebSolution):
         self.genapi=GeneratorAPI.fromArgs(args)
         self.genapi.setWikiAndGetContexts(args)
         self.smwAccess=self.genapi.smwAccess
-        if self.wikiLink is not None:
-            self.wikiLink.text=args.wikiId
-            self.wikiLink.title=args.wikiId
-            wikiUser=self.smwAccess.wikiClient.wikiUser
-            if wikiUser:
-                self.wikiLink.href=wikiUser.getWikiUrl()
+        wikiUser=self.smwAccess.wikiClient.wikiUser
+        if wikiUser:
+            self.setWikiLink(wikiUser.getWikiUrl(), args.wikiId, args.wikiId)
         self.setMWContext()
         
     def setMWContext(self):
@@ -134,7 +143,8 @@ class YPGenApp(InputWebSolution):
         show the grid for generating code
         """
         # start with a new generatorGrid
-        self.generatorGrid=GeneratorGrid(self.targets,parent=self.gridRows,solution=self)
+        self.grid_container=ui.row()
+        self.generatorGrid=GeneratorGrid(self.targets,parent=self.grid_container,solution=self)
         if self.useSidif:
             if self.mw_context is not None:
                 context,error,errMsg=Context.fromWikiContext(self.mw_context, debug=self.args.debug,depth=self.explainDepth)
@@ -142,16 +152,6 @@ class YPGenApp(InputWebSolution):
                     self.errors.inner_html=errMsg.replace("\n","<br>")
                 else:
                     await self.generatorGrid.addRows(context)
-            
-    async def onPageReady(self,_msg):
-        """
-        react on page Ready
-        """
-        try:
-            if len(self.gridRows.components)==0:
-                await self.showGenerateGrid()
-        except BaseException as ex:
-            self.handleException(ex)
         
     async def onChangeLanguage(self,msg):
         """
@@ -169,9 +169,8 @@ class YPGenApp(InputWebSolution):
             self.args.wikiId=msg.value
             self.setGenApiFromArgs(self.args)
             await self.add_or_update_context_select()
-            await self.wp.update()
         except BaseException as ex:
-            self.handleException(ex)
+            self.handle_exception(ex)
         
     async def onChangeContext(self,msg):
         """
@@ -184,7 +183,7 @@ class YPGenApp(InputWebSolution):
             self.setContext(self.mw_context)
             await self.showGenerateGrid()
         except BaseException as ex:
-            self.handleException(ex)
+            self.handle_exception(ex)
              
     def addLanguageSelect(self):
         """
@@ -202,12 +201,17 @@ class YPGenApp(InputWebSolution):
         add a wiki user selector
         """
         if len(self.wikiUsers)>0:
-            self.wikiuser_select=self.createSelect("wikiId", value=self.wikiId, change=self.onChangeWikiUser, a=self.colB1)
-            for wikiUser in sorted(self.wikiUsers):
-                self.wikiuser_select.add(self.jp.Option(value=wikiUser,text=wikiUser))
+            self.wikiuser_select=self.add_select(
+                title="wikiId", 
+                selection=sorted(self.wikiUsers),
+                value=self.wikiId, 
+                on_change=self.onChangeWikiUser
+            )
             if self.mw_context is not None:
+                self.wikiLink=ui.html()
                 url=self.mw_context.wiki_url
-                self.wikiLink=self.jp.A(a=self.colB2,title=self.wikiId,text=self.wikiId,href=url)
+                self.setWikiLink(url=url, text=self.wikiId, tooltip=self.wikiId)
+
              
     def onExplainDepthChange(self,msg):
         self.explainDepth=int(msg.value)
@@ -224,26 +228,27 @@ class YPGenApp(InputWebSolution):
         show_size = msg.checked
         self.generatorGrid.set_hide_show_status_of_cell_debug_msg(hidden=not show_size)
                 
-    async def add_or_update_context_select(self):
+    def add_context_select(self):
         """
         add a selection of possible contexts for the given wiki
         """
         try:
-            if self.contextSelect is None:
-                self.contextSelect=self.createSelect("Context",value=self.context_name,change=self.onChangeContext,a=self.colC1)
-                if self.mw_context is not None:
-                    url=self.mw_context.sidif_url()
-                else:
-                    url="?"
-                self.contextLink=self.jp.A(a=self.colC2,title=self.context_name,text=self.context_name,href=url)
+            selection=list(self.mw_contexts.keys()) 
+            self.contextSelect=self.add_select(
+                    "Context",
+                    selection=selection,
+                    value=self.context_name,
+                    on_change=self.onChangeContext
+                )
+            if self.mw_context is not None:
+                url=self.mw_context.sidif_url()
             else:
-                self.contextSelect.delete_components()
-                self.setContext(None)
-            for name,_mw_context in self.mw_contexts.items():
-                self.contextSelect.add(self.jp.Option(value=name,text=name))
-            await self.wp.update()
+                url="?"
+            link=Link.create(url,text=self.context_name)
+            self.context_link=ui.html()
+            self.context_link.content=link
         except BaseException as ex:
-            self.handleException(ex)
+            self.handle_exception(ex)
         
     def configure_settings(self):
         """
@@ -263,17 +268,17 @@ class YPGenApp(InputWebSolution):
             """
             show the ui
             """
-            self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")
-            self.gridRows=ui.row()
-            self.contextSelect=None
-  
-            #self.addWikiUserSelect()
-            #await self.add_or_update_context_select()
-            #self.wp.on("page_ready", self.onPageReady)
-            
-            self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
-            self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
-            self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
-            self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
-            
+            with ui.card() as self.settings_card:
+                self.contextSelect=None
+                self.addWikiUserSelect()
+                self.add_context_select()
+            with ui.row() as self.button_bar:
+                self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
+                self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
+                self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
+                self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
+            with ui.row() as self.progress_container:
+                self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
+            background_tasks.create(self.showGenerateGrid())
+                            
         await self.setup_content_div(show)
