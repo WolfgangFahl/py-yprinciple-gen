@@ -4,10 +4,10 @@ Created on 2022-11-24
 @author: wf
 '''
 import html
+from ngwidgets.profiler import Profiler
 from nicegui import ui,background_tasks,run
 from nicegui.client import Client
 from meta.metamodel import Context
-from meta.mw import SMWAccess
 from ngwidgets.input_webserver import InputWebserver, InputWebSolution
 from ngwidgets.webserver import WebserverConfig
 from wikibot3rd.wikiuser import WikiUser
@@ -79,13 +79,18 @@ class YPGenApp(InputWebSolution):
         """
         super().prepare_ui()   
         args=self.args 
+        profile=Profiler("prepare_ui",profile=args.debug)
         self.wikiUsers=self.webserver.wikiUsers
         # see https://wiki.bitplan.com/index.php/Y-Prinzip#Example
+        smw_profile=Profiler("get SMW targets",profile=args.debug)
         self.targets=SMWTarget.getSMWTargets()
+        smw_profile.time()
         self.wikiId=args.wikiId
         self.context_name=args.context
         
         self.wikiLink=None
+        self.mw_context= None
+        self.mw_contexts={}
         self.contextLink=None
   
         # states
@@ -93,19 +98,22 @@ class YPGenApp(InputWebSolution):
         self.dryRun=True
         self.openEditor=False
         self.explainDepth=0
-        # see also setGenApiFromWikiId    
-        self.setGenApiFromArgs(args)
-        
+        profile.time()
         
     def setWikiLink(self,url,text,tooltip):
         if self.wikiLink is not None:
             link=Link.create(url, text, tooltip)
             self.wikiLink.content=link
             
-    def setGenApiFromArgs(self,args):
+    def setGenApiFromArgs(self,args=None):
         """
         set the semantic MediaWiki
         """
+        if args is None:
+            args=self.args
+        with self.content_div:
+            ui.notify("preparing Generator")
+        gen_profile=Profiler("setGenAPI",profile=self.args.debug)      
         self.genapi=GeneratorAPI.fromArgs(args)
         self.genapi.setWikiAndGetContexts(args)
         self.smwAccess=self.genapi.smwAccess
@@ -113,6 +121,8 @@ class YPGenApp(InputWebSolution):
         if wikiUser:
             self.setWikiLink(wikiUser.getWikiUrl(), args.wikiId, args.wikiId)
         self.setMWContext()
+        gen_profile.time()
+  
         
     def setMWContext(self):
         """
@@ -140,6 +150,9 @@ class YPGenApp(InputWebSolution):
     
    
     async def async_showGenerateGrid(self):
+        """
+        run setup in background
+        """
         await run.io_bound(self.show_GenerateGrid)
         
     def show_GenerateGrid(self):
@@ -217,7 +230,6 @@ class YPGenApp(InputWebSolution):
                 self.wikiLink=ui.html()
                 url=self.mw_context.wiki_url
                 self.setWikiLink(url=url, text=self.wikiId, tooltip=self.wikiId)
-
              
     def onExplainDepthChange(self,msg):
         self.explainDepth=int(msg.value)
@@ -280,6 +292,7 @@ class YPGenApp(InputWebSolution):
         show settings and generator grid
         """
         with self.content_div:
+            self.content_div.clear()
             with ui.card() as self.settings_area:
                 with ui.grid(columns=2):
                     self.addWikiUserSelect()
@@ -297,6 +310,14 @@ class YPGenApp(InputWebSolution):
             with ui.row() as self.progress_container:
                 self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
     
+    async def load_home_page(self):
+        with self.content_div:
+            # show a spinner while loading
+            ui.spinner()
+        await run.io_bound(self.setGenApiFromArgs)
+        self.content_div.clear()
+        await self.show_all()
+     
     async def home(self):
         """
         provide the main content / home page
@@ -310,7 +331,7 @@ class YPGenApp(InputWebSolution):
             """
             try: 
                 # run view 
-                background_tasks.create(self.show_all())
+                background_tasks.create(self.load_home_page())
             except Exception as ex:
                 self.handle_exception(ex)
                             

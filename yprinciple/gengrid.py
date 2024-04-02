@@ -39,7 +39,20 @@ class GeneratorGrid:
         self.header_checkbox_by_id = {}
         self.cell_debug_msg_divs = []
         self.targets = targets
+        self.setup_styles()
         self.setup_ui()
+        
+    def setup_ui(self):
+        """
+        setup the user interface
+        """
+        with self.parent:
+            target_columns=len(self.displayTargets())
+            # two more for the Topics and check box columns
+            target_columns+=2
+            self.grid = ui.grid(columns=target_columns).classes('w-full gap-0')
+            self.setup_target_header_row()
+            self.setup_topic_header_row()
         
     def setup_styles(self):
         """
@@ -60,6 +73,21 @@ class GeneratorGrid:
         )
         self.light_header_style = f"background-color: {self.light_header_background}"
         
+    def add_header_cell(self,title:str):
+        """
+        add a header cell with the given title
+        
+        Args:
+            title(str): the title of the cell
+        """
+        with self.grid:
+            classes=self.header_classes+self.center_classes
+            header_cell=ui.row().classes(classes).style(self.header_style)
+            with header_cell:
+                header_div=ui.html().classes(self.header_classes).style(self.header_style)
+                header_div.content = f"<strong>{title}</strong>"
+        return header_cell
+    
     def setup_target_header_row(self):
         """
         setup the header row
@@ -69,21 +97,16 @@ class GeneratorGrid:
                 icon="play_circle",
                 on_click=self.onGenerateButtonClick
             )
-            self.targets_column_header = ui.html().classes(self.header_classes).style(self.header_style)
-            self.targets_column_header.content = "<strong>Target</strong>"
-            for target in self.displayTargets():
-                classes=self.header_classes+self.center_classes
-                target_header_cell=ui.row().classes(classes).style(self.header_style)
-                with target_header_cell:
-                    target_header_div=ui.html()
-                    markup=f"<span style='align-middle'><strong>{target.name}</strong><br></span>"
-                    #<i class="mdi mdi-archive" style="color: rgb(108, 117, 125); font-size: 32px;"></i>
-                    #markup+=f"""<i class="mdi mdi-{target.icon_name}" style="color: {self.bs_secondary};font-size:{self.iconSize};"></i>"""
-                    #<i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation" id="c48">archive</i>
-                    ui.icon(target.icon_name,size=self.iconSize,color=self.bs_secondary)
-                    #markup+=f"""<i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation">{target.icon_name}</i>"""
-                    target_header_div.content=markup
-                    pass
+        self.targets_column_header = self.add_header_cell("Target")
+        for target in self.displayTargets():
+            target_header_cell=self.add_header_cell(target.name)                
+            with target_header_cell:    
+                ui.icon(target.icon_name,size=self.iconSize,color=self.bs_secondary)
+                # <i class="mdi mdi-archive" style="color: rgb(108, 117, 125); font-size: 32px;"></i>
+                # markup+=f"""<i class="mdi mdi-{target.icon_name}" style="color: {self.bs_secondary};font-size:{self.iconSize};"></i>"""
+                # <i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation" id="c48">archive</i>
+                # markup+=f"""<i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation">{target.icon_name}</i>"""
+                pass
                 
     def setup_topic_header_row(self):
         """
@@ -109,18 +132,7 @@ class GeneratorGrid:
                 on_change=self.onSelectColumnClick,
             )
        
-    def setup_ui(self):
-        """
-        setup the user interface
-        """
-        self.setup_styles()
-        with self.parent:
-            target_columns=len(self.displayTargets())
-            # two more for the Topics and check box columns
-            target_columns+=2
-            self.grid = ui.grid(columns=target_columns).classes('w-full gap-0')
-            self.setup_target_header_row()
-            self.setup_topic_header_row()
+    
 
     def getCheckedYpCells(self) -> List[YpCell]:
         """
@@ -314,56 +326,58 @@ class GeneratorGrid:
         """
         with parent:
             yp_cell_card=ui.card() 
-            label_text = yp_cell.getLabelText()
-            checkbox = self.create_simple_checkbox(
-                parent=yp_cell_card, 
-                label_text=label_text,
-                title=label_text
-            ) 
-            yp_cell.getPage(self.solution.smwAccess)
-            color = "blue" if yp_cell.status == "✅" else "red"
-            link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
-            if yp_cell.status == "ⓘ":
-                link = f"{label_text}"
-            # in a one column setting we need to break link and status message
-            if columns==1:
-                label_text = label_text.replace(":", ":<br>")
-                delim = "<br>"
-            else:
-                delim = "&nbsp;"
-            with yp_cell_card:
-                link_html=ui.html()
-                link_html.content=f"{link}{delim}"
-                debug_div = ui.html()
-                debug_div.content=f"{yp_cell.statusMsg}"
-                hidden=getattr(self, "cell_hide_size_info", True)
-                debug_div.visible=not hidden
-                status_div = ui.html()
-                status_div.content=yp_cell.status
-                checkbox.status_div = status_div
-                self.cell_debug_msg_divs.append(debug_div)
-            # link ypCell with Checkbox via a unique identifier
-            yp_cell.checkbox_id=checkbox.id
-            self.ypcell_by_id[checkbox.id] = checkbox.id
-            self.checkbox_by_id[checkbox.id] = checkbox
+        label_text = yp_cell.getLabelText()
+        checkbox = self.create_simple_checkbox(
+            parent=yp_cell_card, 
+            label_text=label_text,
+            title=label_text
+        ) 
+        yp_cell.getPage(self.solution.smwAccess)
+        color = "blue" if yp_cell.status == "✅" else "red"
+        link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
+        if yp_cell.status == "ⓘ":
+            link = f"{label_text}"
+        # in a one column setting we need to break link and status message
+        if columns==1:
+            label_text = label_text.replace(":", ":<br>")
+            delim = "<br>"
+        else:
+            delim = "&nbsp;"
+        with yp_cell_card:
+            link_html=ui.html()
+            link_html.content=f"{link}{delim}"
+            debug_div = ui.html()
+            debug_div.content=f"{yp_cell.statusMsg}"
+            hidden=getattr(self, "cell_hide_size_info", True)
+            debug_div.visible=not hidden
+            status_div = ui.html()
+            status_div.content=yp_cell.status
+            checkbox.status_div = status_div
+            self.cell_debug_msg_divs.append(debug_div)
+        # link ypCell with Checkbox via a unique identifier
+        yp_cell.checkbox_id=checkbox.id
+        self.ypcell_by_id[checkbox.id] = checkbox.id
+        self.checkbox_by_id[checkbox.id] = checkbox
         return checkbox
 
-    def add_topic_icon(self,topic:Topic):
+    def add_topic_cell(self,topic:Topic):
         """
         add an icon for the given topic
         """
+        topic_cell=self.add_header_cell(topic.name)
         icon_url = None
         if hasattr(topic, "iconUrl"):
             if topic.iconUrl.startswith("http"):
                 icon_url = f"{topic.iconUrl}"
-        if icon_url is not None and self.solution.mw_context is not None:
+        if icon_url is None and self.solution.mw_context is not None:
             icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
         if icon_url is None:
             icon_url = "?"
-        style=f'width: {self.iconSize}; height: {self.iconSize}px;'
-        topic_icon = ui.image(
-            source=icon_url,
-        )
+        style=f'width: {self.iconSize}; height: {self.iconSize};'
+        with topic_cell:
+            topic_icon = ui.image(
+                source=icon_url,
+            )
         topic_icon.style(style)
         return topic_icon
 
@@ -379,7 +393,7 @@ class GeneratorGrid:
                     hide_show_label=("properties", "properties"),
                 )
         else:
-            checkbox = self.create_check_box_for_cell(ypCell, self.grid)
+            checkbox = self.create_check_box_for_cell(ypCell, parent=self.grid)
         return checkbox
     
     def add_topic_rows(self, context: Context):
@@ -408,7 +422,7 @@ class GeneratorGrid:
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
             with self.grid:      
-                self.add_topic_icon(topic)
+                self.add_topic_cell(topic)
                 checkbox=self.create_simple_checkbox(
                     parent=self.grid,
                     label_text="→",
