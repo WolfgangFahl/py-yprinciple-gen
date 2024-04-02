@@ -151,7 +151,7 @@ class YPGenApp(InputWebSolution):
                     if error is not None:
                         self.log_view.push(errMsg)
                     else:
-                        await self.generatorGrid.addRows(context)
+                        await self.generatorGrid.add_topic_rows(context)
         except Exception as ex:
             self.handle_exception(ex)
         

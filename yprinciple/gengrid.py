@@ -4,7 +4,6 @@ Created on 25.11.2022
 @author: wf
 """
 from typing import Callable, List
-import uuid
 from nicegui import ui
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import HideShow, Link
@@ -35,8 +34,9 @@ class GeneratorGrid:
         self.color_schema = solution.config.color_schema
         self.iconSize = iconSize
         self.checkboxes = {}
-        self.ypcell_by_uuid = {}
-        self.header_checkbox_by_uuid = {}
+        self.ypcell_by_id = {}
+        self.checkbox_by_id = {}
+        self.header_checkbox_by_id = {}
         self.cell_debug_msg_divs = []
         self.targets = targets
         self.setup_ui()
@@ -133,7 +133,7 @@ class GeneratorGrid:
                 if checkbox.isChecked():
                     checkedYpCells.append(ypCell)
                 for subCell in ypCell.subCells.values():
-                    checkbox = self.checkbox_by_uuid[subCell.checkbox_id]
+                    checkbox = self.checkbox_by_id[subCell.checkbox_id]
                     if checkbox.isChecked():
                         checkedYpCells.append(subCell)
         return checkedYpCells
@@ -146,7 +146,7 @@ class GeneratorGrid:
         self.solution.smwAccess.wikiClient.login()
         cellsToGen = self.getCheckedYpCells()
         for ypCell in cellsToGen:
-            cell_checkbox = self.checkbox_by_uuid.get(ypCell.checkbox_id, None)
+            cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
             status_div = cell_checkbox.status_div
             status_div.delete_components()
             status_div.text = ""
@@ -185,7 +185,7 @@ class GeneratorGrid:
         # loop over all subcells
         for subcell in ypCell.subCells.values():
             # and set the checkbox value accordingly
-            checkbox = self.checkbox_by_uuid[subcell.checkbox_id]
+            checkbox = self.checkbox_by_id[subcell.checkbox_id]
             checkbox.check(checked)
 
     def check_row(self, checkbox_row, checked: bool):
@@ -239,8 +239,7 @@ class GeneratorGrid:
         checkbox = msg.target
         checked = msg["checked"]
         # lookup the ypCell
-        ypcell_uuid = checkbox.data["ypcell_uuid"]
-        ypCell = self.ypcell_by_uuid[ypcell_uuid]
+        ypCell = self.ypcell_by_id[checkbox.id]
         self.checkSubCells(ypCell, checked)
 
     def displayTargets(self):
@@ -342,21 +341,23 @@ class GeneratorGrid:
             checkbox.status_div = status_div
             self.cell_debug_msg_divs.append(debug_div)
             # link ypCell with Checkbox via a unique identifier
-            yp_cell.checkbox_id = uuid.uuid4()
-            checkbox.data["ypcell_uuid"] = yp_cell.checkbox_id
-            self.ypcell_by_uuid[yp_cell.checkbox_id] = yp_cell
-            self.checkbox_by_uuid[yp_cell.checkbox_id] = checkbox
+            yp_cell.checkbox_id=checkbox.id
+            self.ypcell_by_id[checkbox.id] = checkbox.id
+            self.checkbox_by_id[checkbox.id] = checkbox
         return checkbox
 
-    async def addRows(self, context: Context):
+    async def add_topic_rows(self, context: Context):
         """
-        add the rows for the given topic
+        add the topic rows for the given context
+        
+        Args:
+            context(Context): the context for which do add topic rows
         """
-        return 
         def updateProgress():
             percent = progress_steps / total_steps * 100
             value = round(percent)
             self.solution.progressBar.update_value(value)
+            self.grid.update()
 
         total_steps = 0
         for topic_name, topic in context.topics.items():
@@ -367,36 +368,29 @@ class GeneratorGrid:
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
-            with self.parent:
-                topic_row=ui.row()
-                with topic_row:
-                    topic_header=ui.row().classes(self.header_classes).style(self.header_style)
-                    
-            icon_url = None
-            if hasattr(topic, "iconUrl"):
-                if topic.iconUrl.startswith("http"):
-                    icon_url = f"{topic.iconUrl}"
-            if icon_url is not None and self.solution.mw_context is not None:
-                icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
-            if icon_url is None:
-                icon_url = "?"
-
-            with topic_header:
+            with self.grid:                    
+                icon_url = None
+                if hasattr(topic, "iconUrl"):
+                    if topic.iconUrl.startswith("http"):
+                        icon_url = f"{topic.iconUrl}"
+                if icon_url is not None and self.solution.mw_context is not None:
+                    icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
+                if icon_url is None:
+                    icon_url = "?"
                 style=f'width: {self.iconSize}px; height: {self.iconSize}px;'
-                topic_icon = ui.image(
+                _topic_icon = ui.image(
                     source=icon_url,
                 ).style(style)
                 checkbox=self.create_simple_checkbox(
-                    parent=topic_row,
+                    parent=self.grid,
                     label_text="→",
                     title=f"select all {topic_name}",
                 )
                 checkbox.on('change',self.onSelectRowClick)
-            for target in self.displayTargets():
-                progress_steps += 1
-                ypCell = YpCell.createYpCell(target=target, topic=topic)
-                if len(ypCell.subCells) > 0:
-                    with topic_row:
+                for target in self.displayTargets():
+                    progress_steps += 1
+                    ypCell = YpCell.createYpCell(target=target, topic=topic)
+                    if len(ypCell.subCells) > 0:
                         columns=self.get_colums(target)
                         prop_div_col = ui.grid(columns=columns)
                         with prop_div_col:     
@@ -405,19 +399,19 @@ class GeneratorGrid:
                                 hide_show_label=("properties", "properties"),
                             )
                             parent = prop_div
-                else:
-                    parent = topic_row
-                    columns=1
-                checkbox = self.create_check_box(ypCell, parent=parent, columns=columns)
-                checkbox_row[target.name] = (checkbox, ypCell)
-                if len(ypCell.subCells) > 0:
-                    checkbox.on("input", self.onParentCheckboxClick)
-                    for _prop_name, subCell in ypCell.subCells.items():
-                        _subCheckBox = self.create_check_box(
-                            subCell, parent=prop_div, columns=columns
-                        )
-                        progress_steps += 1
-                        updateProgress()
+                    else:
+                        parent = self.grid
+                        columns=1
+                    checkbox = self.create_check_box(ypCell, parent=parent, columns=columns)
+                    checkbox_row[target.name] = (checkbox, ypCell)
+                    if len(ypCell.subCells) > 0:
+                        checkbox.on("input", self.onParentCheckboxClick)
+                        for _prop_name, subCell in ypCell.subCells.items():
+                            _subCheckBox = self.create_check_box(
+                                subCell, parent=prop_div, columns=columns
+                            )
+                            progress_steps += 1
+                            updateProgress()
                 updateProgress()
             pass
         # done
