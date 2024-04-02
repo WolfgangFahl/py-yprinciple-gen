@@ -5,6 +5,7 @@ Created on 25.11.2022
 """
 from typing import Callable, List
 from nicegui import ui
+from nicegui.elements.tooltip import Tooltip
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import HideShow, Link
 from meta.metamodel import Context, Topic
@@ -121,7 +122,7 @@ class GeneratorGrid:
             label_text="↘",
             title="select all",
             classes=self.center_classes,
-            on_change=self.onSelectAllClick,
+            on_change=self.on_select_all
         )
         for target in self.displayTargets():
             self.header_checkboxes[target.name]=self.create_simple_checkbox(
@@ -129,10 +130,8 @@ class GeneratorGrid:
                 label_text="↓",
                 title=f"select all {target.name}",
                 classes=self.center_classes,
-                on_change=self.onSelectColumnClick,
+                on_change=self.on_select_column
             )
-       
-    
 
     def getCheckedYpCells(self) -> List[YpCell]:
         """
@@ -190,7 +189,7 @@ class GeneratorGrid:
         """
         check the given checkbox and the ypCell belonging to it
         """
-        checkbox.check(checked)
+        checkbox.value=checked
         self.checkSubCells(ypCell, checked)
 
     def checkSubCells(self, ypCell, checked):
@@ -198,58 +197,73 @@ class GeneratorGrid:
         for subcell in ypCell.subCells.values():
             # and set the checkbox value accordingly
             checkbox = self.checkbox_by_id[subcell.checkbox_id]
-            checkbox.check(checked)
+            checkbox.value=checked
 
     def check_row(self, checkbox_row, checked: bool):
         for checkbox, ypCell in checkbox_row.values():
             self.check_ypcell_box(checkbox, ypCell, checked)
 
-    async def onSelectAllClick(self, msg: dict):
+    async def on_select_all(self,args):
         """
         react on "select all" being clicked
         """
         try:
-            checked = msg["checked"]
+            checked = args.value
             for checkbox_row in self.checkboxes.values():
                 self.check_row(checkbox_row, checked)
         except BaseException as ex:
             self.solution.handle_exception(ex)
         pass
-
-    async def onSelectRowClick(self, msg: dict):
+    
+    def get_select(self,args)->str:
         """
-        react on "select all " for a row being clicked
+        get the select from the sender's tooltip
         """
-        try:
-            checked = msg["checked"]
-            title = msg["target"].title
-            context_name = title.replace("select all", "").strip()
-            checkbox_row = self.checkboxes[context_name]
-            self.check_row(checkbox_row, checked)
-        except BaseException as ex:
-            self.solution.handle_exception(ex)
-
-    async def onSelectColumnClick(self, msg: dict):
+        select=None
+        slots=args.sender.slots.get("default")
+        if slots:
+            children=slots.children
+            if len(children)>0:
+                tooltip=children[0]
+                if isinstance(tooltip,Tooltip):
+                    title = tooltip.text
+                    select = title.replace("select all", "").strip()
+        return select            
+      
+    async def on_select_column(self, args):
         """
         react on "select all " for a column being clicked
         """
         try:
-            checked = msg["checked"]
-            title = msg["target"].title
-            target_name = title.replace("select all", "").strip()
-            for checkbox_row in self.checkboxes.values():
-                checkbox, ypCell = checkbox_row[target_name]
-                self.check_ypcell_box(checkbox, ypCell, checked)
+            checked = args.value
+            target_name=self.get_select(args)
+            if target_name:
+                for checkboxes in self.checkboxes.values():
+                    checkbox, ypCell = checkboxes[target_name]
+                    self.check_ypcell_box(checkbox, ypCell, checked)
         except BaseException as ex:
             self.solution.handle_exception(ex)
-
-    async def onParentCheckboxClick(self, msg: dict):
+            
+    async def on_select_row(self, args):
+        """
+        react on "select all " for a row being clicked
+        """
+        try:
+            checked = args.value
+            topic_name=self.get_select(args)
+            if topic_name:
+                checkbox_row = self.checkboxes[topic_name]
+                self.check_row(checkbox_row, checked)
+        except BaseException as ex:
+            self.solution.handle_exception(ex)
+            
+    async def onParentCheckboxClick(self, args):
         """
         a ypCell checkbox has been clicked for a ypCell that has subCells
         """
         # get the parent checkbox
-        checkbox = msg.target
-        checked = msg["checked"]
+        checkbox = args.sender
+        checked = args.value
         # lookup the ypCell
         ypCell = self.ypcell_by_id[checkbox.id]
         self.checkSubCells(ypCell, checked)
@@ -299,14 +313,13 @@ class GeneratorGrid:
             classes = self.header_classes
         with parent:
             checkbox = ui.checkbox(
-                label_text,
+                text=label_text,
+                on_change=on_change,
                 **kwargs,
             )
             checkbox.classes(classes)
             checkbox.style(self.light_header_style)
             checkbox.tooltip(title)
-        if on_change:
-            checkbox.on("change",on_change)
         return checkbox
 
     def create_check_box_for_cell(self, 
@@ -427,8 +440,8 @@ class GeneratorGrid:
                     parent=self.grid,
                     label_text="→",
                     title=f"select all {topic_name}",
+                    on_change=self.on_select_row
                 )
-                checkbox.on('change',self.onSelectRowClick)
             for target in self.displayTargets():
                 progress_steps += 1
                 ypCell = YpCell.createYpCell(target=target, topic=topic)
