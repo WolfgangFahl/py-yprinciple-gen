@@ -8,6 +8,7 @@ import uuid
 from nicegui import ui
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import HideShow, Link
+from ngwidgets.color_schema import ColorSchema
 from meta.metamodel import Context
 
 from yprinciple.target import Target
@@ -32,50 +33,80 @@ class GeneratorGrid:
         """
         self.parent = parent
         self.solution = solution
+        self.color_schema = solution.config.color_schema
         self.iconSize = iconSize
         self.checkboxes = {}
         self.ypcell_by_uuid = {}
         self.checkbox_by_uuid = {}
         self.targets = targets
-        with self.parent:
-            self.grid=ui.grid(columns=len(self.targets))
-            with self.grid:
-                self.gridHeaderRow = ui.row()
-        self.headerClasses = "text-center"
+        self.setup_ui()
+        
+    def setup_styles(self):
+        """
+        setup the styles for the ui
+        """
+        self.header_classes = "text-center"
         # see https://www.materialpalette.com/indigo/indigo
-        # secondary text
-        self.headerBackground = "#c5cae9"
-        self.lightHeaderBackground = "#f5f5f5"
-        bs_secondary = "#6c757d"
-        self.headerStyle = (
-            f"font-size: 1.0rem;background-color: {self.headerBackground}"
+        # and https://github.com/WolfgangFahl/nicegui_widgets/blob/main/ngwidgets/color_schema.py
+        # light primary color
+        self.header_background = "#c5cae9"
+        # 
+        self.light_header_background = "#f5f5f5"
+        self.bs_secondary = "#6c757d"
+        self.header_style = (
+            f"font-size: 1.0rem;background-color: {self.header_background}"
         )
-        self.lightHeaderStyle = f"background-color: {self.lightHeaderBackground}"
-        with self.gridHeaderRow:
+        self.light_header_style = f"background-color: {self.light_header_background}"
+        
+    def setup_target_header_row(self):
+        """
+        setup the header row
+        """
+        with self.grid:
             self.generateButton = ui.button(
                 icon="play_circle",
                 on_click=self.onGenerateButtonClick
             )
-            self.targetsColumnHeader = ui.html().classes(self.headerClasses).style(self.headerStyle)
-            self.targetsColumnHeader.content = "<strong>Target</strong>"
-        with self.grid:
-            self.targetSelectionHeader = ui.row()
-            with self.targetSelectionHeader:
-                ui.label("Topics").classes(self.headerClasses).style(self.headerStyle)
-            self.create_simple_checkbox(
-                parent=self.targetSelectionHeader,
-                label_text="↘",
-                title="select all",
-                on_change=self.onSelectAllClick,
-            )
+            self.targets_column_header = ui.html().classes(self.header_classes).style(self.header_style)
+            self.targets_column_header.content = "<strong>Target</strong>"
+            for target in self.displayTargets():
+                classes=self.header_classes+" flex flex-col items-center justify-center"
+                target_header_cell=ui.row().classes(classes).style(self.header_style)
+                with target_header_cell:
+                    target_header_div=ui.html()
+                    markup=f"<span style='align-middle'><strong>{target.name}</strong><br></span>"
+                    #<i class="mdi mdi-archive" style="color: rgb(108, 117, 125); font-size: 32px;"></i>
+                    #markup+=f"""<i class="mdi mdi-{target.icon_name}" style="color: {self.bs_secondary};font-size:{self.iconSize};"></i>"""
+                    #<i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation" id="c48">archive</i>
+                    ui.icon(target.icon_name,size=self.iconSize,color=self.bs_secondary)
+                    #markup+=f"""<i class="q-icon notranslate material-icons" aria-hidden="true" role="presentation">{target.icon_name}</i>"""
+                    target_header_div.content=markup
+                    pass
+                
+    def setup_ui(self):
+        """
+        setup the user interface
+        """
+        self.setup_styles()
+        with self.parent:
+            target_columns=len(self.displayTargets())
+            # two more for the Topics and check box columns
+            target_columns+=2
+            self.grid = ui.grid(columns=target_columns).classes('w-full gap-0')
+            self.setup_target_header_row()
+       
+    def setup_ui_rest(self,target_columns:int):      
+        self.target_selection_Header = ui.grid(columns=target_columns)
+        with self.targetSelectionHeader:
+            ui.label("Topics").classes(self.header_classes).style(self.headerStyle)
+        self.create_simple_checkbox(
+            parent=self.targetSelectionHeader,
+            label_text="↘",
+            title="select all",
+            on_change=self.onSelectAllClick,
+        )
         for target in self.displayTargets():
-            columns=self.get_colums(target)
-            with self.gridHeaderRow:
-                target_div=ui.grid(columns=columns).classes("text-center").style(self.headerStyle)   
-                with target_div:
-                    target_title = ui.html().classes("align-middle")
-                    target_title.content=target.name + "<br>"
-                    self.icon = ui.icon(target.icon_name).style=f"color:{bs_secondary};font-size:{self.iconSize};",
+            columns=self.get_colums(target)  
             self.create_simple_checkbox(
                 label_text="↓",
                 title=f"select all {target.name}",
@@ -247,7 +278,7 @@ class GeneratorGrid:
             ui.checkbox: The created checkbox instance.
         """
         if classes is None:
-            classes = self.headerClasses
+            classes = self.header_classes
         with parent:
             checkbox = ui.checkbox(
                 label_text,
@@ -275,35 +306,36 @@ class GeneratorGrid:
         Returns:
             ui.checkbox: The created NiceGUI checkbox element.
         """
-        label_text = yp_cell.getLabelText()
-        checkbox = self.create_simple_checkbox(
-            parent, 
-            label_text,
-            title=label_text) 
-        yp_cell.getPage(self.solution.smwAccess)
-        color = "blue" if yp_cell.status == "✅" else "red"
-        link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
-        if yp_cell.status == "ⓘ":
-            link = f"{label_text}"
-        # in a one column setting we need to break link and status message
-        if columns==1:
-            label_text = label_text.replace(":", ":<br>")
-            delim = "<br>"
-        else:
-            delim = "&nbsp;"
-        with checkbox:
+        with parent:
+            #content=ui.row().classes="flex flex-row gap-2"
+            #with content:
+            label_text = yp_cell.getLabelText()
+            checkbox = self.create_simple_checkbox(
+                parent, 
+                label_text,
+                title=label_text
+            ) 
+            yp_cell.getPage(self.solution.smwAccess)
+            color = "blue" if yp_cell.status == "✅" else "red"
+            link = f"<a href='{yp_cell.pageUrl}' style='color:{color}'>{label_text}<a>"
+            if yp_cell.status == "ⓘ":
+                link = f"{label_text}"
+            # in a one column setting we need to break link and status message
+            if columns==1:
+                label_text = label_text.replace(":", ":<br>")
+                delim = "<br>"
+            else:
+                delim = "&nbsp;"
             link_html=ui.html()
             link_html.content=f"{link}{delim}"
-            content=ui.row().classes="flex flex-row gap-2"
-            with content:
-                debug_div = ui.html()
-                debug_div.content=f"{yp_cell.statusMsg}"
-                hidden=getattr(self, "cell_hide_size_info", True)
-                debug_div.visible(not hidden)
-                status_div = ui.html()
-                status_div.content=yp_cell.status
-                checkbox.status_div = status_div
-                self.cell_debug_msg_divs.append(debug_div)
+            debug_div = ui.html()
+            debug_div.content=f"{yp_cell.statusMsg}"
+            hidden=getattr(self, "cell_hide_size_info", True)
+            debug_div.visible=not hidden
+            status_div = ui.html()
+            status_div.content=yp_cell.status
+            checkbox.status_div = status_div
+            self.cell_debug_msg_divs.append(debug_div)
             # link ypCell with Checkbox via a unique identifier
             yp_cell.checkbox_id = uuid.uuid4()
             checkbox.data["ypcell_uuid"] = yp_cell.checkbox_id
@@ -315,7 +347,7 @@ class GeneratorGrid:
         """
         add the rows for the given topic
         """
-
+        return 
         def updateProgress():
             percent = progress_steps / total_steps * 100
             value = round(percent)
@@ -333,7 +365,7 @@ class GeneratorGrid:
             with self.parent:
                 topic_row=ui.row()
                 with topic_row:
-                    topic_header=ui.row().classes(self.headerClasses).style(self.headerStyle)
+                    topic_header=ui.row().classes(self.header_classes).style(self.header_style)
                     
             icon_url = None
             if hasattr(topic, "iconUrl"):
@@ -394,4 +426,4 @@ class GeneratorGrid:
         """
         self.cell_hide_size_info = hidden
         for div in self.cell_debug_msg_divs:
-            div.visible(not hidden)
+            div.visible=not hidden

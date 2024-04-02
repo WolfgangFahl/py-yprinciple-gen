@@ -19,18 +19,21 @@ class SMWTarget(Target):
 
     @classmethod
     def getSMWTargets(cls):
+        """
+        define the targets
+        """
         targets = {
             "category": CategoryTarget("Category", "archive"),
-            "concept": ConceptTarget("Concept", "puzzle"),
-            "form": FormTarget("Form", "form-select"),
-            "help": HelpTarget("Help", "help-box"),
-            "listOf": ListOfTarget("List of", "format-list-bulleted"),
-            "template": TemplateTarget("Template", "file-document"),
+            "concept": ConceptTarget("Concept", "extension"),
+            "form": FormTarget("Form", "note_alt"),
+            "help": HelpTarget("Help", "help_center"),
+            "listOf": ListOfTarget("List of", "format_list_bulleted"),
+            "template": TemplateTarget("Template", "description"),
             "properties": PropertyMultiTarget(
-                "Properties", "alpha-p-circle", is_multi=True
+                "Properties", "local_parking", is_multi=True
             ),
             "property": PropertyTarget("Property", showInGrid=False),
-            "python": PythonTarget("Python", "snake"),
+            "python": PythonTarget("Python", "code"),
         }
         for target_key, target in targets.items():
             target.target_key = target_key

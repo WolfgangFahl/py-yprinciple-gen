@@ -249,6 +249,7 @@ class YPGenApp(InputWebSolution):
             
     def update_context_link(self):
         """
+        update the context link
         """
         if self.mw_context is not None:
             url=self.mw_context.sidif_url()
@@ -275,17 +276,22 @@ class YPGenApp(InputWebSolution):
         show settings and generator grid
         """
         with self.content_div:
-            with ui.grid(columns=2) as self.settings_area:
-                        self.addWikiUserSelect()
-                        self.add_context_select()
+            with ui.card() as self.settings_area:
+                with ui.grid(columns=2):
+                    self.addWikiUserSelect()
+                    self.add_context_select()
             with ui.row() as self.button_bar:
+                self.tool_button(
+                    tooltip="reload",
+                    icon="refresh",
+                    handler=self.showGenerateGrid,
+                )
                 self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
                 self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
                 self.openEditorButton = ui.switch("open Editor").bind_value(self, 'openEditor')
                 self.hideShowSizeInfo = ui.switch("size info").bind_value(self, 'hideShowSizeInfoState')
             with ui.row() as self.progress_container:
                 self.progressBar = NiceguiProgressbar(total=100,desc="preparing",unit="steps")    
-        await self.showGenerateGrid()
     
     async def home(self):
         """
