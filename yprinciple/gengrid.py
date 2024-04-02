@@ -7,7 +7,7 @@ from typing import Callable, List
 from nicegui import ui
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import HideShow, Link
-from meta.metamodel import Context
+from meta.metamodel import Context, Topic
 
 from yprinciple.target import Target
 from yprinciple.ypcell import YpCell
@@ -297,10 +297,10 @@ class GeneratorGrid:
             checkbox.on("change",on_change)
         return checkbox
 
-    def create_check_box(self, 
+    def create_check_box_for_cell(self, 
         yp_cell: YpCell, 
         parent,
-        columns:int) -> ui.checkbox:
+        columns:int=1) -> ui.checkbox:
         """
         create a nicegui CheckBox for the given YpCell
 
@@ -313,10 +313,11 @@ class GeneratorGrid:
             ui.checkbox: The created NiceGUI checkbox element.
         """
         with parent:
+            yp_cell_card=ui.card() 
             label_text = yp_cell.getLabelText()
             checkbox = self.create_simple_checkbox(
-                parent, 
-                label_text,
+                parent=yp_cell_card, 
+                label_text=label_text,
                 title=label_text
             ) 
             yp_cell.getPage(self.solution.smwAccess)
@@ -330,23 +331,58 @@ class GeneratorGrid:
                 delim = "<br>"
             else:
                 delim = "&nbsp;"
-            link_html=ui.html()
-            link_html.content=f"{link}{delim}"
-            debug_div = ui.html()
-            debug_div.content=f"{yp_cell.statusMsg}"
-            hidden=getattr(self, "cell_hide_size_info", True)
-            debug_div.visible=not hidden
-            status_div = ui.html()
-            status_div.content=yp_cell.status
-            checkbox.status_div = status_div
-            self.cell_debug_msg_divs.append(debug_div)
+            with yp_cell_card:
+                link_html=ui.html()
+                link_html.content=f"{link}{delim}"
+                debug_div = ui.html()
+                debug_div.content=f"{yp_cell.statusMsg}"
+                hidden=getattr(self, "cell_hide_size_info", True)
+                debug_div.visible=not hidden
+                status_div = ui.html()
+                status_div.content=yp_cell.status
+                checkbox.status_div = status_div
+                self.cell_debug_msg_divs.append(debug_div)
             # link ypCell with Checkbox via a unique identifier
             yp_cell.checkbox_id=checkbox.id
             self.ypcell_by_id[checkbox.id] = checkbox.id
             self.checkbox_by_id[checkbox.id] = checkbox
         return checkbox
 
-    async def add_topic_rows(self, context: Context):
+    def add_topic_icon(self,topic:Topic):
+        """
+        add an icon for the given topic
+        """
+        icon_url = None
+        if hasattr(topic, "iconUrl"):
+            if topic.iconUrl.startswith("http"):
+                icon_url = f"{topic.iconUrl}"
+        if icon_url is not None and self.solution.mw_context is not None:
+            icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
+        if icon_url is None:
+            icon_url = "?"
+        style=f'width: {self.iconSize}; height: {self.iconSize}px;'
+        topic_icon = ui.image(
+            source=icon_url,
+        )
+        topic_icon.style(style)
+        return topic_icon
+
+    def add_yp_cell(self,ypCell)->'ui.checkbox':
+        """
+        add the given ypCell
+        """
+        if len(ypCell.subCells) > 0:
+            checkbox=None
+            with self.grid:
+                hide_show = HideShow(
+                    show_content=False,
+                    hide_show_label=("properties", "properties"),
+                )
+        else:
+            checkbox = self.create_check_box_for_cell(ypCell, self.grid)
+        return checkbox
+    
+    def add_topic_rows(self, context: Context):
         """
         add the topic rows for the given context
         
@@ -354,6 +390,9 @@ class GeneratorGrid:
             context(Context): the context for which do add topic rows
         """
         def updateProgress():
+            """
+            update the progress
+            """
             percent = progress_steps / total_steps * 100
             value = round(percent)
             self.solution.progressBar.update_value(value)
@@ -368,53 +407,30 @@ class GeneratorGrid:
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
-            with self.grid:                    
-                icon_url = None
-                if hasattr(topic, "iconUrl"):
-                    if topic.iconUrl.startswith("http"):
-                        icon_url = f"{topic.iconUrl}"
-                if icon_url is not None and self.solution.mw_context is not None:
-                    icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
-                if icon_url is None:
-                    icon_url = "?"
-                style=f'width: {self.iconSize}px; height: {self.iconSize}px;'
-                _topic_icon = ui.image(
-                    source=icon_url,
-                ).style(style)
+            with self.grid:      
+                self.add_topic_icon(topic)
                 checkbox=self.create_simple_checkbox(
                     parent=self.grid,
                     label_text="→",
                     title=f"select all {topic_name}",
                 )
                 checkbox.on('change',self.onSelectRowClick)
-                for target in self.displayTargets():
-                    progress_steps += 1
-                    ypCell = YpCell.createYpCell(target=target, topic=topic)
-                    if len(ypCell.subCells) > 0:
-                        columns=self.get_colums(target)
-                        prop_div_col = ui.grid(columns=columns)
-                        with prop_div_col:     
-                            prop_div = HideShow(
-                                show_content=False,
-                                hide_show_label=("properties", "properties"),
-                            )
-                            parent = prop_div
-                    else:
-                        parent = self.grid
-                        columns=1
-                    checkbox = self.create_check_box(ypCell, parent=parent, columns=columns)
-                    checkbox_row[target.name] = (checkbox, ypCell)
-                    if len(ypCell.subCells) > 0:
-                        checkbox.on("input", self.onParentCheckboxClick)
-                        for _prop_name, subCell in ypCell.subCells.items():
-                            _subCheckBox = self.create_check_box(
-                                subCell, parent=prop_div, columns=columns
-                            )
-                            progress_steps += 1
-                            updateProgress()
+            for target in self.displayTargets():
+                progress_steps += 1
+                ypCell = YpCell.createYpCell(target=target, topic=topic)
+                checkbox=self.add_yp_cell(ypCell) 
+                if checkbox:
+                    checkbox_row[target.name] = (checkbox, ypCell) 
                 updateProgress()
             pass
-        # done
+        #if len(ypCell.subCells) > 0:
+        #            checkbox.on("input", self.onParentCheckboxClick)
+        #            for _prop_name, subCell in ypCell.subCells.items():
+        #                _subCheckBox = self.create_check_box(
+        #                    subCell, parent=prop_div, columns=columns
+        #                )
+        #                progress_steps += 1
+        #                updateProgress()
         self.solution.progressBar.reset()
 
     def set_hide_show_status_of_cell_debug_msg(self, hidden: bool = False):

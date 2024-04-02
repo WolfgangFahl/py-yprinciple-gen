@@ -4,7 +4,7 @@ Created on 2022-11-24
 @author: wf
 '''
 import html
-from nicegui import ui, background_tasks
+from nicegui import ui,background_tasks,run
 from nicegui.client import Client
 from meta.metamodel import Context
 from meta.mw import SMWAccess
@@ -35,6 +35,7 @@ class YPGenServer(InputWebserver):
             copy_right=copy_right,
             version=Version(),
             default_port=8778,
+            timeout=6.0
         )
         server_config = WebserverConfig.get(config)
         server_config.solution_class = YPGenApp
@@ -138,7 +139,10 @@ class YPGenApp(InputWebSolution):
                 self.contextLink.href="https://wiki.bitplan.com/index.php/Concept:Context"
     
    
-    async def showGenerateGrid(self):
+    async def async_showGenerateGrid(self):
+        await run.io_bound(self.show_GenerateGrid)
+        
+    def show_GenerateGrid(self):
         """
         show the grid for generating code
         """
@@ -151,7 +155,7 @@ class YPGenApp(InputWebSolution):
                     if error is not None:
                         self.log_view.push(errMsg)
                     else:
-                        await self.generatorGrid.add_topic_rows(context)
+                        self.generatorGrid.add_topic_rows(context)
         except Exception as ex:
             self.handle_exception(ex)
         
@@ -183,7 +187,7 @@ class YPGenApp(InputWebSolution):
             self.context_name=msg.value
             self.mw_context=self.mw_contexts.get(self.context_name,None)
             self.setContext(self.mw_context)
-            await self.showGenerateGrid()
+            await self.async_showGenerateGrid()
         except BaseException as ex:
             self.handle_exception(ex)
              
@@ -284,7 +288,7 @@ class YPGenApp(InputWebSolution):
                 self.tool_button(
                     tooltip="reload",
                     icon="refresh",
-                    handler=self.showGenerateGrid,
+                    handler=self.async_showGenerateGrid
                 )
                 self.useSidifButton=ui.switch("use SiDIF").bind_value(self,"useSidif")
                 self.dryRunButton = ui.switch("dry Run").bind_value(self, 'dryRun')
@@ -299,6 +303,7 @@ class YPGenApp(InputWebSolution):
   
         home page 
         """
+            
         def show():
             """
             show the ui
