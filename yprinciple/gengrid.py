@@ -8,7 +8,6 @@ import uuid
 from nicegui import ui
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import HideShow, Link
-from ngwidgets.color_schema import ColorSchema
 from meta.metamodel import Context
 
 from yprinciple.target import Target
@@ -37,7 +36,8 @@ class GeneratorGrid:
         self.iconSize = iconSize
         self.checkboxes = {}
         self.ypcell_by_uuid = {}
-        self.checkbox_by_uuid = {}
+        self.header_checkbox_by_uuid = {}
+        self.cell_debug_msg_divs = []
         self.targets = targets
         self.setup_ui()
         
@@ -46,6 +46,8 @@ class GeneratorGrid:
         setup the styles for the ui
         """
         self.header_classes = "text-center"
+        # centering
+        self.center_classes = "flex flex-col items-center justify-center"
         # see https://www.materialpalette.com/indigo/indigo
         # and https://github.com/WolfgangFahl/nicegui_widgets/blob/main/ngwidgets/color_schema.py
         # light primary color
@@ -70,7 +72,7 @@ class GeneratorGrid:
             self.targets_column_header = ui.html().classes(self.header_classes).style(self.header_style)
             self.targets_column_header.content = "<strong>Target</strong>"
             for target in self.displayTargets():
-                classes=self.header_classes+" flex flex-col items-center justify-center"
+                classes=self.header_classes+self.center_classes
                 target_header_cell=ui.row().classes(classes).style(self.header_style)
                 with target_header_cell:
                     target_header_div=ui.html()
@@ -83,6 +85,30 @@ class GeneratorGrid:
                     target_header_div.content=markup
                     pass
                 
+    def setup_topic_header_row(self):
+        """
+        setup the second header row
+        """
+        with self.grid:
+            self.topics_column_header = ui.html().classes(self.header_classes).style(self.header_style)
+            self.topics_column_header.content = "<strong>Topics</strong>"
+        self.header_checkboxes={}
+        self.header_checkboxes["all"]=self.create_simple_checkbox(
+            parent=self.grid,
+            label_text="↘",
+            title="select all",
+            classes=self.center_classes,
+            on_change=self.onSelectAllClick,
+        )
+        for target in self.displayTargets():
+            self.header_checkboxes[target.name]=self.create_simple_checkbox(
+                parent=self.grid,
+                label_text="↓",
+                title=f"select all {target.name}",
+                classes=self.center_classes,
+                on_change=self.onSelectColumnClick,
+            )
+       
     def setup_ui(self):
         """
         setup the user interface
@@ -94,26 +120,7 @@ class GeneratorGrid:
             target_columns+=2
             self.grid = ui.grid(columns=target_columns).classes('w-full gap-0')
             self.setup_target_header_row()
-       
-    def setup_ui_rest(self,target_columns:int):      
-        self.target_selection_Header = ui.grid(columns=target_columns)
-        with self.targetSelectionHeader:
-            ui.label("Topics").classes(self.header_classes).style(self.headerStyle)
-        self.create_simple_checkbox(
-            parent=self.targetSelectionHeader,
-            label_text="↘",
-            title="select all",
-            on_change=self.onSelectAllClick,
-        )
-        for target in self.displayTargets():
-            columns=self.get_colums(target)  
-            self.create_simple_checkbox(
-                label_text="↓",
-                title=f"select all {target.name}",
-                parent=self.targetSelectionHeader,
-                on_change=self.onSelectColumnClick,
-            )
-        self.cell_debug_msg_divs = []
+            self.setup_topic_header_row()
 
     def getCheckedYpCells(self) -> List[YpCell]:
         """
@@ -285,7 +292,7 @@ class GeneratorGrid:
                 **kwargs,
             )
             checkbox.classes(classes)
-            checkbox.style(self.lightHeaderStyle)
+            checkbox.style(self.light_header_style)
             checkbox.tooltip(title)
         if on_change:
             checkbox.on("change",on_change)
@@ -307,8 +314,6 @@ class GeneratorGrid:
             ui.checkbox: The created NiceGUI checkbox element.
         """
         with parent:
-            #content=ui.row().classes="flex flex-row gap-2"
-            #with content:
             label_text = yp_cell.getLabelText()
             checkbox = self.create_simple_checkbox(
                 parent, 
