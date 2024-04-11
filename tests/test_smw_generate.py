@@ -12,6 +12,7 @@ from yprinciple.ypcell import FileGenResult, MwGenResult
 from yprinciple.ypgen import YPGen
 from yprinciple.ypgenapp import YPGenServer
 
+
 class TestSMWGenerate(BaseSemanticMediawikiTest):
     """
     test Semantic MediaWiki handling

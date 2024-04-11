@@ -105,7 +105,7 @@ class YPGen(WebserverCmd):
         work on the arguments
         """
         handled = super().handle_args()
-        args=self.args
+        args = self.args
         if args.genToFile or args.genViaMwApi or args.push:
             gen = GeneratorAPI.fromArgs(args)
             if gen.error:
@@ -131,6 +131,7 @@ class YPGen(WebserverCmd):
                 gen.push()
             handled = True
         return handled
+
 
 def main(argv: list = None):
     """
