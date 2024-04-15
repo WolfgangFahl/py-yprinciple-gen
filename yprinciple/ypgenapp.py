@@ -184,14 +184,14 @@ class YPGenApp(InputWebSolution):
         """
         self.language = msg.value
 
-    async def onChangeWikiUser(self, msg):
+    async def onChangeWikiUser(self, e):
         """
         react on a the wikiuser being changed via a Select control
         """
         try:
             self.clearErrors()
             # change wikiUser
-            self.args.wikiId = msg.value
+            self.args.wikiId = e.value
             self.setGenApiFromArgs(self.args)
             await self.update_context_select()
         except BaseException as ex:
@@ -285,7 +285,9 @@ class YPGenApp(InputWebSolution):
         self.context_link.content = link
 
     async def update_context_select(self):
-        """ """
+        """
+        react on update of context select 
+        """
         pass
 
     def configure_settings(self):
@@ -328,6 +330,9 @@ class YPGenApp(InputWebSolution):
                 )
 
     async def load_home_page(self):
+        """
+        back ground preparation
+        """
         with self.content_div:
             # show a spinner while loading
             ui.spinner()

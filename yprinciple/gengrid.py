@@ -148,11 +148,11 @@ class GeneratorGrid:
         # generate in order of rows
         for checkbox_row in self.checkboxes.values():
             for checkbox, ypCell in checkbox_row.values():
-                if checkbox.isChecked():
+                if checkbox.value:
                     checkedYpCells.append(ypCell)
                 for subCell in ypCell.subCells.values():
                     checkbox = self.checkbox_by_id[subCell.checkbox_id]
-                    if checkbox.isChecked():
+                    if checkbox.value:
                         checkedYpCells.append(subCell)
         return checkedYpCells
 
@@ -166,8 +166,7 @@ class GeneratorGrid:
         for ypCell in cellsToGen:
             cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
             status_div = cell_checkbox.status_div
-            status_div.delete_components()
-            status_div.text = ""
+            status_div.content = ""
             try:
                 genResult = ypCell.generateViaMwApi(
                     smwAccess=self.solution.smwAccess,
@@ -191,7 +190,7 @@ class GeneratorGrid:
                         )
             except BaseException as ex:
                 with status_div:
-                    ui.label("❗").tooltip(str(ex))
+                    status_div.content=(f"❗ error:{str(ex)}")
                 self.solution.handle_exception(ex)
 
     def check_ypcell_box(self, checkbox, ypCell, checked: bool):
