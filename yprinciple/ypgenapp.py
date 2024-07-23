@@ -113,7 +113,13 @@ class YPGenApp(InputWebSolution):
             args = self.args
         with self.content_div:
             ui.notify("preparing Generator")
-        gen_profile = Profiler("setGenAPI", profile=self.args.debug)
+        self.setGeneratorEnvironmentFromAgs(args)
+        
+    def setGeneratorEnvironmentFromAgs(self,args):
+        """
+        set my generator environment from the given command line arguments
+        """
+        gen_profile = Profiler("prepare gen API and mwcontext", profile=self.args.debug)
         self.genapi = GeneratorAPI.fromArgs(args)
         self.genapi.setWikiAndGetContexts(args)
         self.smwAccess = self.genapi.smwAccess
@@ -122,7 +128,7 @@ class YPGenApp(InputWebSolution):
             self.setWikiLink(wikiUser.getWikiUrl(), args.wikiId, args.wikiId)
         self.setMWContext()
         gen_profile.time()
-
+  
     def setMWContext(self):
         """
         set my context
@@ -184,22 +190,24 @@ class YPGenApp(InputWebSolution):
         """
         self.language = msg.value
 
-    async def onChangeWikiUser(self, e):
+    async def onChangeWiki(self, e):
         """
-        react on a the wikiuser being changed via a Select control
+        react on a the wiki being changed 
+        via a Select control
         """
         try:
             self.clearErrors()
             # change wikiUser
             self.args.wikiId = e.value
-            self.setGenApiFromArgs(self.args)
+            self.setGeneratorEnvironmentFromAgs(self.args)
             await self.update_context_select()
         except BaseException as ex:
             self.handle_exception(ex)
 
     async def onChangeContext(self, msg):
         """
-        react on the wikiuser being changed via a Select control
+        react on the context 
+        being changed via a Select control
         """
         try:
             self.clearErrors()
@@ -223,16 +231,16 @@ class YPGenApp(InputWebSolution):
             desc = html.unescape(desc)
             self.languageSelect.add(self.jp.Option(value=lang, text=desc))
 
-    def addWikiUserSelect(self):
+    def addWikiSelect(self):
         """
-        add a wiki user selector
+        add a wiki selector
         """
         if len(self.wikiUsers) > 0:
-            self.wikiuser_select = self.add_select(
+            self.wiki_select = self.add_select(
                 title="wikiId",
                 selection=sorted(self.wikiUsers),
                 value=self.wikiId,
-                on_change=self.onChangeWikiUser,
+                on_change=self.onChangeWiki,
             )
             if self.mw_context is not None:
                 self.wikiLink = ui.html()
@@ -262,7 +270,7 @@ class YPGenApp(InputWebSolution):
         """
         try:
             selection = list(self.mw_contexts.keys())
-            self.contextSelect = self.add_select(
+            self.context_select = self.add_select(
                 "Context",
                 selection=selection,
                 value=self.context_name,
@@ -288,6 +296,7 @@ class YPGenApp(InputWebSolution):
         """
         react on update of context select
         """
+        self.update_context_link()
         pass
 
     def configure_settings(self):
@@ -295,7 +304,7 @@ class YPGenApp(InputWebSolution):
         override settings
         """
         self.addLanguageSelect()
-        self.addWikiUserSelect()
+        self.addWikiSelect()
         self.addExplainDepthSelect()
 
     async def show_all(self):
@@ -306,7 +315,7 @@ class YPGenApp(InputWebSolution):
             self.content_div.clear()
             with ui.card() as self.settings_area:
                 with ui.grid(columns=2):
-                    self.addWikiUserSelect()
+                    self.addWikiSelect()
                     self.add_context_select()
             with ui.row() as self.button_bar:
                 self.tool_button(

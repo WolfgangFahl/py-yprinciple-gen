@@ -389,8 +389,8 @@ class GeneratorGrid:
         if hasattr(topic, "iconUrl"):
             if topic.iconUrl.startswith("http"):
                 icon_url = f"{topic.iconUrl}"
-        if icon_url is None and self.solution.mw_context is not None:
-            icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
+            if icon_url is None and self.solution.mw_context is not None:
+                icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
         if icon_url is None:
             icon_url = "?"
         style = f"width: {self.iconSize}; height: {self.iconSize};"
