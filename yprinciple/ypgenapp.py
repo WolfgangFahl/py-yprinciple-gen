@@ -286,7 +286,7 @@ class YPGenApp(InputWebSolution):
 
     async def update_context_select(self):
         """
-        react on update of context select 
+        react on update of context select
         """
         pass
 

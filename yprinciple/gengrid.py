@@ -190,7 +190,7 @@ class GeneratorGrid:
                         )
             except BaseException as ex:
                 with status_div:
-                    status_div.content=(f"❗ error:{str(ex)}")
+                    status_div.content = f"❗ error:{str(ex)}"
                 self.solution.handle_exception(ex)
 
     def check_ypcell_box(self, checkbox, ypCell, checked: bool):
