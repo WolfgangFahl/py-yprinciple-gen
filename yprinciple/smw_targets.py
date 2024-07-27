@@ -3,6 +3,7 @@ Created on 2022-11-26
 
 @author: wf
 """
+
 from datetime import datetime
 
 from meta.metamodel import MetaModelElement, Property, Topic, TopicLink

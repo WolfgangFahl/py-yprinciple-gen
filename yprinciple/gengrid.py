@@ -3,6 +3,7 @@ Created on 25.11.2022
 
 @author: wf
 """
+
 from typing import Callable, List
 
 from meta.metamodel import Context, Topic

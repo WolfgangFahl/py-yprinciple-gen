@@ -3,6 +3,7 @@ Created on 2022-11-24
 
 @author: wf
 """
+
 from collections import Counter
 
 from meta.metamodel import Context

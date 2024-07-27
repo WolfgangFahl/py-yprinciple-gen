@@ -3,6 +3,7 @@ Created on 2023-01-18
 
 @author: wf
 """
+
 import os
 
 from tests.basesmwtest import BaseSemanticMediawikiTest

@@ -3,6 +3,7 @@ Created on 2022-11-24
 
 @author: wf
 """
+
 import html
 
 from meta.metamodel import Context
@@ -114,8 +115,8 @@ class YPGenApp(InputWebSolution):
         with self.content_div:
             ui.notify("preparing Generator")
         self.setGeneratorEnvironmentFromAgs(args)
-        
-    def setGeneratorEnvironmentFromAgs(self,args):
+
+    def setGeneratorEnvironmentFromAgs(self, args):
         """
         set my generator environment from the given command line arguments
         """
@@ -128,7 +129,7 @@ class YPGenApp(InputWebSolution):
             self.setWikiLink(wikiUser.getWikiUrl(), args.wikiId, args.wikiId)
         self.setMWContext()
         gen_profile.time()
-  
+
     def setMWContext(self):
         """
         set my context
@@ -192,7 +193,7 @@ class YPGenApp(InputWebSolution):
 
     async def onChangeWiki(self, e):
         """
-        react on a the wiki being changed 
+        react on a the wiki being changed
         via a Select control
         """
         try:
@@ -206,7 +207,7 @@ class YPGenApp(InputWebSolution):
 
     async def onChangeContext(self, msg):
         """
-        react on the context 
+        react on the context
         being changed via a Select control
         """
         try:

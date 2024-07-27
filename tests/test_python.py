@@ -3,6 +3,7 @@ Created on 2022-12-02
 
 @author: wf
 """
+
 from meta.metamodel import Property
 
 from tests.basetest import Basetest
