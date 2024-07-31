@@ -7718,7 +7718,7 @@ Args:
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#category</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -7785,8 +7785,9 @@ Args:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7866,7 +7867,7 @@ Args:
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#category</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -8366,8 +8367,8 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        create the SMW pagefomrs markups for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to create the markup for</span>
-<span class="sd">            isMultiple(bool): True if there are multiple values allowed</span>
+<span class="sd">            topic (Topic): the topic to create the markup for</span>
+<span class="sd">            isMultiple (bool): True if there are multiple values allowed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">multiple</span> <span class="o">=</span> <span class="s2">&quot;|multiple&quot;</span> <span class="k">if</span> <span class="n">isMultiple</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;div id=&quot;wikiPreview&quot; style=&quot;display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;&quot;&gt;&lt;/div&gt;</span>
@@ -8375,7 +8376,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="s2">=</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span>
 <span class="se">{{{{{{</span><span class="s2">for template|</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">multiple</span><span class="si">}</span><span class="se">}}}}}}</span>
 <span class="se">{{</span><span class="s2">| class=&quot;wikitable&quot;</span>
-<span class="s2">! colspan=&#39;2&#39; | </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span>
+<span class="s2">! colspan=&#39;2&#39; | </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
 <span class="s2">|-</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">topic</span><span class="o">.</span><span class="n">propertiesByIndex</span><span class="p">():</span>
@@ -8430,7 +8431,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        generate the form page for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -8440,7 +8441,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="s2">This is the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profiWiki</span><span class="p">()</span><span class="si">}</span><span class="s2">-Form for &quot;</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;.</span>
 
 <span class="s2">Create a new </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> by entering a new pagetitle for a </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
-<span class="s2">into the field below. </span>
+<span class="s2">into the field below.</span>
 
 <span class="s2">If you enter an existing </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> pagetitle - you will edit the </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
 <span class="s2">with that pagetitle.</span>
@@ -8503,8 +8504,9 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8516,8 +8518,9 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>isMultiple(bool)</code></td>
+            <td><code>isMultiple</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8600,8 +8603,8 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        create the SMW pagefomrs markups for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to create the markup for</span>
-<span class="sd">            isMultiple(bool): True if there are multiple values allowed</span>
+<span class="sd">            topic (Topic): the topic to create the markup for</span>
+<span class="sd">            isMultiple (bool): True if there are multiple values allowed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">multiple</span> <span class="o">=</span> <span class="s2">&quot;|multiple&quot;</span> <span class="k">if</span> <span class="n">isMultiple</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;div id=&quot;wikiPreview&quot; style=&quot;display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;&quot;&gt;&lt;/div&gt;</span>
@@ -8609,7 +8612,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="s2">=</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span>
 <span class="se">{{{{{{</span><span class="s2">for template|</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">multiple</span><span class="si">}</span><span class="se">}}}}}}</span>
 <span class="se">{{</span><span class="s2">| class=&quot;wikitable&quot;</span>
-<span class="s2">! colspan=&#39;2&#39; | </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span>
+<span class="s2">! colspan=&#39;2&#39; | </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
 <span class="s2">|-</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">topic</span><span class="o">.</span><span class="n">propertiesByIndex</span><span class="p">():</span>
@@ -8690,8 +8693,9 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -8771,7 +8775,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        generate the form page for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -8781,7 +8785,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="s2">This is the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profiWiki</span><span class="p">()</span><span class="si">}</span><span class="s2">-Form for &quot;</span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;.</span>
 
 <span class="s2">Create a new </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> by entering a new pagetitle for a </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
-<span class="s2">into the field below. </span>
+<span class="s2">into the field below.</span>
 
 <span class="s2">If you enter an existing </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> pagetitle - you will edit the </span><span class="si">{</span><span class="n">topic</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
 <span class="s2">with that pagetitle.</span>
@@ -8889,7 +8893,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#help</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -8960,8 +8964,9 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9042,7 +9047,7 @@ e.g. https://wiki.bitplan.com/index.php/Form:Topic</p>
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#help</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -9156,7 +9161,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        generate the list of page for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -9211,8 +9216,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9274,7 +9280,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        generate the list of page for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -9344,13 +9350,13 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">    the Property Multi Target</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">addSubCells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ypCell</span><span class="p">:</span> <span class="s2">&quot;YpCell&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="p">:</span> <span class="n">Topic</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">addSubCells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ypCell</span><span class="p">:</span> <span class="s2">&quot;ypcell.YpCell&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="p">:</span> <span class="n">Topic</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        add the subcells for the given ypCell and topic</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ypCell: the ypCell</span>
-<span class="sd">            topic(Topic): the topic to add subcells for</span>
+<span class="sd">            topic (Topic): the topic to add subcells for</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">topic</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">subCell</span> <span class="o">=</span> <span class="n">ypcell</span><span class="o">.</span><span class="n">YpCell</span><span class="p">(</span>
@@ -9400,7 +9406,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
           <tr class="doc-section-item">
             <td><code>ypCell</code></td>
             <td>
-                  <code>YpCell</code>
+                  <code><a class="autorefs autorefs-internal" title="yprinciple.ypcell.YpCell" href="#yprinciple.ypcell.YpCell">YpCell</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9412,8 +9418,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -9441,13 +9448,13 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="normal">627</span>
 <span class="normal">628</span>
 <span class="normal">629</span>
-<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">addSubCells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ypCell</span><span class="p">:</span> <span class="s2">&quot;YpCell&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="p">:</span> <span class="n">Topic</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">addSubCells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ypCell</span><span class="p">:</span> <span class="s2">&quot;ypcell.YpCell&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="p">:</span> <span class="n">Topic</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    add the subcells for the given ypCell and topic</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ypCell: the ypCell</span>
-<span class="sd">        topic(Topic): the topic to add subcells for</span>
+<span class="sd">        topic (Topic): the topic to add subcells for</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">topic</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">subCell</span> <span class="o">=</span> <span class="n">ypcell</span><span class="o">.</span><span class="n">YpCell</span><span class="p">(</span>
@@ -9590,7 +9597,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
         <span class="n">topicWithConcept</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Concept:</span><span class="si">{</span><span class="n">topic_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">{{{{</span><span class="s2">Property</span>
 <span class="s2">|name=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
-<span class="s2">|label=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s2"> </span>
+<span class="s2">|label=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">label</span><span class="si">}</span>
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="s2">&quot;documentation&quot;</span><span class="p">):</span>
             <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;|documentation=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">documentation</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span>
@@ -9620,8 +9627,8 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
                     <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;|</span><span class="si">{</span><span class="n">prop_name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="c1"># e.g. |index={prop.index}</span>
         <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;|topic=</span><span class="si">{</span><span class="p">(</span><span class="n">topicWithConcept</span><span class="p">)</span><span class="si">}</span>
-<span class="s2">|storemode=prop       </span>
-<span class="se">}}}}</span><span class="s2">      </span>
+<span class="s2">|storemode=prop</span>
+<span class="se">}}}}</span>
 <span class="s2">* [[Has type::</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]]</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="s2">&quot;formatterURI&quot;</span><span class="p">):</span>
@@ -9751,7 +9758,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
         <span class="n">topicWithConcept</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Concept:</span><span class="si">{</span><span class="n">topic_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">{{{{</span><span class="s2">Property</span>
 <span class="s2">|name=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
-<span class="s2">|label=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s2"> </span>
+<span class="s2">|label=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">label</span><span class="si">}</span>
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="s2">&quot;documentation&quot;</span><span class="p">):</span>
             <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;|documentation=</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">documentation</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span>
@@ -9781,8 +9788,8 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
                     <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;|</span><span class="si">{</span><span class="n">prop_name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="c1"># e.g. |index={prop.index}</span>
         <span class="n">markup</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;|topic=</span><span class="si">{</span><span class="p">(</span><span class="n">topicWithConcept</span><span class="p">)</span><span class="si">}</span>
-<span class="s2">|storemode=prop       </span>
-<span class="se">}}}}</span><span class="s2">      </span>
+<span class="s2">|storemode=prop</span>
+<span class="se">}}}}</span>
 <span class="s2">* [[Has type::</span><span class="si">{</span><span class="n">prop</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]]</span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="s2">&quot;formatterURI&quot;</span><span class="p">):</span>
@@ -10480,7 +10487,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        return the internationalized version of the given text</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text(str): the text to internationalize</span>
+<span class="sd">            text (str): the text to internationalize</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the internationalized version of the text</span>
@@ -10493,7 +10500,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        get the topic header for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate a header for</span>
+<span class="sd">            topic (Topic): the topic to generate a header for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the markup to be generated</span>
@@ -10538,13 +10545,13 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
         <span class="n">currentYear</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;!--</span>
 <span class="s2">  --     Copyright (C) 2015-</span><span class="si">{</span><span class="n">currentYear</span><span class="si">}</span><span class="s2"> BITPlan GmbH</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">  --     Pater-Delp-Str. -- 1</span>
 <span class="s2">  --     D-47877 -- Willich-Schiefbahn</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">  --     http://www.bitplan.com</span>
 <span class="s2">  --</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">--&gt;&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">markup</span>
 
@@ -10562,7 +10569,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        create plantuml skin params for BITPlan corporate identity</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            fontSize(int): the font size to use</span>
+<span class="sd">            fontSize (int): the font size to use</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the wiki markup to be generated</span>
@@ -10603,7 +10610,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        generate wiki markup for a TopicLink/relation</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topicLink(TopicLink): the topicLink to generate the relation for</span>
+<span class="sd">            topicLink (TopicLink): the topicLink to generate the relation for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the wiki markup to generate</span>
@@ -10618,8 +10625,8 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        get the uml (plantuml) markup for  the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate a header for</span>
-<span class="sd">            output_format(str): the output format to use - default: svg</span>
+<span class="sd">            topic (Topic): the topic to generate a header for</span>
+<span class="sd">            output_format (str): the output format to use - default: svg</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the plantuml markup to be generated</span>
@@ -10693,8 +10700,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>fontSize(int)</code></td>
+            <td><code>fontSize</code></td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -10702,7 +10710,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>12</code>
             </td>
           </tr>
       </tbody>
@@ -10777,7 +10785,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        create plantuml skin params for BITPlan corporate identity</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            fontSize(int): the font size to use</span>
+<span class="sd">            fontSize (int): the font size to use</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the wiki markup to be generated</span>
@@ -10884,13 +10892,13 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
         <span class="n">currentYear</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
         <span class="n">markup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;!--</span>
 <span class="s2">  --     Copyright (C) 2015-</span><span class="si">{</span><span class="n">currentYear</span><span class="si">}</span><span class="s2"> BITPlan GmbH</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">  --     Pater-Delp-Str. -- 1</span>
 <span class="s2">  --     D-47877 -- Willich-Schiefbahn</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">  --     http://www.bitplan.com</span>
 <span class="s2">  --</span>
-<span class="s2">  -- </span>
+<span class="s2">  --</span>
 <span class="s2">--&gt;&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">markup</span>
 </code></pre></div></td></tr></table></div>
@@ -10993,8 +11001,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>text(str)</code></td>
+            <td><code>text</code></td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11049,7 +11058,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">    return the internationalized version of the given text</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        text(str): the text to internationalize</span>
+<span class="sd">        text (str): the text to internationalize</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: the internationalized version of the text</span>
@@ -11088,8 +11097,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topicLink(TopicLink)</code></td>
+            <td><code>topicLink</code></td>
             <td>
+                  <code><span title="meta.metamodel.TopicLink">TopicLink</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11146,7 +11156,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">    generate wiki markup for a TopicLink/relation</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        topicLink(TopicLink): the topicLink to generate the relation for</span>
+<span class="sd">        topicLink (TopicLink): the topicLink to generate the relation for</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: the wiki markup to generate</span>
@@ -11279,8 +11289,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11343,7 +11354,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        get the topic header for the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate a header for</span>
+<span class="sd">            topic (Topic): the topic to generate a header for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the markup to be generated</span>
@@ -11390,8 +11401,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11403,8 +11415,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>output_format(str)</code></td>
+            <td><code>output_format</code></td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11412,7 +11425,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>&#39;svg&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -11486,8 +11499,8 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        get the uml (plantuml) markup for  the given topic</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate a header for</span>
-<span class="sd">            output_format(str): the output format to use - default: svg</span>
+<span class="sd">            topic (Topic): the topic to generate a header for</span>
+<span class="sd">            output_format (str): the output format to use - default: svg</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the plantuml markup to be generated</span>
@@ -11666,7 +11679,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#template</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -11797,8 +11810,9 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>topic(Topic)</code></td>
+            <td><code>topic</code></td>
             <td>
+                  <code><span title="meta.metamodel.Topic">Topic</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -11939,7 +11953,7 @@ e.g. https://wiki.bitplan.com/index.php/List_of_Topics</p>
 <span class="sd">        see https://wiki.bitplan.com/index.php/SiDIFTemplates#template</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            topic(Topic): the topic to generate wiki markup for</span>
+<span class="sd">            topic (Topic): the topic to generate wiki markup for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the generated wiki markup</span>
@@ -13106,9 +13120,9 @@ Returns:
 <span class="sd">        constructor</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            modelElement(modelElement): the modelElement to generate for</span>
-<span class="sd">            target(Target): the target to generate for</span>
-<span class="sd">            debug(bool): if True - enable debugging</span>
+<span class="sd">            modelElement (modelElement): the modelElement to generate for</span>
+<span class="sd">            target (Target): the target to generate for</span>
+<span class="sd">            debug (bool): if True - enable debugging</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modelElement</span> <span class="o">=</span> <span class="n">modelElement</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
@@ -13135,9 +13149,9 @@ Returns:
 <span class="sd">        generate the given cell and store the result to a file in the given target directory</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            target_dir(str): path to the target directory</span>
-<span class="sd">            dryRun(bool): if True do not push the result</span>
-<span class="sd">            withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">            target_dir (str): path to the target directory</span>
+<span class="sd">            dryRun (bool): if True do not push the result</span>
+<span class="sd">            withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            FileGenResult: the generated result</span>
@@ -13163,7 +13177,7 @@ Returns:
 <span class="sd">        generate the markup</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">            withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: the markup</span>
@@ -13186,9 +13200,9 @@ Returns:
 <span class="sd">        Semantic MediaWiki Access</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            smwAccess(SMWAccess): the access to use</span>
-<span class="sd">            dryRun(bool): if True do not push the result</span>
-<span class="sd">            withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">            smwAccess (SMWAccess): the access to use</span>
+<span class="sd">            dryRun (bool): if True do not push the result</span>
+<span class="sd">            withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            MwGenResult:</span>
@@ -13314,8 +13328,9 @@ Returns:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>modelElement(modelElement)</code></td>
+            <td><code>modelElement</code></td>
             <td>
+                  <code><span title="yprinciple.ypcell.YpCell.modelElement">modelElement</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13327,8 +13342,9 @@ Returns:
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>target(Target)</code></td>
+            <td><code>target</code></td>
             <td>
+                  <code><a class="autorefs autorefs-internal" title="yprinciple.target.Target" href="#yprinciple.target.Target">Target</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13340,8 +13356,9 @@ Returns:
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>debug(bool)</code></td>
+            <td><code>debug</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13349,7 +13366,7 @@ Returns:
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
@@ -13379,9 +13396,9 @@ Returns:
 <span class="sd">    constructor</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        modelElement(modelElement): the modelElement to generate for</span>
-<span class="sd">        target(Target): the target to generate for</span>
-<span class="sd">        debug(bool): if True - enable debugging</span>
+<span class="sd">        modelElement (modelElement): the modelElement to generate for</span>
+<span class="sd">        target (Target): the target to generate for</span>
+<span class="sd">        debug (bool): if True - enable debugging</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">modelElement</span> <span class="o">=</span> <span class="n">modelElement</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
@@ -13466,8 +13483,9 @@ Returns:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>withEditor(bool)</code></td>
+            <td><code>withEditor</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13475,7 +13493,7 @@ Returns:
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
@@ -13528,7 +13546,7 @@ Returns:
 <span class="sd">    generate the markup</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">        withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: the markup</span>
@@ -13574,8 +13592,9 @@ Returns:
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>target_dir(str)</code></td>
+            <td><code>target_dir</code></td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13587,8 +13606,9 @@ Returns:
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>dryRun(bool)</code></td>
+            <td><code>dryRun</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13596,12 +13616,13 @@ Returns:
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>True</code>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>withEditor(bool)</code></td>
+            <td><code>withEditor</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13609,7 +13630,7 @@ Returns:
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
@@ -13675,9 +13696,9 @@ Returns:
 <span class="sd">    generate the given cell and store the result to a file in the given target directory</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        target_dir(str): path to the target directory</span>
-<span class="sd">        dryRun(bool): if True do not push the result</span>
-<span class="sd">        withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">        target_dir (str): path to the target directory</span>
+<span class="sd">        dryRun (bool): if True do not push the result</span>
+<span class="sd">        withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        FileGenResult: the generated result</span>
@@ -13730,8 +13751,9 @@ Semantic MediaWiki Access</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>smwAccess(SMWAccess)</code></td>
+            <td><code>smwAccess</code></td>
             <td>
+                  <code><span title="meta.mw.SMWAccess">SMWAccess</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13739,12 +13761,13 @@ Semantic MediaWiki Access</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>dryRun(bool)</code></td>
+            <td><code>dryRun</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13752,12 +13775,13 @@ Semantic MediaWiki Access</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>True</code>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>withEditor(bool)</code></td>
+            <td><code>withEditor</code></td>
             <td>
+                  <code>bool</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -13765,7 +13789,7 @@ Semantic MediaWiki Access</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>False</code>
             </td>
           </tr>
       </tbody>
@@ -13858,9 +13882,9 @@ Semantic MediaWiki Access</p>
 <span class="sd">    Semantic MediaWiki Access</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        smwAccess(SMWAccess): the access to use</span>
-<span class="sd">        dryRun(bool): if True do not push the result</span>
-<span class="sd">        withEditor(bool): if True open Editor when in dry Run mode</span>
+<span class="sd">        smwAccess (SMWAccess): the access to use</span>
+<span class="sd">        dryRun (bool): if True do not push the result</span>
+<span class="sd">        withEditor (bool): if True open Editor when in dry Run mode</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        MwGenResult:</span>
@@ -14319,8 +14343,8 @@ Semantic MediaWiki Access</p>
 <span class="sd">        Setup command line argument parser</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            description(str): the description</span>
-<span class="sd">            version_msg(str): the version message</span>
+<span class="sd">            description (str): the description</span>
+<span class="sd">            version_msg (str): the version message</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ArgumentParser: the argument parser</span>
@@ -14468,8 +14492,9 @@ Semantic MediaWiki Access</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code>description(str)</code></td>
+            <td><code>description</code></td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14481,8 +14506,9 @@ Semantic MediaWiki Access</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>version_msg(str)</code></td>
+            <td><code>version_msg</code></td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -14606,8 +14632,8 @@ Semantic MediaWiki Access</p>
 <span class="sd">    Setup command line argument parser</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        description(str): the description</span>
-<span class="sd">        version_msg(str): the version message</span>
+<span class="sd">        description (str): the description</span>
+<span class="sd">        version_msg (str): the version message</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ArgumentParser: the argument parser</span>
