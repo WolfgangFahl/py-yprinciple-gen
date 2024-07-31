@@ -8,11 +8,11 @@ import os
 import typing
 from dataclasses import dataclass
 
-from meta.metamodel import MetaModelElement
+from meta.metamodel import MetaModelElement, Topic
 from meta.mw import SMWAccess
 from wikibot3rd.wikipush import WikiPush
 
-from yprinciple.editor import Editor
+from ngwidgets.editor import Editor
 from yprinciple.target import Target
 from yprinciple.version import Version
 

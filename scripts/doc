@@ -1,0 +1,17 @@
+#!/bin/bash
+# create docs
+# WF 2024-07-28 - updated
+
+#
+# check mkdocs is installed
+#
+if ! command -v mkdocs &> /dev/null
+then
+  pip install mkdocs mkdocs-material mkdocstrings[python]
+fi
+export PYTHONWARNINGS="ignore::DeprecationWarning"
+mkdocs build
+if [ "$1" = "deploy" ]
+then
+  mkdocs gh-deploy
+fi

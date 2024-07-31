@@ -15,7 +15,7 @@ readme = "README.md"
 license = "Apache-2.0"
 dependencies = [
 		# https://pypi.org/project/ngwidgets/
-		'ngwidgets>=0.16.1',
+		'ngwidgets>=0.16.3',
         # https://pypi.org/project/search-engine-parser/
         'search-engine-parser>=0.6.8',
         # https://pypi.org/project/py-3rdparty-mediawiki/
@@ -59,9 +59,10 @@ test = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = [
-  "yprinciple",
-]
+only-include = ["yprinciple"]
+
+[tool.hatch.build.targets.wheel.sources]
+"yprinciple" = "yprinciple"
 
 [project.scripts]
 ypgen = "yprinciple.ypgen:main"
