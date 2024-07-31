@@ -79,9 +79,9 @@ class YpCell:
         constructor
 
         Args:
-            modelElement(modelElement): the modelElement to generate for
-            target(Target): the target to generate for
-            debug(bool): if True - enable debugging
+            modelElement (modelElement): the modelElement to generate for
+            target (Target): the target to generate for
+            debug (bool): if True - enable debugging
         """
         self.modelElement = modelElement
         self.target = target
@@ -108,9 +108,9 @@ class YpCell:
         generate the given cell and store the result to a file in the given target directory
 
         Args:
-            target_dir(str): path to the target directory
-            dryRun(bool): if True do not push the result
-            withEditor(bool): if True open Editor when in dry Run mode
+            target_dir (str): path to the target directory
+            dryRun (bool): if True do not push the result
+            withEditor (bool): if True open Editor when in dry Run mode
 
         Returns:
             FileGenResult: the generated result
@@ -136,7 +136,7 @@ class YpCell:
         generate the markup
 
         Args:
-            withEditor(bool): if True open Editor when in dry Run mode
+            withEditor (bool): if True open Editor when in dry Run mode
 
         Returns:
             str: the markup
@@ -159,9 +159,9 @@ class YpCell:
         Semantic MediaWiki Access
 
         Args:
-            smwAccess(SMWAccess): the access to use
-            dryRun(bool): if True do not push the result
-            withEditor(bool): if True open Editor when in dry Run mode
+            smwAccess (SMWAccess): the access to use
+            dryRun (bool): if True do not push the result
+            withEditor (bool): if True open Editor when in dry Run mode
 
         Returns:
             MwGenResult:

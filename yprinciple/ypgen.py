@@ -23,8 +23,8 @@ class YPGen(WebserverCmd):
         Setup command line argument parser
 
         Args:
-            description(str): the description
-            version_msg(str): the version message
+            description (str): the description
+            version_msg (str): the version message
 
         Returns:
             ArgumentParser: the argument parser

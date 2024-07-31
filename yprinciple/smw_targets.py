@@ -6,7 +6,7 @@ Created on 2022-11-26
 
 from datetime import datetime
 
-from meta.metamodel import MetaModelElement, Property, Topic, TopicLink
+from meta.metamodel import Property, Topic, TopicLink
 
 import yprinciple.ypcell as ypcell
 from yprinciple.target import Target
@@ -46,7 +46,7 @@ class SMWTarget(Target):
         return the internationalized version of the given text
 
         Args:
-            text(str): the text to internationalize
+            text (str): the text to internationalize
 
         Returns:
             str: the internationalized version of the text
@@ -59,7 +59,7 @@ class SMWTarget(Target):
         get the topic header for the given topic
 
         Args:
-            topic(Topic): the topic to generate a header for
+            topic (Topic): the topic to generate a header for
 
         Returns:
             str: the markup to be generated
@@ -104,13 +104,13 @@ class SMWTarget(Target):
         currentYear = datetime.now().year
         markup = f"""<!--
   --     Copyright (C) 2015-{currentYear} BITPlan GmbH
-  -- 
+  --
   --     Pater-Delp-Str. -- 1
   --     D-47877 -- Willich-Schiefbahn
-  -- 
+  --
   --     http://www.bitplan.com
   --
-  -- 
+  --
 -->"""
         return markup
 
@@ -128,7 +128,7 @@ class SMWTarget(Target):
         create plantuml skin params for BITPlan corporate identity
 
         Args:
-            fontSize(int): the font size to use
+            fontSize (int): the font size to use
 
         Returns:
             str: the wiki markup to be generated
@@ -169,7 +169,7 @@ class SMWTarget(Target):
         generate wiki markup for a TopicLink/relation
 
         Args:
-            topicLink(TopicLink): the topicLink to generate the relation for
+            topicLink (TopicLink): the topicLink to generate the relation for
 
         Returns:
             str: the wiki markup to generate
@@ -184,8 +184,8 @@ class SMWTarget(Target):
         get the uml (plantuml) markup for  the given topic
 
         Args:
-            topic(Topic): the topic to generate a header for
-            output_format(str): the output format to use - default: svg
+            topic (Topic): the topic to generate a header for
+            output_format (str): the output format to use - default: svg
 
         Returns:
             str: the plantuml markup to be generated
@@ -236,7 +236,7 @@ class CategoryTarget(SMWTarget):
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#category
 
         Args:
-            topic(Topic): the topic to generate wiki markup for
+            topic (Topic): the topic to generate wiki markup for
 
         Returns:
             str: the generated wiki markup
@@ -330,7 +330,7 @@ class HelpTarget(SMWTarget):
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#help
 
         Args:
-            topic(Topic): the topic to generate wiki markup for
+            topic (Topic): the topic to generate wiki markup for
 
         Returns:
             str: the generated wiki markup
@@ -375,8 +375,8 @@ class FormTarget(SMWTarget):
         create the SMW pagefomrs markups for the given topic
 
         Args:
-            topic(Topic): the topic to create the markup for
-            isMultiple(bool): True if there are multiple values allowed
+            topic (Topic): the topic to create the markup for
+            isMultiple (bool): True if there are multiple values allowed
         """
         multiple = "|multiple" if isMultiple else ""
         markup = f"""<div id="wikiPreview" style="display: none; padding-bottom: 25px; margin-bottom: 25px; border-bottom: 1px solid #AAAAAA;"></div>
@@ -384,7 +384,7 @@ class FormTarget(SMWTarget):
 ={topic.name}=
 {{{{{{for template|{topic.name}{multiple}}}}}}}
 {{| class="wikitable"
-! colspan='2' | {topic.name} 
+! colspan='2' | {topic.name}
 |-
 """
         for prop in topic.propertiesByIndex():
@@ -439,7 +439,7 @@ class FormTarget(SMWTarget):
         generate the form page for the given topic
 
         Args:
-            topic(Topic): the topic to generate wiki markup for
+            topic (Topic): the topic to generate wiki markup for
 
         Returns:
             str: the generated wiki markup
@@ -449,7 +449,7 @@ class FormTarget(SMWTarget):
 This is the {self.profiWiki()}-Form for "{topic.name}".
 
 Create a new {topic.name} by entering a new pagetitle for a {topic.name}
-into the field below. 
+into the field below.
 
 If you enter an existing {topic.name} pagetitle - you will edit the {topic.name}
 with that pagetitle.
@@ -491,7 +491,7 @@ class ListOfTarget(SMWTarget):
         generate the list of page for the given topic
 
         Args:
-            topic(Topic): the topic to generate wiki markup for
+            topic (Topic): the topic to generate wiki markup for
 
         Returns:
             str: the generated wiki markup
@@ -519,7 +519,7 @@ class TemplateTarget(SMWTarget):
         see https://wiki.bitplan.com/index.php/SiDIFTemplates#template
 
         Args:
-            topic(Topic): the topic to generate wiki markup for
+            topic (Topic): the topic to generate wiki markup for
 
         Returns:
             str: the generated wiki markup
@@ -615,13 +615,13 @@ class PropertyMultiTarget(SMWTarget):
     the Property Multi Target
     """
 
-    def addSubCells(self, ypCell: "YpCell", topic: Topic, debug: bool = False):
+    def addSubCells(self, ypCell: "ypcell.YpCell", topic: Topic, debug: bool = False):
         """
         add the subcells for the given ypCell and topic
 
         Args:
             ypCell: the ypCell
-            topic(Topic): the topic to add subcells for
+            topic (Topic): the topic to add subcells for
         """
         for prop in topic.properties.values():
             subCell = ypcell.YpCell(
@@ -661,7 +661,7 @@ class PropertyTarget(SMWTarget):
         topicWithConcept = f"Concept:{topic_name}"
         markup = f"""{{{{Property
 |name={prop.name}
-|label={prop.label} 
+|label={prop.label}
         """
         if hasattr(prop, "documentation"):
             markup += f"""|documentation={prop.documentation}\n"""
@@ -691,8 +691,8 @@ class PropertyTarget(SMWTarget):
                     markup += f"|{prop_name}={value}\n"
                     # e.g. |index={prop.index}
         markup += f"""|topic={(topicWithConcept)}
-|storemode=prop       
-}}}}      
+|storemode=prop
+}}}}
 * [[Has type::{prop.type}]]
 """
         if hasattr(prop, "formatterURI"):
@@ -744,21 +744,21 @@ class {topic.name}:
     def askQuery(cls):
         """
         get the ask Query for {topic.name}
-        
+
         Returns:
             str: the mediawiki markup for the ask query
         """
         ask="""{topic.askQuery(mainlabel="pageTitle",filterShowInGrid=False,listLimit=10000)}"""
         return ask
-        
+
     @classmethod
     def fromDict(cls,data:dict):
         """
         create a {topic.name} from the given dict
-        
+
         Args:
             data(dict): the dict to create the {topic.name} from
-        
+
         Returns:
             {topic.name}: the freshly created {topic.name}
         """
