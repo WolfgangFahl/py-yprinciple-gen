@@ -460,7 +460,7 @@ class GeneratorGrid:
         """
         total_steps = 0
         for topic_name, topic in context.topics.items():
-            total_steps += len(self.displayTargets())
+            total_steps += len(self.displayTargets())-1
             total_steps += len(topic.properties)
         self.resetProgress("preparing", total=total_steps)
         for topic_name, topic in context.topics.items():
