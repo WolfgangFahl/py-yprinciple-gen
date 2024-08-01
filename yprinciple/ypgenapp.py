@@ -266,7 +266,7 @@ class YPGenApp(InputWebSolution):
         """
         handles switching visibility of size information
         """
-        show_size = msg.checked
+        show_size = msg.sender.value
         self.generatorGrid.set_hide_show_status_of_cell_debug_msg(hidden=not show_size)
 
     def add_context_select(self):
@@ -335,9 +335,7 @@ class YPGenApp(InputWebSolution):
                 self.openEditorButton = ui.switch("open Editor").bind_value(
                     self, "openEditor"
                 )
-                self.hideShowSizeInfo = ui.switch("size info").bind_value(
-                    self, "hideShowSizeInfoState"
-                )
+                self.hideShowSizeInfo = ui.switch("size info").on("click",self.handleHideShowSizeInfo)
             with ui.row() as self.progress_container:
                 self.progressBar = NiceguiProgressbar(
                     total=100, desc="preparing", unit="steps"

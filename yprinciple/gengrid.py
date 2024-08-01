@@ -8,13 +8,12 @@ from typing import Callable, List
 
 from meta.metamodel import Context, Topic
 from ngwidgets.webserver import WebSolution
-from ngwidgets.widgets import HideShow, Link
-from nicegui import ui
+from ngwidgets.widgets import Link
+from nicegui import ui,run
 from nicegui.elements.tooltip import Tooltip
 
 from yprinciple.target import Target
 from yprinciple.ypcell import YpCell
-
 
 class GeneratorGrid:
     """
@@ -39,6 +38,7 @@ class GeneratorGrid:
         self.solution = solution
         self.color_schema = solution.config.color_schema
         self.iconSize = iconSize
+        self.cell_hide_size_info=True
         self.checkboxes = {}
         self.ypcell_by_id = {}
         self.checkbox_by_id = {}
@@ -149,56 +149,64 @@ class GeneratorGrid:
         # generate in order of rows
         for checkbox_row in self.checkboxes.values():
             for checkbox, ypCell in checkbox_row.values():
-                if checkbox.value:
+                if checkbox.value and ypCell.ui_ready:
                     checkedYpCells.append(ypCell)
                 for subCell in ypCell.subCells.values():
-                    checkbox = self.checkbox_by_id[subCell.checkbox_id]
-                    if checkbox.value:
-                        checkedYpCells.append(subCell)
+                    if subCell.ui_ready:
+                        checkbox = self.checkbox_by_id[subCell.checkbox_id]
+                        if checkbox.value:
+                            checkedYpCells.append(subCell)
         return checkedYpCells
+
+    def generateCheckedCells(self,cellsToGen:List[YpCell]):
+        try:
+            # force login
+            self.solution.smwAccess.wikiClient.login()
+            for ypCell in cellsToGen:
+                cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
+                status_div = cell_checkbox.status_div
+                with status_div:
+                    status_div.clear()
+                    status_div.content = ""
+                try:
+                    genResult = ypCell.generateViaMwApi(
+                        smwAccess=self.solution.smwAccess,
+                        dryRun=self.solution.dryRun,
+                        withEditor=self.solution.openEditor,
+                    )
+                    if genResult is not None and cell_checkbox is not None:
+                        delta_color = ""
+                        diff_url = genResult.getDiffUrl()
+                        if diff_url is not None:
+                            if genResult.page_changed():
+                                delta_color = "text-red-500"
+                            else:
+                                delta_color = "text-green-500"
+                        else:
+                            delta_color = "text-gray-500"
+                        with status_div:
+                            link = Link.create(url=diff_url, text="Δ")
+                            _link_html = ui.html(link).classes(
+                                "text-xl font-bold " + delta_color,
+                            )
+                except BaseException as ex:
+                    with status_div:
+                        status_div.content = f"❗ error:{str(ex)}"
+                    self.solution.handle_exception(ex)
+                self.updateProgress()
+        except Exception as outer_ex:
+            self.solution.handle_exception(outer_ex)
+
 
     async def onGenerateButtonClick(self, _msg):
         """
         react on the generate button having been clicked
         """
-        # force login
-        self.solution.smwAccess.wikiClient.login()
         cellsToGen = self.getCheckedYpCells()
-        ui.notify(f"running {len(cellsToGen)} generator tasks")
-        self.solution.progressBar.total=len(cellsToGen)
-        self.solution.progressBar.reset()
-        for ypCell in cellsToGen:
-            cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
-            status_div = cell_checkbox.status_div
-            status_div.content = ""
-            try:
-                genResult = ypCell.generateViaMwApi(
-                    smwAccess=self.solution.smwAccess,
-                    dryRun=self.solution.dryRun,
-                    withEditor=self.solution.openEditor,
-                )
-                self.updateProgress()
-                if genResult is not None and cell_checkbox is not None:
-                    delta_color = ""
-                    diff_url = genResult.getDiffUrl()
-                    if diff_url is not None:
-                        if genResult.page_changed():
-                            delta_color = "text-red-500"
-                        else:
-                            delta_color = "text-green-500"
-                    else:
-                        delta_color = "text-gray-500"
-                    with status_div:
-                        link = Link.create(url=diff_url, text="Δ")
-                        _link_html = ui.html(link).classes(
-                            "text-xl font-bold " + delta_color,
-                        )
-                self.grid.update()
-
-            except BaseException as ex:
-                with status_div:
-                    status_div.content = f"❗ error:{str(ex)}"
-                self.solution.handle_exception(ex)
+        total=len(cellsToGen)
+        ui.notify(f"running {total} generator tasks")
+        self.resetProgress("generating", total)
+        await run.io_bound(self.generateCheckedCells,cellsToGen)
 
     def check_ypcell_box(self, checkbox, ypCell, checked: bool):
         """
@@ -375,16 +383,16 @@ class GeneratorGrid:
             link_html.content = f"{link}{delim}"
             debug_div = ui.html()
             debug_div.content = f"{yp_cell.statusMsg}"
-            hidden = getattr(self, "cell_hide_size_info", True)
-            debug_div.visible = not hidden
+            debug_div.visible = not self.cell_hide_size_info
             status_div = ui.html()
             status_div.content = yp_cell.status
             checkbox.status_div = status_div
             self.cell_debug_msg_divs.append(debug_div)
-        # link ypCell with Checkbox via a unique identifier
+        # link ypCell with check box via a unique identifier
         yp_cell.checkbox_id = checkbox.id
         self.ypcell_by_id[checkbox.id] = checkbox.id
         self.checkbox_by_id[checkbox.id] = checkbox
+        yp_cell.ui_ready=True
         return checkbox
 
     def add_topic_cell(self, topic: Topic):
@@ -407,6 +415,11 @@ class GeneratorGrid:
             )
         topic_icon.style(style)
         return topic_icon
+
+    def resetProgress(self,desc:str,total:int):
+        self.solution.progressBar.desc=desc
+        self.solution.progressBar.total=total
+        self.solution.progressBar.reset()
 
     def updateProgress(self):
         """
@@ -449,8 +462,7 @@ class GeneratorGrid:
         for topic_name, topic in context.topics.items():
             total_steps += len(self.displayTargets())
             total_steps += len(topic.properties)
-        self.solution.progressBar.total=total_steps
-        self.solution.progressBar.reset()
+        self.resetProgress("preparing", total=total_steps)
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
@@ -468,7 +480,6 @@ class GeneratorGrid:
                 if checkbox:
                     checkbox_row[target.name] = (checkbox, ypCell)
             pass
-        self.solution.progressBar.reset()
 
     def set_hide_show_status_of_cell_debug_msg(self, hidden: bool = False):
         """
@@ -476,6 +487,10 @@ class GeneratorGrid:
         Args:
             hidden: If True hide debug messages else show them
         """
-        self.cell_hide_size_info = hidden
-        for div in self.cell_debug_msg_divs:
-            div.visible = not hidden
+        try:
+            self.cell_hide_size_info = hidden
+            for div in self.cell_debug_msg_divs:
+                div.visible = not hidden
+            self.grid.update()
+        except Exception as ex:
+            self.solution.handle_exception(ex)

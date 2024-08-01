@@ -88,6 +88,7 @@ class YpCell:
         self.smwAccess = None
         self.debug = debug
         self.subCells = {}
+        self.ui_ready=False
 
     @classmethod
     def createYpCell(
