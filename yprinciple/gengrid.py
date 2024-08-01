@@ -402,19 +402,33 @@ class GeneratorGrid:
         topic_icon.style(style)
         return topic_icon
 
-    def add_yp_cell(self, ypCell) -> "ui.checkbox":
+    def updateProgress(self):
+        """
+        update the progress
+        """
+        self.solution.progressBar.update(1)
+        self.grid.update()
+
+    def add_yp_cell(self, parent, ypCell:YpCell) -> "ui.checkbox":
         """
         add the given ypCell
         """
         if len(ypCell.subCells) > 0:
             checkbox = None
-            with self.grid:
+            with parent:
+                content_div=ui.row()
                 hide_show = HideShow(
                     show_content=False,
                     hide_show_label=("properties", "properties"),
+                    content_div=content_div
                 )
+            for _subcell_name,subCell in ypCell.subCells.items():
+                checkbox = self.create_check_box_for_cell(subCell, parent=hide_show.content_div)
+                self.updateProgress()
+                pass
         else:
             checkbox = self.create_check_box_for_cell(ypCell, parent=self.grid)
+            self.updateProgress()
         return checkbox
 
     def add_topic_rows(self, context: Context):
@@ -424,22 +438,12 @@ class GeneratorGrid:
         Args:
             context(Context): the context for which do add topic rows
         """
-
-        def updateProgress():
-            """
-            update the progress
-            """
-            percent = progress_steps / total_steps * 100
-            value = round(percent)
-            self.solution.progressBar.update_value(value)
-            self.grid.update()
-
         total_steps = 0
         for topic_name, topic in context.topics.items():
             total_steps += len(self.displayTargets())
             total_steps += len(topic.properties)
-        progress_steps = 0
-        updateProgress()
+        self.solution.progressBar.total=total_steps
+        self.updateProgress()
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]
@@ -452,21 +456,11 @@ class GeneratorGrid:
                     on_change=self.on_select_row,
                 )
             for target in self.displayTargets():
-                progress_steps += 1
                 ypCell = YpCell.createYpCell(target=target, topic=topic)
-                checkbox = self.add_yp_cell(ypCell)
+                checkbox = self.add_yp_cell(parent=self.grid,ypCell=ypCell)
                 if checkbox:
                     checkbox_row[target.name] = (checkbox, ypCell)
-                updateProgress()
             pass
-        # if len(ypCell.subCells) > 0:
-        #            checkbox.on("input", self.onParentCheckboxClick)
-        #            for _prop_name, subCell in ypCell.subCells.items():
-        #                _subCheckBox = self.create_check_box(
-        #                    subCell, parent=prop_div, columns=columns
-        #                )
-        #                progress_steps += 1
-        #                updateProgress()
         self.solution.progressBar.reset()
 
     def set_hide_show_status_of_cell_debug_msg(self, hidden: bool = False):

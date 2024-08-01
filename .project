@@ -4,10 +4,11 @@
 	<comment></comment>
 	<projects>
 		<project>justpy</project>
+		<project>nicegui_widgets</project>
 		<project>py-3rdparty-mediawiki</project>
-		<project>pyJustpyWidgets</project>
 		<project>pyLoDStorage</project>
 		<project>pyMetaModel</project>
+		<project>py-sidif</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>

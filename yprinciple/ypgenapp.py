@@ -38,7 +38,7 @@ class YPGenServer(InputWebserver):
             copy_right=copy_right,
             version=Version(),
             default_port=8778,
-            timeout=6.0,
+            timeout=7.5,
         )
         server_config = WebserverConfig.get(config)
         server_config.solution_class = YPGenApp
@@ -71,8 +71,10 @@ class YPGenApp(InputWebSolution):
         super().__init__(webserver, client)
 
     def clearErrors(self):
-        """ """
-        # just for compatibility
+        """
+        clear log entries
+        """
+        self.log_view.clear()
 
     def prepare_ui(self):
         """
