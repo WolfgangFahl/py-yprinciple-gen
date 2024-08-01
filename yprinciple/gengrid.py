@@ -164,6 +164,9 @@ class GeneratorGrid:
         # force login
         self.solution.smwAccess.wikiClient.login()
         cellsToGen = self.getCheckedYpCells()
+        ui.notify(f"running {len(cellsToGen)} generator tasks")
+        self.solution.progressBar.total=len(cellsToGen)
+        self.solution.progressBar.reset()
         for ypCell in cellsToGen:
             cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
             status_div = cell_checkbox.status_div
@@ -174,6 +177,7 @@ class GeneratorGrid:
                     dryRun=self.solution.dryRun,
                     withEditor=self.solution.openEditor,
                 )
+                self.updateProgress()
                 if genResult is not None and cell_checkbox is not None:
                     delta_color = ""
                     diff_url = genResult.getDiffUrl()
@@ -189,6 +193,8 @@ class GeneratorGrid:
                         _link_html = ui.html(link).classes(
                             "text-xl font-bold " + delta_color,
                         )
+                self.grid.update()
+
             except BaseException as ex:
                 with status_div:
                     status_div.content = f"❗ error:{str(ex)}"
@@ -444,7 +450,7 @@ class GeneratorGrid:
             total_steps += len(self.displayTargets())
             total_steps += len(topic.properties)
         self.solution.progressBar.total=total_steps
-        self.updateProgress()
+        self.solution.progressBar.reset()
         for topic_name, topic in context.topics.items():
             self.checkboxes[topic_name] = {}
             checkbox_row = self.checkboxes[topic_name]

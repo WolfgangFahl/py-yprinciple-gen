@@ -171,10 +171,12 @@ class YPGenApp(InputWebSolution):
         show the grid for generating code
         """
         try:
-            # start with a new generatorGrid
-            self.generatorGrid = GeneratorGrid(
-                self.targets, parent=self.content_div, solution=self
-            )
+            self.grid_container.clear()
+            with self.grid_container:
+                # start with a new generatorGrid
+                self.generatorGrid = GeneratorGrid(
+                    self.targets, parent=self.grid_container, solution=self
+                )
             if self.useSidif:
                 if self.mw_context is not None:
                     context, error, errMsg = Context.fromWikiContext(
@@ -340,6 +342,8 @@ class YPGenApp(InputWebSolution):
                 self.progressBar = NiceguiProgressbar(
                     total=100, desc="preparing", unit="steps"
                 )
+            with ui.row() as self.grid_container:
+                pass
 
     async def load_home_page(self):
         """
