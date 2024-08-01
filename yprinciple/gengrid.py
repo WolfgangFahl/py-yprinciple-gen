@@ -416,14 +416,15 @@ class GeneratorGrid:
         if len(ypCell.subCells) > 0:
             checkbox = None
             with parent:
-                content_div=ui.row()
-                hide_show = HideShow(
-                    show_content=False,
-                    hide_show_label=("properties", "properties"),
-                    content_div=content_div
-                )
+                #content_div=ui.row()
+                hide_show= ui.expansion('', icon='format_list_bulleted').classes('w-full')
+                #hide_show = HideShow(
+                #    show_content=False,
+                #    hide_show_label=("properties", "properties"),
+                #    content_div=content_div
+                #)
             for _subcell_name,subCell in ypCell.subCells.items():
-                checkbox = self.create_check_box_for_cell(subCell, parent=hide_show.content_div)
+                checkbox = self.create_check_box_for_cell(subCell, parent=hide_show)
                 self.updateProgress()
                 pass
         else:
