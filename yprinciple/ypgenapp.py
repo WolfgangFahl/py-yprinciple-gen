@@ -116,9 +116,9 @@ class YPGenApp(InputWebSolution):
             args = self.args
         with self.content_div:
             ui.notify("preparing Generator")
-        self.setGeneratorEnvironmentFromAgs(args)
+        self.setGeneratorEnvironmentFromArgs(args)
 
-    def setGeneratorEnvironmentFromAgs(self, args):
+    def setGeneratorEnvironmentFromArgs(self, args):
         """
         set my generator environment from the given command line arguments
         """
@@ -138,8 +138,7 @@ class YPGenApp(InputWebSolution):
         """
         self.mw_contexts = self.genapi.mw_contexts
         mw_context = self.mw_contexts.get(self.context_name, None)
-        if mw_context is not None:
-            self.setContext(mw_context)
+        self.setContext(mw_context)
 
     def setContext(self, mw_context):
         """
@@ -201,10 +200,11 @@ class YPGenApp(InputWebSolution):
         via a Select control
         """
         try:
+            wikiId=e.value
             self.clearErrors()
             # change wikiUser
-            self.args.wikiId = e.value
-            self.setGeneratorEnvironmentFromAgs(self.args)
+            self.args.wikiId = wikiId
+            await run.io_bound(self.setGeneratorEnvironmentFromArgs,self.args)
             await self.update_context_select()
         except BaseException as ex:
             self.handle_exception(ex)
@@ -219,6 +219,7 @@ class YPGenApp(InputWebSolution):
             self.context_name = msg.value
             self.mw_context = self.mw_contexts.get(self.context_name, None)
             self.setContext(self.mw_context)
+            self.update_context_link()
             await self.async_showGenerateGrid()
         except BaseException as ex:
             self.handle_exception(ex)
@@ -292,16 +293,25 @@ class YPGenApp(InputWebSolution):
         """
         if self.mw_context is not None:
             url = self.mw_context.sidif_url()
+            link = Link.create(url, text=self.context_name)
+            self.context_link.content = link
         else:
-            url = "?"
-        link = Link.create(url, text=self.context_name)
-        self.context_link.content = link
+            self.context_link.content = "?"
+
+        self.context_link.update()
+        pass
 
     async def update_context_select(self):
         """
         react on update of context select
         """
         self.update_context_link()
+        context_selection = list(self.mw_contexts.keys())
+        self.context_select.options=context_selection
+        if self.context_name in context_selection:
+            self.context_select.value=self.context_name
+        self.context_select.update()
+        self.grid_container.clear()
         pass
 
     def configure_settings(self):
