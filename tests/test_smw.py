@@ -13,7 +13,6 @@ from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
 
-
 class TestSMW(BaseSemanticMediawikiTest):
     """
     test Semantic MediaWiki handling
@@ -54,8 +53,8 @@ class TestSMW(BaseSemanticMediawikiTest):
         """
         debug = self.debug
         debug = True
-        smwAccess, context = self.getContext("cr", "CrSchema", debug)
-        topic = context.topics["City"]
+        cc = self.getContextContext("cr", "CrSchema")
+        topic = cc.context.topics["City"]
         withEditor = not self.inPublicCI()
         withEditor = False
         for target_key in [
@@ -70,7 +69,7 @@ class TestSMW(BaseSemanticMediawikiTest):
             smwTarget = SMWTarget.getSMWTargets()[target_key]
             ypCell = YpCell.createYpCell(target=smwTarget, topic=topic, debug=debug)
             genResult = ypCell.generateViaMwApi(
-                smwAccess=smwAccess, dryRun=True, withEditor=withEditor
+                smwAccess=cc.smwAccess, dryRun=True, withEditor=withEditor
             )
             if genResult:
                 markup_diff = genResult.markup_diff
