@@ -29,6 +29,19 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
             self.getWikiUser(wikiId, save=True)
             self.ccs[wikiId] = self.getContextContext(wikiId, context_name)
 
+    def testTemplate(self):
+        """
+        """
+        show = self.debug
+        # show=True
+        cc = self.ccs["cr"]
+        for gr in cc.get_markup(
+            topic_names=["Event"], target_keys=["template"], show=show
+        ):
+            self.assertTrue(
+                "</pre>" in gr.markup
+            )
+
     def test_Issue13_ExternalIdentifer_Link_handling(self):
         """
         show Links for external Identifiers in templates

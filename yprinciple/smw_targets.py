@@ -533,8 +533,9 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 """
         for prop in topic.properties.values():
             markup += f"|{prop.name}=\n"
-        markup += f"""|storemode=property or subjobject or none"
+        markup += f"""|storemode=property or subobject or none"
 }}}}
+</pre>
 [[Category:Template]]
 </noinclude><includeonly>{{{{#switch:{{{{{{storemode|}}}}}}
 |none=
