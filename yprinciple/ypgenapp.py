@@ -200,11 +200,11 @@ class YPGenApp(InputWebSolution):
         via a Select control
         """
         try:
-            wikiId=e.value
+            wikiId = e.value
             self.clearErrors()
             # change wikiUser
             self.args.wikiId = wikiId
-            await run.io_bound(self.setGeneratorEnvironmentFromArgs,self.args)
+            await run.io_bound(self.setGeneratorEnvironmentFromArgs, self.args)
             await self.update_context_select()
         except BaseException as ex:
             self.handle_exception(ex)
@@ -307,9 +307,9 @@ class YPGenApp(InputWebSolution):
         """
         self.update_context_link()
         context_selection = list(self.mw_contexts.keys())
-        self.context_select.options=context_selection
+        self.context_select.options = context_selection
         if self.context_name in context_selection:
-            self.context_select.value=self.context_name
+            self.context_select.value = self.context_name
         self.context_select.update()
         self.grid_container.clear()
         pass
@@ -345,7 +345,9 @@ class YPGenApp(InputWebSolution):
                 self.openEditorButton = ui.switch("open Editor").bind_value(
                     self, "openEditor"
                 )
-                self.hideShowSizeInfo = ui.switch("size info").on("click",self.handleHideShowSizeInfo)
+                self.hideShowSizeInfo = ui.switch("size info").on(
+                    "click", self.handleHideShowSizeInfo
+                )
             with ui.row() as self.progress_container:
                 self.progressBar = NiceguiProgressbar(
                     total=100, desc="preparing", unit="steps"

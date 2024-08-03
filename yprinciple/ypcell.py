@@ -10,9 +10,9 @@ from dataclasses import dataclass
 
 from meta.metamodel import MetaModelElement, Topic
 from meta.mw import SMWAccess
+from ngwidgets.editor import Editor
 from wikibot3rd.wikipush import WikiPush
 
-from ngwidgets.editor import Editor
 from yprinciple.target import Target
 from yprinciple.version import Version
 
@@ -88,7 +88,7 @@ class YpCell:
         self.smwAccess = None
         self.debug = debug
         self.subCells = {}
-        self.ui_ready=False
+        self.ui_ready = False
 
     @classmethod
     def createYpCell(

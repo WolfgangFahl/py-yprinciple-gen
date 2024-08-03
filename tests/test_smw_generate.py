@@ -5,9 +5,9 @@ Created on 2023-01-18
 """
 
 import os
+
 from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.genapi import GeneratorAPI
-
 from yprinciple.ypcell import FileGenResult, MwGenResult
 from yprinciple.ypgen import YPGen
 from yprinciple.ypgenapp import YPGenServer
@@ -20,12 +20,12 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
 
     def setUp(self, debug=False, profile=True):
         BaseSemanticMediawikiTest.setUp(self, debug=debug, profile=profile)
-        context_dict={
-            "cr":"CrSchema",
-            "wiki":"MetaModel",
+        context_dict = {
+            "cr": "CrSchema",
+            "wiki": "MetaModel",
         }
-        self.ccs={}
-        for wikiId,context_name in context_dict.items():
+        self.ccs = {}
+        for wikiId, context_name in context_dict.items():
             self.getWikiUser(wikiId, save=True)
             self.ccs[wikiId] = self.getContextContext(wikiId, context_name)
 
@@ -35,19 +35,23 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
         """
         show = self.debug
-        #show=True
-        cc=self.ccs["cr"]
-        for gr in cc.get_markup(topic_names=["Event"],target_keys=["template"],show=show):
-            self.assertTrue("{{#show: {{FULLPAGENAME}}|?Event wikidataid}}" in gr.markup)
+        # show=True
+        cc = self.ccs["cr"]
+        for gr in cc.get_markup(
+            topic_names=["Event"], target_keys=["template"], show=show
+        ):
+            self.assertTrue(
+                "{{#show: {{FULLPAGENAME}}|?Event wikidataid}}" in gr.markup
+            )
 
     def test_Issue12_TopicLink_handling(self):
         """
         test Topic link handling
         """
         show = self.debug
-        #show=True
-        cc=self.ccs["cr"]
-        for gr in cc.get_markup(topic_names=["Event"],target_keys=["form"], show=show):
+        # show=True
+        cc = self.ccs["cr"]
+        for gr in cc.get_markup(topic_names=["Event"], target_keys=["form"], show=show):
             expected = "{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
             self.assertTrue(expected in gr.markup)
 
@@ -59,10 +63,12 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         refactor viewmode "masterdetail"
 
         """
-        cc=self.ccs["wiki"]
-        #show = self.debug
-        show=True
-        for gr in cc.get_markup(topic_names=["Context"],target_keys=["template"],show=show):
+        cc = self.ccs["wiki"]
+        # show = self.debug
+        show = True
+        for gr in cc.get_markup(
+            topic_names=["Context"], target_keys=["template"], show=show
+        ):
             expected_parts = [
                 "= topics =",
                 "{{#ask:[[Concept:Topic]][[Topic context::{{FULLPAGENAME}}]]",
@@ -76,10 +82,12 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         1:N relation using TopicLink separator
 
         """
-        cc=self.ccs["cr"]
+        cc = self.ccs["cr"]
         show = self.debug
-        #show=True
-        for gr in cc.get_markup(topic_names=["Paper"],target_keys=["template"],show=show):
+        # show=True
+        for gr in cc.get_markup(
+            topic_names=["Paper"], target_keys=["template"], show=show
+        ):
             expected_parts = [
                 "|Paper authors={{{authors|}}}|+sep=,",
                 "{{!}}&nbsp;{{#if:{{{authors|}}}|{{{authors}}}|}}→{{#show: {{FULLPAGENAME}}|?Paper authors}}",

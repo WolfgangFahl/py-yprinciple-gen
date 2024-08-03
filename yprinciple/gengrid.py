@@ -9,11 +9,12 @@ from typing import Callable, List
 from meta.metamodel import Context, Topic
 from ngwidgets.webserver import WebSolution
 from ngwidgets.widgets import Link
-from nicegui import ui,run
+from nicegui import run, ui
 from nicegui.elements.tooltip import Tooltip
 
 from yprinciple.target import Target
 from yprinciple.ypcell import YpCell
+
 
 class GeneratorGrid:
     """
@@ -38,7 +39,7 @@ class GeneratorGrid:
         self.solution = solution
         self.color_schema = solution.config.color_schema
         self.iconSize = iconSize
-        self.cell_hide_size_info=True
+        self.cell_hide_size_info = True
         self.checkboxes = {}
         self.ypcell_by_id = {}
         self.checkbox_by_id = {}
@@ -158,7 +159,7 @@ class GeneratorGrid:
                             checkedYpCells.append(subCell)
         return checkedYpCells
 
-    def generateCheckedCells(self,cellsToGen:List[YpCell]):
+    def generateCheckedCells(self, cellsToGen: List[YpCell]):
         try:
             # force login
             self.solution.smwAccess.wikiClient.login()
@@ -197,16 +198,15 @@ class GeneratorGrid:
         except Exception as outer_ex:
             self.solution.handle_exception(outer_ex)
 
-
     async def onGenerateButtonClick(self, _msg):
         """
         react on the generate button having been clicked
         """
         cellsToGen = self.getCheckedYpCells()
-        total=len(cellsToGen)
+        total = len(cellsToGen)
         ui.notify(f"running {total} generator tasks")
         self.resetProgress("generating", total)
-        await run.io_bound(self.generateCheckedCells,cellsToGen)
+        await run.io_bound(self.generateCheckedCells, cellsToGen)
 
     def check_ypcell_box(self, checkbox, ypCell, checked: bool):
         """
@@ -392,7 +392,7 @@ class GeneratorGrid:
         yp_cell.checkbox_id = checkbox.id
         self.ypcell_by_id[checkbox.id] = checkbox.id
         self.checkbox_by_id[checkbox.id] = checkbox
-        yp_cell.ui_ready=True
+        yp_cell.ui_ready = True
         return checkbox
 
     def add_topic_cell(self, topic: Topic):
@@ -416,9 +416,9 @@ class GeneratorGrid:
         topic_icon.style(style)
         return topic_icon
 
-    def resetProgress(self,desc:str,total:int):
-        self.solution.progressBar.desc=desc
-        self.solution.progressBar.total=total
+    def resetProgress(self, desc: str, total: int):
+        self.solution.progressBar.desc = desc
+        self.solution.progressBar.total = total
         self.solution.progressBar.reset()
 
     def updateProgress(self):
@@ -428,21 +428,23 @@ class GeneratorGrid:
         self.solution.progressBar.update(1)
         self.grid.update()
 
-    def add_yp_cell(self, parent, ypCell:YpCell) -> "ui.checkbox":
+    def add_yp_cell(self, parent, ypCell: YpCell) -> "ui.checkbox":
         """
         add the given ypCell
         """
         if len(ypCell.subCells) > 0:
             checkbox = None
             with parent:
-                #content_div=ui.row()
-                hide_show= ui.expansion('', icon='format_list_bulleted').classes('w-full')
-                #hide_show = HideShow(
+                # content_div=ui.row()
+                hide_show = ui.expansion("", icon="format_list_bulleted").classes(
+                    "w-full"
+                )
+                # hide_show = HideShow(
                 #    show_content=False,
                 #    hide_show_label=("properties", "properties"),
                 #    content_div=content_div
-                #)
-            for _subcell_name,subCell in ypCell.subCells.items():
+                # )
+            for _subcell_name, subCell in ypCell.subCells.items():
                 checkbox = self.create_check_box_for_cell(subCell, parent=hide_show)
                 self.updateProgress()
                 pass
@@ -460,7 +462,7 @@ class GeneratorGrid:
         """
         total_steps = 0
         for topic_name, topic in context.topics.items():
-            total_steps += len(self.displayTargets())-1
+            total_steps += len(self.displayTargets()) - 1
             total_steps += len(topic.properties)
         self.resetProgress("preparing", total=total_steps)
         for topic_name, topic in context.topics.items():
@@ -476,7 +478,7 @@ class GeneratorGrid:
                 )
             for target in self.displayTargets():
                 ypCell = YpCell.createYpCell(target=target, topic=topic)
-                checkbox = self.add_yp_cell(parent=self.grid,ypCell=ypCell)
+                checkbox = self.add_yp_cell(parent=self.grid, ypCell=ypCell)
                 if checkbox:
                     checkbox_row[target.name] = (checkbox, ypCell)
             pass

@@ -13,6 +13,7 @@ from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import YpCell
 
+
 class TestSMW(BaseSemanticMediawikiTest):
     """
     test Semantic MediaWiki handling
