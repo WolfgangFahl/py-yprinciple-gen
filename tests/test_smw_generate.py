@@ -20,21 +20,36 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
 
     def setUp(self, debug=False, profile=True):
         BaseSemanticMediawikiTest.setUp(self, debug=debug, profile=profile)
-        context_dict = {
-            "cr": "CrSchema",
-            "wiki": "MetaModel",
+        contexts = {
+            "cr": ["CrSchema",
+                   "CrSchema24-08"
+                   ],
+            "wiki": ["MetaModel"],
         }
         self.ccs = {}
-        for wikiId, context_name in context_dict.items():
+        for wikiId, context_names in contexts.items():
             self.getWikiUser(wikiId, save=True)
-            self.ccs[wikiId] = self.getContextContext(wikiId, context_name)
+            for context_name in context_names:
+                self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(wikiId, context_name)
 
-    def testTemplate(self):
+    def testInheritance(self):
         """
         """
         show = self.debug
+        show=True
+        cc = self.ccs["cr-CrSchema24-08"]
+        for gr in cc.get_markup(
+            topic_names=["Event"], target_keys=["concept"], show=show
+        ):
+            pass
+
+    def testTemplate(self):
+        """
+        test the template handling
+        """
+        show = self.debug
         # show=True
-        cc = self.ccs["cr"]
+        cc = self.ccs["cr-CrSchema"]
         for gr in cc.get_markup(
             topic_names=["Event"], target_keys=["template"], show=show
         ):
@@ -49,7 +64,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         show = self.debug
         # show=True
-        cc = self.ccs["cr"]
+        cc = self.ccs["cr-CrSchema"]
         for gr in cc.get_markup(
             topic_names=["Event"], target_keys=["template"], show=show
         ):
@@ -63,7 +78,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         show = self.debug
         # show=True
-        cc = self.ccs["cr"]
+        cc = self.ccs["cr-CrSchema"]
         for gr in cc.get_markup(topic_names=["Event"], target_keys=["form"], show=show):
             expected = "{{{field|city|property=Event city|input type=dropdown|values from concept=City}}}"
             self.assertTrue(expected in gr.markup)
@@ -76,7 +91,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         refactor viewmode "masterdetail"
 
         """
-        cc = self.ccs["wiki"]
+        cc = self.ccs["wiki-MetaModel"]
         # show = self.debug
         show = True
         for gr in cc.get_markup(

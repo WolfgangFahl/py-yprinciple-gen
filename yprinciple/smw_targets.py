@@ -289,6 +289,7 @@ class ConceptTarget(SMWTarget):
         markup = f"""{{{{Topic
 |name={topic.name}
 |pluralName={topic.getPluralName()}
+|extends={topic.extends}
 |icon={topic.icon}
 |iconUrl={topic.iconUrl}
 |documentation={topic.documentation}
