@@ -314,10 +314,11 @@ class ConceptTarget(SMWTarget):
             if hasattr(topic, "conceptProperty")
             else f"""[[Category:{topic.name}]]"""
         )
+        extends_markup=f" extends {topic.extends} " if hasattr(topic,"extends") else ""
         markup = f"""{{{{Topic
 |name={topic.name}
 |pluralName={topic.getPluralName()}
-|extends={topic.extends}
+|extends={extends_markup}
 |icon={topic.icon}
 |iconUrl={topic.iconUrl}
 |documentation={topic.documentation}

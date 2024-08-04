@@ -28,7 +28,7 @@ class TestSMW(BaseSemanticMediawikiTest):
         """
         test ypCell
         """
-        debug = True
+        debug = self.debug
         smwAccess = SMWAccess("ceur-ws", debug=debug)
         counter = Counter()
         for mw_context in smwAccess.getMwContexts().values():
@@ -53,7 +53,7 @@ class TestSMW(BaseSemanticMediawikiTest):
         test the generate functionality
         """
         debug = self.debug
-        debug = True
+        #debug = True
         cc = self.getContextContext("cr", "CrSchema")
         topic = cc.context.topics["City"]
         withEditor = not self.inPublicCI()
