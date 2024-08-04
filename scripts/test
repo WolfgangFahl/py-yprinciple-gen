@@ -113,6 +113,9 @@ do
       usage
       exit 0
       ;;
+    -now)
+      export PYTHONWARNINGS="ignore::DeprecationWarning"
+      ;;
     -g|--green)
       check_package green
       green tests -s 1
@@ -128,5 +131,6 @@ do
       exit 0
       ;;
   esac
+  shift
 done
 python3 -m unittest discover

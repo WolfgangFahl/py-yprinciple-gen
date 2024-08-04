@@ -94,8 +94,8 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
 
         """
         cc = self.ccs["wiki-MetaModel"]
-        # show = self.debug
-        show = True
+        show = self.debug
+        #show = True
         for gr in cc.get_markup(
             topic_names=["Context"], target_keys=["template"], show=show
         ):
@@ -112,7 +112,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         1:N relation using TopicLink separator
 
         """
-        cc = self.ccs["cr"]
+        cc = self.ccs["cr-CrSchema"]
         show = self.debug
         # show=True
         for gr in cc.get_markup(
