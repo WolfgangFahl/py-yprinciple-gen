@@ -166,7 +166,7 @@ class GeneratorGrid:
                 ex=self.solution.smwAccess.wikiClient.try_login()
                 if ex:
                     self.solution.handle_exception(ex)
-                return
+                    return
             for ypCell in cellsToGen:
                 cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
                 status_div = cell_checkbox.status_div
