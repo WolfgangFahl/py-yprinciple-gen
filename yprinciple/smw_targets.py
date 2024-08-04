@@ -88,8 +88,11 @@ class SMWTarget(Target):
 * [[:Form:{topic.name}]]
 """
         topicLinks = topic.targetTopicLinks.values()
-        if len(topicLinks) > 0:
-            markup += "topic links:\n" ""
+        extends_topics=topic.get_extends_topics()
+        if len(topicLinks)+len(extends_topics) > 0:
+            markup += "related topics:\n" ""
+            for extends_topic in extends_topics:
+                markup += f"* [[Concept:{extends_topic.name}]]\n"
             for topicLink in topicLinks:
                 markup += f"* [[Concept:{topicLink.targetTopic.name}]]\n"
         return markup
@@ -179,30 +182,30 @@ class SMWTarget(Target):
         markup = f"""{topicLink.source} "{topicLink.sourceRole} ({sourceMany})" -- "{topicLink.targetRole}({targetMany})" {topicLink.target}\n"""
         return markup
 
-    def uml(self, title: str, topic: "Topic", output_format: str = "svg") -> str:
+    def plantUmlClass(self,topic: "Topic")->str:
         """
-        get the uml (plantuml) markup for  the given topic
+          get the plantuml markup for the given topic
 
-        Args:
-            topic (Topic): the topic to generate a header for
-            output_format (str): the output format to use - default: svg
+          Args:
+            topic (Topic): the topic to generate uml for
 
-        Returns:
+          Returns:
             str: the plantuml markup to be generated
 
         """
-        currentYear = datetime.now().year
-        markup = f"""=== {title} ===
-<uml format='{output_format}'>
-title {topic.name}
-note as {topic.name}DiagramNote
-Copyright (c) 2015-{currentYear} BITPlan GmbH
-[[http://www.bitplan.com]]
-end note
-note as {topic.name}Note
+        markup=""
+        extends=getattr(topic, "extends",None)
+        extends_markup=f" extends {extends} " if extends else ""
+        # recursive inheritance
+        if extends:
+            extends_topic=topic.context_obj.lookupTopic(extends,purpose=extends_markup)
+            if extends_topic:
+                markup+=self.plantUmlClass(extends_topic)
+
+        markup += f"""note as {topic.name}Note
 {topic.documentation}
 end note
-class {topic.name} {{
+class {topic.name}{extends_markup} {{
 """
         for prop in topic.properties.values():
             prop_type = getattr(prop, "type", "Text")
@@ -215,6 +218,31 @@ class {topic.name} {{
             markup += f"{self.plantUmlRelation(topicLink)}"
         for topicLink in topic.targetTopicLinks.values():
             markup += f"{self.plantUmlRelation(topicLink)}"
+        return markup
+
+    def uml(self, title: str, topic: "Topic", output_format: str = "svg") -> str:
+        """
+        get the full uml (plantuml) markup for  the given topic
+
+        Args:
+            topic (Topic): the topic to generate uml for
+            output_format (str): the output format to use - default: svg
+
+        Returns:
+            str: the plantuml markup to be generated
+
+        """
+        currentYear = datetime.now().year
+
+        markup = f"""=== {title} ===
+<uml format='{output_format}'>
+title {topic.name}
+note as {topic.name}DiagramNote
+Copyright (c) 2015-{currentYear} BITPlan GmbH
+[[http://www.bitplan.com]]
+end note
+"""
+        markup+=self.plantUmlClass(topic)
         markup += f"""{self.bitplanumlci(12)}
 </uml>"""
         return markup

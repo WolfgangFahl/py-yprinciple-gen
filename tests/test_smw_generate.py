@@ -34,13 +34,15 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
 
     def testInheritance(self):
         """
+        test inheritance
         """
         show = self.debug
-        show=True
+        #show=True
         cc = self.ccs["cr-CrSchema24-08"]
         for gr in cc.get_markup(
             topic_names=["Event"], target_keys=["concept"], show=show
         ):
+            self.assertTrue("Event extends" in gr.markup)
             pass
 
     def testTemplate(self):
