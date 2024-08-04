@@ -162,7 +162,11 @@ class GeneratorGrid:
     def generateCheckedCells(self, cellsToGen: List[YpCell]):
         try:
             # force login
-            self.solution.smwAccess.wikiClient.login()
+            if not self.solution.smwAccess.wikiClient._is_logged_in:
+                ex=self.solution.smwAccess.wikiClient.try_login()
+                if ex:
+                    self.solution.handle_exception(ex)
+                return
             for ypCell in cellsToGen:
                 cell_checkbox = self.checkbox_by_id.get(ypCell.checkbox_id, None)
                 status_div = cell_checkbox.status_div

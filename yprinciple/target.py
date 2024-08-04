@@ -3,7 +3,7 @@ Created on 2022-11-25
 
 @author: wf
 """
-
+from meta.metamodel import Topic
 
 class Target:
     """
@@ -20,15 +20,16 @@ class Target:
     ):
         """
         constructor
-        name(str): the name of the target
-        icon_name(str): the icon_name of the target
+        name (str): the name of the target
+        icon_name (str): the icon_name of the target
         is_multi(bool): if True this target creates a list of results (has subtargets)
-        showInGrid(bool): if True this target is to be shown in the generator Grid
+        showInGrid (bool): if True this target is to be shown in the generator Grid
 
         """
         self.name = name
         self.icon_name = icon_name
         self.is_multi = is_multi
+        self.is_subtarget = is_subtarget
         self.showInGrid = showInGrid
         self.subTarget = None
 
@@ -45,7 +46,7 @@ class Target:
 
         Args:
             modelElement:
-            purpose(str): the purpose e.g. Help/Category ...
+            purpose (str): the purpose e.g. Help/Category ...
 
         Returns:
             str: a file name
@@ -60,7 +61,4 @@ class Target:
         return filename
 
     def generate(self, topic: "Topic") -> str:
-        """
-        generate a result for the given topic
-        """
         raise Exception(f"No generator available for target {self.name}")
