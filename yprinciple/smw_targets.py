@@ -577,7 +577,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 <pre>{{{{{topic.name}
 """
         all_properties=topic.get_all_properties()
-        for prop in all_properties():
+        for prop in all_properties:
             markup += f"|{prop.name}=\n"
         markup += f"""|storemode=property or subobject or none"
 }}}}
