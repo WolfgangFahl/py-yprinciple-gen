@@ -551,7 +551,7 @@ class TemplateTarget(SMWTarget):
         """
         markup=f"""{{{{{topic.name}\n"""
         for prop in topic.properties.values():
-            markup+=f"""|{prop.name}name={{{{{{{prop.name}|}}}}}}\n"""
+            markup+=f"""|{prop.name}={{{{{{{prop.name}|}}}}}}\n"""
         markup+="""|storemode={{{storemode|}}}
 |viewmode={{{viewmode|}}}
 }}"""
