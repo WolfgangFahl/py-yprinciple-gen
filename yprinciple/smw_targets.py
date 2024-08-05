@@ -542,7 +542,22 @@ class TemplateTarget(SMWTarget):
     the template Target
     """
 
-    def generate(self, topic: "Topic") -> str:
+    def generateTopicCall(self,topic:Topic)->str:
+        """
+        generate the markup for the template call of the given topic
+
+        Args:
+            topic (Topic): the topic to generate wiki markup for
+        """
+        markup=f"""{{{{{topic.name}\n"""
+        for prop in topic.properties.values():
+            markup+=f"""|{prop.name}name={{{{{{{prop.name}|}}}}}}\n"""
+        markup+="""|storemode={{{storemode|}}}
+|viewmode={{{viewmode|}}}
+}}"""
+        return markup
+
+    def generate(self, topic: Topic) -> str:
         """
         generate a template for the given topic
 
@@ -561,13 +576,18 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 === Usage ===
 <pre>{{{{{topic.name}
 """
-        for prop in topic.properties.values():
+        all_properties=topic.get_all_properties()
+        for prop in all_properties():
             markup += f"|{prop.name}=\n"
         markup += f"""|storemode=property or subobject or none"
 }}}}
 </pre>
 [[Category:Template]]
-</noinclude><includeonly>{{{{#switch:{{{{{{storemode|}}}}}}
+</noinclude><includeonly>"""
+        extends_topics=topic.get_extends_topics()
+        for extends_topic in extends_topics:
+            markup=self.generateTopicCall(extends_topic)
+        markup+="""{{{{#switch:{{{{{{storemode|}}}}}}
 |none=
 |subobject={{{{#subobject:-
 |isA={topic.name}
