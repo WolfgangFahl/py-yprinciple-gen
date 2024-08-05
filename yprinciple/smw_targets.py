@@ -309,11 +309,6 @@ class ConceptTarget(SMWTarget):
         Returns:
             str: the generated wiki markup
         """
-        conceptClause = (
-            f"""[[{topic.name} {topic.conceptProperty.name}::+]]"""
-            if hasattr(topic, "conceptProperty")
-            else f"""[[Category:{topic.name}]]"""
-        )
         extends_markup=f" extends {topic.extends} " if hasattr(topic,"extends") else ""
         markup = f"""{{{{Topic
 |name={topic.name}
@@ -338,9 +333,8 @@ class ConceptTarget(SMWTarget):
 {topic.wikiDocumentation}
 {self.uml("uml",topic)}
 
-{{{{#concept:
-{conceptClause}
- |{topic.pluralName}
+{{{{#concept:[[isA:{topic.name}]]
+|{topic.wikiDocumentation}
 {self.seealso(topic)}
 }}}}
 [[Category:{topic.name}]]

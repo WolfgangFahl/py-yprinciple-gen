@@ -77,6 +77,7 @@ class BaseSemanticMediawikiTest(BaseMediawikiTest):
             ignoreExceptions(bool): if True only print out a warning other wise raise exception
         """
         mw_contexts = {}
+        smwAccess=None
         try:
             smwAccess = SMWAccess(wikiId, debug=self.debug)
             mw_contexts = smwAccess.getMwContexts()
