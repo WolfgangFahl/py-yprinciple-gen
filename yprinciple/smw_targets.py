@@ -333,7 +333,7 @@ class ConceptTarget(SMWTarget):
 {topic.wikiDocumentation}
 {self.uml("uml",topic)}
 
-{{{{#concept:[[isA:{topic.name}]]
+{{{{#concept:[[isA::{topic.name}]]
 |{topic.wikiDocumentation}
 {self.seealso(topic)}
 }}}}
