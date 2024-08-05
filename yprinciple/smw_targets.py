@@ -255,7 +255,7 @@ class CategoryTarget(SMWTarget):
     see https://wiki.bitplan.com/index.php/SiDIFTemplates#category
     """
 
-    def generate(self, topic: "Topic") -> str:
+    def generate(self, topic: Topic) -> str:
         """
         generate a category page for the given topic
 
@@ -286,7 +286,10 @@ class CategoryTarget(SMWTarget):
         for prop in topic.properties.values():
             markup += f"* [[Property:{topic.name} {prop.name}]]\n"
         markup += """</div>
-</div>"""
+</div>
+"""
+        if hasattr(topic, "extends") and topic.extends:
+            markup+=f"""[[Category:{topic.extends}]]\n"""
         return markup
 
 
