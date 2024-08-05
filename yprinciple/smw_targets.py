@@ -587,7 +587,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
         extends_topics=topic.get_extends_topics()
         for extends_topic in extends_topics:
             markup+=self.generateTopicCall(extends_topic)
-        markup+="""{{{{#switch:{{{{{{storemode|}}}}}}
+        markup+=f"""{{{{#switch:{{{{{{storemode|}}}}}}
 |none=
 |subobject={{{{#subobject:-
 |isA={topic.name}
