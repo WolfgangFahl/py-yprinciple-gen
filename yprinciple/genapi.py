@@ -82,7 +82,7 @@ class GeneratorAPI:
         self.mw_context = self.mw_contexts.get(context_name, None)
         if not self.mw_context:
             self.context = None
-            self.errmsg = f"Could not read context {context_name} from {wikiId}"
+            self.errmsg = f"Could not read context {context_name} from {wikiId}: {self.errmsg}"
             self.error = Exception(self.errmsg)
         else:
             self.context, self.error, self.errMsg = Context.fromWikiContext(

@@ -318,7 +318,7 @@ class ConceptTarget(SMWTarget):
 |pluralName={topic.getPluralName()}
 |extends={extends_markup}
 |icon={topic.icon}
-|iconUrl={topic.iconUrl}
+|iconUrl={getattr(topic,"iconUrl","")}
 |documentation={topic.documentation}
 |wikiDocumentation={topic.wikiDocumentation}
 |defaultstoremode={topic.defaultstoremode}
