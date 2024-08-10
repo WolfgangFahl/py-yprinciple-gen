@@ -50,7 +50,7 @@ class GeneratorAPI:
         gen = GeneratorAPI(verbose=not args.quiet, debug=args.debug)
         gen.setWikiAndGetContexts(args)
         if args.sidif:
-            gen.context, gen.error, gen.errMsg = Context.fromSiDIF_input(
+            gen.context, gen.error, gen.errmsg = Context.fromSiDIF_input(
                 args.sidif, debug=args.debug
             )
         else:
@@ -85,7 +85,7 @@ class GeneratorAPI:
             self.errmsg = f"Could not read context {context_name} from {wikiId}: {self.errmsg}"
             self.error = Exception(self.errmsg)
         else:
-            self.context, self.error, self.errMsg = Context.fromWikiContext(
+            self.context, self.error, self.errmsg = Context.fromWikiContext(
                 self.mw_context, debug=self.debug
             )
 

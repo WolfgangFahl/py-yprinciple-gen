@@ -151,7 +151,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         args = parser.parse_args(argv)
         gen = GeneratorAPI.fromArgs(args)
         self.assertIsNone(gen.error)
-        self.assertIsNone(gen.errMsg)
+        self.assertIsNone(gen.errmsg)
         if not self.inPublicCI():
             genResults = gen.generateViaMwApi(
                 args.targets, args.topics, dryRun=not args.noDry
