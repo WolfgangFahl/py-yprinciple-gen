@@ -35,6 +35,7 @@ class GeneratorAPI:
         self.verbose = verbose
         self.debug = debug
         self.args = None
+        self.errmsg = None
 
     @classmethod
     def fromArgs(cls, args) -> "GeneratorAPI":
@@ -82,7 +83,7 @@ class GeneratorAPI:
         self.mw_context = self.mw_contexts.get(context_name, None)
         if not self.mw_context:
             self.context = None
-            self.errmsg = f"Could not read context {context_name} from {wikiId}: {self.errmsg}"
+            self.errmsg = f"Context {context_name} not available in {wikiId}"
             self.error = Exception(self.errmsg)
         else:
             self.context, self.error, self.errmsg = Context.fromWikiContext(
