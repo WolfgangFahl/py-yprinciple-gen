@@ -29,6 +29,7 @@ class TestSMW(BaseSemanticMediawikiTest):
         test ypCell
         """
         debug = self.debug
+        debug=True
         smwAccess = SMWAccess("ceur-ws", debug=debug)
         counter = Counter()
         for mw_context in smwAccess.getMwContexts().values():
