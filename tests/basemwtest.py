@@ -35,7 +35,7 @@ class BaseMediawikiTest(Basetest):
                     "scriptPath": "",
                     "version": "MediaWiki 1.35.5",
                 }
-            if wikiId == "ceur-ws":
+            elif wikiId == "ceur-ws":
                 wikiDict = {
                     "wikiId": wikiId,
                     "email": "noreply@nouser.com",
@@ -43,13 +43,21 @@ class BaseMediawikiTest(Basetest):
                     "scriptPath": "",
                     "version": "MediaWiki 1.35.5",
                 }
-            if wikiId == "cr":
+            elif wikiId == "cr":
                 wikiDict = {
                     "wikiId": wikiId,
                     "email": "noreply@nouser.com",
                     "url": "https://cr.bitplan.com",
                     "scriptPath": "",
                     "version": "MediaWiki 1.35.5",
+                }
+            elif wikiId =="contexts":
+                wikiDict = {
+                    "wikiId": wikiId,
+                    "email": "noreply@nouser.com",
+                    "url": "https://contexts.bitplan.com",
+                    "scriptPath": "",
+                    "version": "MediaWiki 1.39.8",
                 }
             if wikiDict is None:
                 raise Exception(f"wikiId {wikiId} is not known")
