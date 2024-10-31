@@ -17,6 +17,9 @@ from yprinciple.smw_targets import SMWTarget
 
 @dataclass
 class GenResult:
+    """
+    a generator result
+    """
     topicname: str
     target_key: str
     smwTarget: SMWTarget

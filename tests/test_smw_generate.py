@@ -11,7 +11,7 @@ from yprinciple.genapi import GeneratorAPI
 from yprinciple.ypcell import FileGenResult, MwGenResult
 from yprinciple.ypgen import YPGen
 from yprinciple.ypgenapp import YPGenServer
-
+from yprinciple.smw_targets import SMWTarget
 
 class TestSMWGenerate(BaseSemanticMediawikiTest):
     """
@@ -25,12 +25,23 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
                    "CrSchema24-08"
                    ],
             "wiki": ["MetaModel"],
+            "contexts": ["CityContext"]
         }
         self.ccs = {}
         for wikiId, context_names in contexts.items():
             self.getWikiUser(wikiId, save=True)
             for context_name in context_names:
                 self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(wikiId, context_name)
+
+    def testTargets(self):
+        """
+        test the potential targets
+        """
+        targets=SMWTarget.getSMWTargets()
+        debug=self.debug
+        if debug:
+            print(targets.keys())
+        self.assertTrue("listOf" in targets)
 
     def testInheritance(self):
         """

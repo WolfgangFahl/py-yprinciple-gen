@@ -710,7 +710,7 @@ class PropertyTarget(SMWTarget):
         markup = f"""{{{{Property
 |name={prop.name}
 |label={prop.label}
-        """
+"""
         if hasattr(prop, "documentation"):
             markup += f"""|documentation={prop.documentation}\n"""
         prop_type = getattr(prop, "type", "Text")
