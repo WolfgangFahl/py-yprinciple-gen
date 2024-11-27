@@ -21,7 +21,7 @@ dependencies = [
         # https://pypi.org/project/py-3rdparty-mediawiki/
         'py-3rdparty-mediawiki>=0.12.1',
         # https://pypi.org/project/pyMetaModel/
-        'pyMetaModel>=0.4.4',
+        'pyMetaModel>=0.5.1',
         # https://pypi.org/project/beautifulsoup4/
         'beautifulsoup4',
         # https://github.com/borisbabic/browser_cookie3
