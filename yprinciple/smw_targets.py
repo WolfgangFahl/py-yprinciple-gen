@@ -399,7 +399,7 @@ class FormTarget(SMWTarget):
 
     def formTemplate(self, topic: Topic, isMultiple: bool):
         """
-        create the SMW pagefomrs markups for the given topic
+        create the SMW page Form markups for the given topic
 
         Args:
             topic (Topic): the topic to create the markup for
