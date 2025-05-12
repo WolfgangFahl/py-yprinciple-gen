@@ -19,12 +19,12 @@ class Version(object):
     description = "python Y-Principle generator"
     version = yprinciple.__version__
     date = "2022-11-24"
-    updated = "2024-11-27"
+    updated = "2025-05-12"
     authors = "Wolfgang Fahl"
     doc_url = "https://wiki.bitplan.com/index.php/Py-yprinciple-gen"
     chat_url = "https://github.com/WolfgangFahl/py-yprinciple-gen/discussions"
     cm_url = "https://github.com/WolfgangFahl/py-yprinciple-gen"
-    license = f"""Copyright 2022-2024 contributors. All rights reserved.
+    license = f"""Copyright 2022-2025 contributors. All rights reserved.
   Licensed under the Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0
   Distributed on an "AS IS" basis without warranties
