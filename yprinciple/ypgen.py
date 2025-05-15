@@ -112,6 +112,10 @@ class YPGen(WebserverCmd):
                 print(f"{gen.errmsg}", file=sys.stderr)
                 return 3
             dryRun = not args.noDry
+            if not gen.context:
+                msg=f"loading context {args.context} failed"
+                print(f"{msg}", file=sys.stderr)
+                return 4
             if args.genViaMwApi:
                 gen.generateViaMwApi(
                     target_names=args.targets,
