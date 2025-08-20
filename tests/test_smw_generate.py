@@ -125,7 +125,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         cc = self.ccs["cr-CrSchema"]
         show = self.debug
-        # show=True
+        show=True
         for gr in cc.get_markup(
             topic_names=["Paper"], target_keys=["template"], show=show
         ):
