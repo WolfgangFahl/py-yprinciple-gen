@@ -4,15 +4,14 @@ Created on 2022-11-25
 @author: wf
 """
 
+from dataclasses import dataclass
 import os
 import typing
-from dataclasses import dataclass
 
-from meta.metamodel import MetaModelElement, Topic
+from meta.metamodel import Topic
 from meta.mw import SMWAccess
 from ngwidgets.editor import Editor
 from wikibot3rd.wikipush import WikiPush
-
 from yprinciple.target import Target
 from yprinciple.version import Version
 
@@ -73,7 +72,7 @@ class YpCell:
     """
 
     def __init__(
-        self, modelElement: MetaModelElement, target: Target, debug: bool = False
+        self, modelElement, target: Target, debug: bool = False
     ):
         """
         constructor

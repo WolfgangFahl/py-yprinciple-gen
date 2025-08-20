@@ -90,21 +90,13 @@ class YPGen(WebserverCmd):
             action="store_true",
             help="login to source wiki for access permission",
         )
-        parser.add_argument(
-            "-f",
-            "--force",
-            dest="force",
-            action="store_true",
-            help="force to overwrite existing pages",
-        )
-        parser.add_argument("-q", "--quiet", help="not verbose [default: %(default)s]")
         return parser
 
-    def handle_args(self):
+    def handle_args(self,args):
         """
         work on the arguments
         """
-        handled = super().handle_args()
+        handled = super().handle_args(args)
         args = self.args
         if args.genToFile or args.genViaMwApi or args.push:
             gen = GeneratorAPI.fromArgs(args)
