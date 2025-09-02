@@ -743,7 +743,7 @@ class PropertyTarget(SMWTarget):
 }}}}
 * [[Has type::{prop.type}]]
 """
-        if hasattr(prop, "formatterURI"):
+        if hasattr(prop, "formatterURI") and prop.formatterURI:
             markup += f"""* External formatter uri: [[External formatter uri::{prop.formatterURI}]]
 """
         markup += f"""
