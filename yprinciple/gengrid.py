@@ -406,7 +406,7 @@ class GeneratorGrid:
         topic_cell = self.add_header_cell(topic.name)
         icon_url = None
         if hasattr(topic, "iconUrl"):
-            if topic.iconUrl.startswith("http"):
+            if hasattr(topic, "iconUrl") and topic.iconUrl and isinstance(topic.iconUrl, str) and topic.iconUrl.startswith(('http://', 'https://')):
                 icon_url = f"{topic.iconUrl}"
             if icon_url is None and self.solution.mw_context is not None:
                 icon_url = f"{self.solution.mw_context.wiki_url}{topic.iconUrl}"
