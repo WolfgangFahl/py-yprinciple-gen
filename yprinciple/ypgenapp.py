@@ -94,7 +94,7 @@ class YPGenApp(InputWebSolution):
         self.wikiLink = None
         self.mw_context = None
         self.mw_contexts = {}
-        self.contextLink = None
+        self.context_link = None
 
         # states
         self.useSidif = True
@@ -145,17 +145,17 @@ class YPGenApp(InputWebSolution):
         set the Context
         """
         self.mw_context = mw_context
-        if self.contextLink is not None:
+        if self.context_link is not None:
             if mw_context is not None:
-                self.contextLink.title = (
+                self.context_link.title = (
                     f"{mw_context.context}({mw_context.since} at {mw_context.master}"
                 )
-                self.contextLink.text = f"{mw_context.wikiId}:{mw_context.context}"
-                self.contextLink.href = mw_context.sidif_url()
+                self.context_link.text = f"{mw_context.wikiId}:{mw_context.context}"
+                self.context_link.href = mw_context.sidif_url()
             else:
-                self.contextLink.title = "?"
-                self.contextLink.text = "?"
-                self.contextLink.href = (
+                self.context_link.title = "?"
+                self.context_link.text = "?"
+                self.context_link.href = (
                     "https://wiki.bitplan.com/index.php/Concept:Context"
                 )
 
