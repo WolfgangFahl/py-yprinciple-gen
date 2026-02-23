@@ -37,3 +37,22 @@ class TestIssues(BaseSemanticMediawikiTest):
         markup = smwTarget.generate(prop)
         if show:
             print(markup)
+
+    def test_issue46_list_of_plural_name(self):
+        """
+        test that ListOfTarget.getPageTitle uses getPluralName() not pluralName
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/46
+        """
+        from meta.metamodel import Topic
+        smwTargets = SMWTarget.getSMWTargets()
+        listOfTarget = smwTargets.get("listOf")
+        # topic with pluralName set
+        topic = Topic()
+        topic.name = "Property"
+        topic.pluralName = "Properties"
+        self.assertEqual("List of Properties", listOfTarget.getPageTitle(topic))
+        # topic without pluralName - should fall back to name+s
+        topic2 = Topic()
+        topic2.name = "Query"
+        topic2.pluralName = None
+        self.assertEqual("List of Querys", listOfTarget.getPageTitle(topic2))

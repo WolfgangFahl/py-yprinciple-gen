@@ -510,7 +510,7 @@ class ListOfTarget(SMWTarget):
     """
 
     def getPageTitle(self, modelElement) -> str:
-        pageTitle = f"List of {modelElement.pluralName}"
+        pageTitle = f"List of {modelElement.getPluralName()}"
         return pageTitle
 
     def generate(self, topic: Topic) -> str:
