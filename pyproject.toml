@@ -15,13 +15,13 @@ readme = "README.md"
 license = "Apache-2.0"
 dependencies = [
 		# https://pypi.org/project/ngwidgets/
-		'ngwidgets>=0.30.0',
+		'ngwidgets>=0.30.5',
         # https://pypi.org/project/search-engine-parser/
         'search-engine-parser>=0.6.8',
         # https://pypi.org/project/py-3rdparty-mediawiki/
-        'py-3rdparty-mediawiki>=0.17.0',
+        'py-3rdparty-mediawiki>=0.19.2',
         # https://pypi.org/project/pyMetaModel/
-        'pyMetaModel>=0.6.6',
+        'pyMetaModel>=0.6.7',
         # https://pypi.org/project/beautifulsoup4/
         'beautifulsoup4',
         # https://github.com/borisbabic/browser_cookie3

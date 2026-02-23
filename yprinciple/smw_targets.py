@@ -584,9 +584,11 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
         extends_topics=topic.get_extends_topics()
         for extends_topic in extends_topics:
             markup+=self.generateTopicCall(extends_topic)
+        primary_key_prop=topic.get_primary_key_property()
+        subobject_name=f"{{{{{{{primary_key_prop.name}|}}}}}}" if primary_key_prop else "-"
         markup+=f"""{{{{#switch:{{{{{{storemode|}}}}}}
 |none=
-|subobject={{{{#subobject:-
+|subobject={{{{#subobject:{subobject_name}
 |isA={topic.name}
 """
         for prop in topic.properties.values():
