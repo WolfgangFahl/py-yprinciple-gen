@@ -4,14 +4,15 @@ Created on 2022-11-25
 @author: wf
 """
 
-from dataclasses import dataclass
 import os
 import typing
+from dataclasses import dataclass
 
 from meta.metamodel import Topic
 from meta.mw import SMWAccess
 from ngwidgets.editor import Editor
 from wikibot3rd.wikipush import WikiPush
+
 from yprinciple.target import Target
 from yprinciple.version import Version
 
@@ -71,9 +72,7 @@ class YpCell:
     a Y-Principle cell
     """
 
-    def __init__(
-        self, modelElement, target: Target, debug: bool = False
-    ):
+    def __init__(self, modelElement, target: Target, debug: bool = False):
         """
         constructor
 
@@ -204,7 +203,8 @@ class YpCell:
         Returns:
             str: a label in the generator grid for my modelElement
         """
-        return self.target.getLabelText(self.modelElement)
+        labelText = self.target.getLabelText(self.modelElement)
+        return labelText
 
     def getPageTitle(self):
         """

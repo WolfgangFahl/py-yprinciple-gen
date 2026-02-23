@@ -88,8 +88,8 @@ class SMWTarget(Target):
 * [[:Form:{topic.name}]]
 """
         topicLinks = topic.targetTopicLinks.values()
-        extends_topics=topic.get_extends_topics()
-        if len(topicLinks)+len(extends_topics) > 0:
+        extends_topics = topic.get_extends_topics()
+        if len(topicLinks) + len(extends_topics) > 0:
             markup += "related topics:\n" ""
             for extends_topic in extends_topics:
                 markup += f"* [[Concept:{extends_topic.name}]]\n"
@@ -182,25 +182,27 @@ class SMWTarget(Target):
         markup = f"""{topicLink.source} "{topicLink.sourceRole} ({sourceMany})" -- "{topicLink.targetRole}({targetMany})" {topicLink.target}\n"""
         return markup
 
-    def plantUmlClass(self,topic: "Topic")->str:
+    def plantUmlClass(self, topic: "Topic") -> str:
         """
-          get the plantuml markup for the given topic
+        get the plantuml markup for the given topic
 
-          Args:
-            topic (Topic): the topic to generate uml for
+        Args:
+          topic (Topic): the topic to generate uml for
 
-          Returns:
-            str: the plantuml markup to be generated
+        Returns:
+          str: the plantuml markup to be generated
 
         """
-        markup=""
-        extends=getattr(topic, "extends",None)
-        extends_markup=f" extends {extends} " if extends else ""
+        markup = ""
+        extends = getattr(topic, "extends", None)
+        extends_markup = f" extends {extends} " if extends else ""
         # recursive inheritance
         if extends:
-            extends_topic=topic.context_obj.lookupTopic(extends,purpose=extends_markup)
+            extends_topic = topic.context_obj.lookupTopic(
+                extends, purpose=extends_markup
+            )
             if extends_topic:
-                markup+=self.plantUmlClass(extends_topic)
+                markup += self.plantUmlClass(extends_topic)
 
         markup += f"""note as {topic.name}Note
 {topic.documentation}
@@ -242,7 +244,7 @@ Copyright (c) 2015-{currentYear} BITPlan GmbH
 [[http://www.bitplan.com]]
 end note
 """
-        markup+=self.plantUmlClass(topic)
+        markup += self.plantUmlClass(topic)
         markup += f"""{self.bitplanumlci(12)}
 </uml>"""
         return markup
@@ -289,7 +291,7 @@ class CategoryTarget(SMWTarget):
 </div>
 """
         if hasattr(topic, "extends") and topic.extends:
-            markup+=f"""[[Category:{topic.extends}]]\n"""
+            markup += f"""[[Category:{topic.extends}]]\n"""
         return markup
 
 
@@ -312,7 +314,9 @@ class ConceptTarget(SMWTarget):
         Returns:
             str: the generated wiki markup
         """
-        extends_markup=f" extends {topic.extends} " if hasattr(topic,"extends") else ""
+        extends_markup = (
+            f" extends {topic.extends} " if hasattr(topic, "extends") else ""
+        )
         markup = f"""{{{{Topic
 |name={topic.name}
 |pluralName={topic.getPluralName()}
@@ -539,17 +543,17 @@ class TemplateTarget(SMWTarget):
     the template Target
     """
 
-    def generateTopicCall(self,topic:Topic)->str:
+    def generateTopicCall(self, topic: Topic) -> str:
         """
         generate the markup for the template call of the given topic
 
         Args:
             topic (Topic): the topic to generate wiki markup for
         """
-        markup=f"""{{{{{topic.name}\n"""
+        markup = f"""{{{{{topic.name}\n"""
         for prop in topic.properties.values():
-            markup+=f"""|{prop.name}={{{{{{{prop.name}|}}}}}}\n"""
-        markup+="""|storemode={{{storemode|}}}
+            markup += f"""|{prop.name}={{{{{{{prop.name}|}}}}}}\n"""
+        markup += """|storemode={{{storemode|}}}
 |viewmode={{{viewmode|}}}
 }}"""
         return markup
@@ -573,7 +577,7 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 === Usage ===
 <pre>{{{{{topic.name}
 """
-        all_properties=topic.get_all_properties()
+        all_properties = topic.get_all_properties()
         for prop in all_properties:
             markup += f"|{prop.name}=\n"
         markup += f"""|storemode=property or subobject or none"
@@ -581,12 +585,14 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 </pre>
 [[Category:Template]]
 </noinclude><includeonly>"""
-        extends_topics=topic.get_extends_topics()
+        extends_topics = topic.get_extends_topics()
         for extends_topic in extends_topics:
-            markup+=self.generateTopicCall(extends_topic)
-        primary_key_prop=topic.get_primary_key_property()
-        subobject_name=f"{{{{{{{primary_key_prop.name}|}}}}}}" if primary_key_prop else "-"
-        markup+=f"""{{{{#switch:{{{{{{storemode|}}}}}}
+            markup += self.generateTopicCall(extends_topic)
+        primary_key_prop = topic.get_primary_key_property()
+        subobject_name = (
+            f"{{{{{{{primary_key_prop.name}|}}}}}}" if primary_key_prop else "-"
+        )
+        markup += f"""{{{{#switch:{{{{{{storemode|}}}}}}
 |none=
 |subobject={{{{#subobject:{subobject_name}
 |isA={topic.name}

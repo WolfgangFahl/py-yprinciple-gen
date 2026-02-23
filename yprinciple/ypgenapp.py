@@ -276,7 +276,9 @@ class YPGenApp(InputWebSolution):
         """
         try:
             selection = list(self.mw_contexts.keys())
-            initial_value = self.context_name if self.context_name in selection else None
+            initial_value = (
+                self.context_name if self.context_name in selection else None
+            )
             self.context_select = self.add_select(
                 "Context",
                 selection=selection,

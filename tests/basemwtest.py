@@ -51,7 +51,7 @@ class BaseMediawikiTest(Basetest):
                     "scriptPath": "",
                     "version": "MediaWiki 1.35.5",
                 }
-            elif wikiId =="contexts":
+            elif wikiId == "contexts":
                 wikiDict = {
                     "wikiId": wikiId,
                     "email": "noreply@nouser.com",

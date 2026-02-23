@@ -143,7 +143,7 @@ class GeneratorAPI:
 
         targets = self.filterTargets(target_names)
         if not self.context:
-            msg=f"yieldYpCells called with missing self.context: targets: {target_names}, topics: {topic_names}"
+            msg = f"yieldYpCells called with missing self.context: targets: {target_names}, topics: {topic_names}"
             raise ValueError(msg)
         for topic_name, topic in self.context.topics.items():
             # filter topic names

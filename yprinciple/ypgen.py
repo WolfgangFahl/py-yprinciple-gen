@@ -92,7 +92,7 @@ class YPGen(WebserverCmd):
         )
         return parser
 
-    def handle_args(self,args):
+    def handle_args(self, args):
         """
         work on the arguments
         """
@@ -105,7 +105,7 @@ class YPGen(WebserverCmd):
                 return 3
             dryRun = not args.noDry
             if not gen.context:
-                msg=f"loading context {args.context} failed"
+                msg = f"loading context {args.context} failed"
                 print(f"{msg}", file=sys.stderr)
                 return 4
             if args.genViaMwApi:

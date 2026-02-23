@@ -3,7 +3,9 @@ Created on 2022-11-25
 
 @author: wf
 """
+
 from meta.metamodel import Topic
+
 
 class Target:
     """

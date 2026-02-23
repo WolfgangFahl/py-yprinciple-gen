@@ -8,10 +8,11 @@ import os
 
 from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.genapi import GeneratorAPI
+from yprinciple.smw_targets import SMWTarget
 from yprinciple.ypcell import FileGenResult, MwGenResult
 from yprinciple.ypgen import YPGen
 from yprinciple.ypgenapp import YPGenServer
-from yprinciple.smw_targets import SMWTarget
+
 
 class TestSMWGenerate(BaseSemanticMediawikiTest):
     """
@@ -21,24 +22,24 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
     def setUp(self, debug=False, profile=True):
         BaseSemanticMediawikiTest.setUp(self, debug=debug, profile=profile)
         contexts = {
-            "cr": ["CrSchema",
-                   "CrSchema24-08"
-                   ],
+            "cr": ["CrSchema", "CrSchema24-08"],
             "wiki": ["MetaModel"],
-            "contexts": ["CityContext"]
+            "contexts": ["CityContext"],
         }
         self.ccs = {}
         for wikiId, context_names in contexts.items():
             self.getWikiUser(wikiId, save=True)
             for context_name in context_names:
-                self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(wikiId, context_name)
+                self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(
+                    wikiId, context_name
+                )
 
     def testTargets(self):
         """
         test the potential targets
         """
-        targets=SMWTarget.getSMWTargets()
-        debug=self.debug
+        targets = SMWTarget.getSMWTargets()
+        debug = self.debug
         if debug:
             print(targets.keys())
         self.assertTrue("listOf" in targets)
@@ -48,7 +49,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         test inheritance
         """
         show = self.debug
-        #show=True
+        # show=True
         cc = self.ccs["cr-CrSchema24-08"]
         for gr in cc.get_markup(
             topic_names=["Event"], target_keys=["concept"], show=show
@@ -66,9 +67,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         for gr in cc.get_markup(
             topic_names=["Event"], target_keys=["template"], show=show
         ):
-            self.assertTrue(
-                "</pre>" in gr.markup
-            )
+            self.assertTrue("</pre>" in gr.markup)
 
     def test_Issue13_ExternalIdentifer_Link_handling(self):
         """
@@ -106,7 +105,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         cc = self.ccs["wiki-MetaModel"]
         show = self.debug
-        #show = True
+        # show = True
         for gr in cc.get_markup(
             topic_names=["Context"], target_keys=["template"], show=show
         ):
@@ -125,7 +124,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         """
         cc = self.ccs["cr-CrSchema"]
         show = self.debug
-        show=True
+        show = True
         for gr in cc.get_markup(
             topic_names=["Paper"], target_keys=["template"], show=show
         ):

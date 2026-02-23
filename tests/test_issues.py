@@ -1,10 +1,12 @@
-'''
+"""
 Created on 2024-10-31
 
 @author: wf
-'''
+"""
+
 from tests.basesmwtest import BaseSemanticMediawikiTest
 from yprinciple.smw_targets import SMWTarget
+
 
 class TestIssues(BaseSemanticMediawikiTest):
     """
@@ -13,14 +15,14 @@ class TestIssues(BaseSemanticMediawikiTest):
 
     def setUp(self, debug=False, profile=True):
         BaseSemanticMediawikiTest.setUp(self, debug=debug, profile=profile)
-        contexts = {
-            "contexts": ["CityContext"]
-        }
+        contexts = {"contexts": ["CityContext"]}
         self.ccs = {}
         for wikiId, context_names in contexts.items():
             self.getWikiUser(wikiId, save=True)
             for context_name in context_names:
-                self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(wikiId, context_name)
+                self.ccs[f"{wikiId}-{context_name}"] = self.getContextContext(
+                    wikiId, context_name
+                )
 
     def test_issue30_scoped_properties(self):
         """
@@ -28,12 +30,12 @@ class TestIssues(BaseSemanticMediawikiTest):
         scoped properties
         https://github.com/WolfgangFahl/pyMetaModel/issues/30
         """
-        show=self.debug
-        show=True
+        show = self.debug
+        show = True
         cc = self.ccs["contexts-CityContext"]
-        prop=cc.context.topics["City"].properties["Has Wikidata item ID"]
+        prop = cc.context.topics["City"].properties["Has Wikidata item ID"]
         smwTargets = SMWTarget.getSMWTargets()
-        smwTarget= smwTargets.get("property")
+        smwTarget = smwTargets.get("property")
         markup = smwTarget.generate(prop)
         if show:
             print(markup)
@@ -44,6 +46,7 @@ class TestIssues(BaseSemanticMediawikiTest):
         https://github.com/WolfgangFahl/py-yprinciple-gen/issues/46
         """
         from meta.metamodel import Topic
+
         smwTargets = SMWTarget.getSMWTargets()
         listOfTarget = smwTargets.get("listOf")
         # topic with pluralName set
