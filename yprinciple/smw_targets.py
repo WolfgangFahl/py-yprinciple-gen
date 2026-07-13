@@ -543,6 +543,27 @@ class TemplateTarget(SMWTarget):
     the template Target
     """
 
+    def separator_markup(self, prop: Property) -> str:
+        """
+        get the SMW |+sep= markup for a multi-value property
+
+        the separator may be declared on the property itself or on
+        the topicLink the property was derived from
+
+        see https://github.com/WolfgangFahl/py-yprinciple-gen/issues/47
+
+        Args:
+            prop (Property): the property to get the separator markup for
+
+        Returns:
+            str: the |+sep= markup or an empty string
+        """
+        separator = getattr(prop, "separator", None)
+        if not separator and prop.topicLink:
+            separator = getattr(prop.topicLink, "separator", None)
+        sep_markup = f"|+sep={separator}" if separator else ""
+        return sep_markup
+
     def generateTopicCall(self, topic: Topic) -> str:
         """
         generate the markup for the template call of the given topic
@@ -598,18 +619,14 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
 |isA={topic.name}
 """
         for prop in topic.properties.values():
-            markup += f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}\n"
+            sep = self.separator_markup(prop)
+            markup += f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}{sep}\n"
         markup += f"""}}}}
 |#default={{{{#set:
 |isA={topic.name}
 """
         for prop in topic.properties.values():
-            # separator handling
-            sep = ""
-            if prop.isLink:
-                tl = prop.topicLink
-                if hasattr(tl, "separator"):
-                    sep = f"|+sep={tl.separator}"
+            sep = self.separator_markup(prop)
             markup += f"|{topic.name} {prop.name}={{{{{{{prop.name}|}}}}}}{sep}\n"
         markup += f"""}}}}\n"""  # end of #set
         markup += f"""}}}}\n"""  # end of #switch
