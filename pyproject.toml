@@ -21,7 +21,8 @@ dependencies = [
         # https://pypi.org/project/py-3rdparty-mediawiki/
         'py-3rdparty-mediawiki>=0.19.2',
         # https://pypi.org/project/pyMetaModel/
-        'pyMetaModel>=0.6.7',
+        # >=0.6.9: pluralName from sidif honored (0.6.8 fix, first released as 0.6.9) - see #49
+        'pyMetaModel>=0.6.9',
         # https://pypi.org/project/beautifulsoup4/
         'beautifulsoup4',
         # https://github.com/borisbabic/browser_cookie3
