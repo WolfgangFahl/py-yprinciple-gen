@@ -314,13 +314,11 @@ class ConceptTarget(SMWTarget):
         Returns:
             str: the generated wiki markup
         """
-        extends_markup = (
-            f" extends {topic.extends} " if hasattr(topic, "extends") else ""
-        )
+        extends_value = getattr(topic, "extends", "") or ""
         markup = f"""{{{{Topic
 |name={topic.name}
 |pluralName={topic.getPluralName()}
-|extends={extends_markup}
+|extends={extends_value}
 |icon={topic.icon}
 |iconUrl={getattr(topic,"iconUrl","")}
 |documentation={topic.documentation}
