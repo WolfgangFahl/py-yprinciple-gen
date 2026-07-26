@@ -135,6 +135,30 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
             for expected in expected_parts:
                 self.assertTrue(expected in gr.markup)
 
+    def test_extends_in_concept_topic_template(self):
+        """
+        the |extends= parameter of the Topic template must hold the bare
+        parent topic name
+
+        the former f" extends {topic.extends} " leaked the literal word
+        "extends" and its padding into the template call and rendered
+        "extends None" for topics with extends set to None
+        """
+        cc = self.ccs["cr-CrSchema24-08"]
+        show = self.debug
+        # show = True
+        expected_by_topic = {
+            "Event": "|extends=WebWdItem\n",
+            "WikidataItem": "|extends=\n",
+        }
+        for topic_name, expected in expected_by_topic.items():
+            for gr in cc.get_markup(
+                topic_names=[topic_name], target_keys=["concept"], show=show
+            ):
+                self.assertTrue(expected in gr.markup)
+                self.assertFalse("|extends= extends" in gr.markup)
+                self.assertFalse("extends None" in gr.markup)
+
     def test_genbatch(self):
         """
         test the batch generator
