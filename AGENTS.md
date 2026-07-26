@@ -6,17 +6,17 @@ CRITICAL: NEVER EVER DO ANY ACTION READING, MODIFYING OR RUNNING without explain
 
 This project uses **multiple sources** for context and guidance:
 
-1. **Wiki** (id: `wiki`) via the `wikipush` tool — project documentation at https://wiki.bitplan.com/index.php/Py-yprinciple-gen primary source of information
+1. **Wikis** (wiki_id: `wiki`) via the `wikipush` tool — project documentation at https://wiki.bitplan.com/index.php/Py-yprinciple-gen primary source of information schemas in the wiki with the id contexts see https://contexts.bitplan.com/index.php/List_of_Contexts
 2. **This AGENTS.md file** — seconary agent instructions
 3. **Codebase** — the actual Python source in `yprinciple/` and tests in `tests/`
 
 ## SYSTEMATIC APPROACH AND ABSTRACTION
-We are not Hackers but Software Architects. Therefore we use Abstractions if available. We love clean reaable python code.
-We hate debugging bits and bytes of non working libraries  that is only a last restort
+We are not Hackers but Software Architects. Therefore we use Abstractions if available. We love clean readable python code.
+We hate debugging bits and bytes of non working libraries - diving into whitebox details of code  is only a last resort when debugging
+nasty problems
 POKING AROUND IS STRICTLY FORBIDDEN!
 
-Every tool execution has a real cost in time and money. We keep track of what we did in the past in our wikis so ask for information sources instead
-of searching yourself. 
+Every tool execution has a real cost in time and money. We keep track of what we did in the past in our wikis so ask for information sources instead of searching yourself.
 
 
 ## Project Overview
@@ -154,4 +154,4 @@ def getColor(self, value: int) -> str:
 
 ## Wiki Tool Usage
 
-Use the `wikipush` tool with `wiki_id="wiki"` to read/write wiki pages relevant to this project.
+Use the `wikipush` tool with the correct wiki_id eg. `wiki_id="wiki"` to read/write wiki pages relevant to this project.
