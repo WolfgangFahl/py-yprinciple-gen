@@ -831,6 +831,10 @@ class PropertyTarget(SMWTarget):
         prop_type = getattr(prop, "type", "Text")
         markup += f"""|type=Special:Types/{prop_type}
 """
+        # the Property template declares some parameters under another name
+        # than the dataclass field see
+        # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/54
+        param_names = {"formatterURI": "externalFormatterURI"}
         # @TODO read from metamodel
         for prop_name in [
             "index",
@@ -853,7 +857,8 @@ class PropertyTarget(SMWTarget):
             if hasattr(prop, prop_name):
                 value = getattr(prop, prop_name, None)
                 if value is not None:
-                    markup += f"|{prop_name}={value}\n"
+                    param_name = param_names.get(prop_name, prop_name)
+                    markup += f"|{param_name}={value}\n"
                     # e.g. |index={prop.index}
         markup += f"""|topic={(topicWithConcept)}
 |storemode=prop

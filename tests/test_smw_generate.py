@@ -177,6 +177,22 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
                 self.assertTrue(expected in gr.markup)
             self.assertFalse("forminput:form=HopContent" in gr.markup)
 
+    def test_Issue54_external_formatter_uri_parameter(self):
+        """
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/54
+        the generated property page names the parameter as the
+        Property template declares it
+        """
+        cc = self.ccs["media-Meeting"]
+        show = self.debug
+        show = True
+        prop = cc.context.topics["HopContent"].properties["screenshot"]
+        markup = SMWTarget.getSMWTargets()["property"].generate(prop)
+        if show:
+            print(markup)
+        self.assertTrue("|externalFormatterURI=" in markup)
+        self.assertFalse("|formatterURI=" in markup)
+
     def test_extends_in_concept_topic_template(self):
         """
         the |extends= parameter of the Topic template must hold the bare
