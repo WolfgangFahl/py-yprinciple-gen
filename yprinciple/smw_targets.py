@@ -665,8 +665,13 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
                 link_markup = f"→[[{{{{{{{prop.name}|}}}}}}]]"
             else:
                 link_markup = ""
+            value_markup = f"{{{{{{{prop.name}}}}}}}"
+            if prop_type == "Code":
+                # render Code properties with syntax highlighting; by convention
+                # the property name doubles as the language e.g. sparql
+                value_markup = f"{{{{#tag:source|{value_markup}|lang={prop.name}}}}}"
             markup += f"""![[Property:{topic.name} {prop.name}|{prop.name}]]
-{{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{{{{{{{prop.name}}}}}}}|}}}}{link_markup}
+{{{{!}}}}&nbsp;{{{{#if:{{{{{{{prop.name}|}}}}}}|{value_markup}|}}}}{link_markup}
 {{{{!}}}}-\n"""
         markup += f"{{{{!}}}}}}\n"  # end of table
         markup += f"""}}}}\n"""  # end of #switch viewmode
