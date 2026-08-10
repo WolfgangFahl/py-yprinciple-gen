@@ -297,7 +297,7 @@ class GeneratorAPI:
                     page_titles = wikiPush.query(
                         page_query,
                         wiki=self.smwSourceAccess.wikiClient,
-                        queryField=query_field,
+                        pageField=query_field,
                     )
                 all_page_titles.extend(
                     page_title
