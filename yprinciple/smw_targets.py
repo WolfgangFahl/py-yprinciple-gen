@@ -18,6 +18,24 @@ class SMWTarget(Target):
     a specialized generation target for Semantic MediaWiki
     """
 
+    def separator_of(self, prop: "Property") -> str:
+        """
+        get the separator of a multi-value property
+
+        the separator may be declared on the property itself or on
+        the topicLink the property was derived from
+
+        Args:
+            prop (Property): the property to get the separator for
+
+        Returns:
+            str: the separator or None
+        """
+        separator = getattr(prop, "separator", None)
+        if not separator and getattr(prop, "topicLink", None):
+            separator = getattr(prop.topicLink, "separator", None)
+        return separator
+
     @classmethod
     def getSMWTargets(cls):
         """
@@ -452,7 +470,12 @@ class FormTarget(SMWTarget):
                 if getattr(prop, "allowedValues", None)
                 else ""
             )
-            markup += f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}}}}}}}
+            # a multi value property needs a list input with the model separator
+            # as its delimiter see
+            # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/52
+            separator = self.separator_of(prop)
+            multi_value = f"|list|delimiter={separator}" if separator else ""
+            markup += f"""|{{{{{{field|{prop.name}|property={topic.name} {prop.name}{inputType}{size}{mandatory}{uploadable}{values_from}{allowedValues}{defaultValue}{multi_value}}}}}}}
 |-
 """
         markup += f"""|-
@@ -545,9 +568,6 @@ class TemplateTarget(SMWTarget):
         """
         get the SMW |+sep= markup for a multi-value property
 
-        the separator may be declared on the property itself or on
-        the topicLink the property was derived from
-
         see https://github.com/WolfgangFahl/py-yprinciple-gen/issues/47
 
         Args:
@@ -556,9 +576,7 @@ class TemplateTarget(SMWTarget):
         Returns:
             str: the |+sep= markup or an empty string
         """
-        separator = getattr(prop, "separator", None)
-        if not separator and prop.topicLink:
-            separator = getattr(prop.topicLink, "separator", None)
+        separator = self.separator_of(prop)
         sep_markup = f"|+sep={separator}" if separator else ""
         return sep_markup
 
@@ -656,7 +674,11 @@ This is the {self.profiWiki()}-Template for "{topic.name}".
             # https://github.com/WolfgangFahl/py-yprinciple-gen/issues/13
             # show Links for external Identifiers in templates
             prop_type = getattr(prop, "type", "Text")
-            if prop_type == "External identifier" or prop.isLink:
+            if (
+                prop_type == "External identifier"
+                or prop.isLink
+                or self.separator_markup(prop)
+            ):
                 link_markup = (
                     "→{{#show: {{FULLPAGENAME}}|" + f"?{topic.name} {prop.name}" + "}}"
                 )
@@ -760,6 +782,8 @@ class PropertyTarget(SMWTarget):
             "formatterURI",
             "showInGrid",
             "isLink",
+            "separator",
+            "example",
         ]:
             if hasattr(prop, prop_name):
                 value = getattr(prop, prop_name, None)

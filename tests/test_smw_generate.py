@@ -135,6 +135,26 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
             for expected in expected_parts:
                 self.assertTrue(expected in gr.markup)
 
+    def test_Issue52_multi_value_property(self):
+        """
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/52
+        a property with a separator needs a list input in the form
+        and the separator in its property page
+        """
+        cc = self.ccs["cr-CrSchema"]
+        show = self.debug
+        show = True
+        for gr in cc.get_markup(
+            topic_names=["Paper"], target_keys=["form"], show=show
+        ):
+            self.assertTrue("|list|delimiter=," in gr.markup)
+        prop = cc.context.topics["Paper"].properties["authors"]
+        smwTarget = SMWTarget.getSMWTargets()["property"]
+        markup = smwTarget.generate(prop)
+        if show:
+            print(markup)
+        self.assertTrue("|separator=," in markup)
+
     def test_extends_in_concept_topic_template(self):
         """
         the |extends= parameter of the Topic template must hold the bare
