@@ -538,6 +538,64 @@ class ListOfTarget(SMWTarget):
         pageTitle = f"List of {modelElement.getPluralName()}"
         return pageTitle
 
+    def masterProperty(self, topic: Topic) -> Property:
+        """
+        get the property naming the master of a detail topic
+
+        a topic stored as subobject is owned by the page of the topic
+        it is linked from - the property derived from that TopicLink
+        names it
+
+        Args:
+            topic (Topic): the topic to get the master property for
+
+        Returns:
+            Property: the master property or None
+        """
+        master_prop = None
+        for prop in topic.properties.values():
+            topicLink = getattr(prop, "topicLink", None)
+            if topicLink and topicLink.target == topic.name:
+                master_prop = prop
+                break
+        return master_prop
+
+    def subobjectAskQuery(self, topic: Topic) -> str:
+        """
+        get the ask query for a topic stored as subobject
+
+        the master column is shown and sorted first and the internal
+        subobject label is hidden
+        see https://github.com/WolfgangFahl/py-yprinciple-gen/issues/53
+
+        Args:
+            topic (Topic): the topic to generate the query for
+
+        Returns:
+            str: the generated wiki markup
+        """
+        master_prop = self.masterProperty(topic)
+        markup = f"""{{{{#ask: [[Concept:{topic.name}]]
+|mainlabel=-
+"""
+        if master_prop:
+            markup += f"|?{topic.name} {master_prop.name} = {master_prop.name}\n"
+        for prop in topic.properties.values():
+            if prop is master_prop:
+                continue
+            if getattr(prop, "showInGrid", False):
+                markup += f"|?{topic.name} {prop.name} = {prop.name}\n"
+        markup += f"|limit={topic.getListLimit()}\n|format=table\n"
+        sort_props = [prop.name for prop in topic.sortProperties()]
+        if master_prop:
+            sort_props.insert(0, master_prop.name)
+        if sort_props:
+            sort = ",".join(f"{topic.name} {name}" for name in sort_props)
+            order = ",".join(["ascending"] * len(sort_props))
+            markup += f"|sort={sort}\n|order={order}\n"
+        markup += "}}"
+        return markup
+
     def generate(self, topic: Topic) -> str:
         """
         generate the list of page for the given topic
@@ -548,12 +606,19 @@ class ListOfTarget(SMWTarget):
         Returns:
             str: the generated wiki markup
         """
+        # a subobject is not a page so it can not be created by a form input
+        is_subobject = getattr(topic, "defaultstoremode", None) == "subobject"
+        forminput = (
+            ""
+            if is_subobject
+            else f"{{{{#forminput:form={topic.name}|button text=add {topic.name}}}}}\n"
+        )
+        askQuery = self.subobjectAskQuery(topic) if is_subobject else topic.askQuery()
         markup = f"""__NOCACHE__
 {self.topicHeader(topic)}
 == {topic.getPluralName()} ==
 {{{{#ask: [[Concept:{topic.name}]]|format=count}}}}
-{{{{#forminput:form={topic.name}|button text=add {topic.name}}}}}
-{topic.askQuery()}
+{forminput}{askQuery}
 [[:Category:{topic.name}]]
     """
         return markup

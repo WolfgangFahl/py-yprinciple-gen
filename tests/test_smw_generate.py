@@ -25,6 +25,7 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
             "cr": ["CrSchema", "CrSchema24-08"],
             "wiki": ["MetaModel"],
             "contexts": ["CityContext"],
+            "media": ["Meeting"],
         }
         self.ccs = {}
         for wikiId, context_names in contexts.items():
@@ -154,6 +155,27 @@ class TestSMWGenerate(BaseSemanticMediawikiTest):
         if show:
             print(markup)
         self.assertTrue("|separator=," in markup)
+
+    def test_Issue53_subobject_list_of(self):
+        """
+        https://github.com/WolfgangFahl/py-yprinciple-gen/issues/53
+        the list of a subobject stored topic shows and sorts by its master
+        and offers no form input
+        """
+        cc = self.ccs["media-Meeting"]
+        show = self.debug
+        show = True
+        for gr in cc.get_markup(
+            topic_names=["HopContent"], target_keys=["listOf"], show=show
+        ):
+            expected_parts = [
+                "|mainlabel=-",
+                "|?HopContent recording = recording",
+                "|sort=HopContent recording,HopContent pos",
+            ]
+            for expected in expected_parts:
+                self.assertTrue(expected in gr.markup)
+            self.assertFalse("forminput:form=HopContent" in gr.markup)
 
     def test_extends_in_concept_topic_template(self):
         """
